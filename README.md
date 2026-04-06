@@ -1,5 +1,10 @@
 # ThreatWatch AI
 
+![Stage](https://img.shields.io/badge/stage-functional%20prototype%20%2F%20advanced%20internal%20demo-0ea5e9)
+![Stack](https://img.shields.io/badge/stack-FastAPI%20%7C%20PostgreSQL%20%7C%20Vanilla%20JS-1d4ed8)
+![AI](https://img.shields.io/badge/ai-BYOK%20%2B%20Ollama%2FGemma-0f766e)
+![Runtime](https://img.shields.io/badge/runtime-Docker%20Compose%20on%205080-f59e0b)
+
 ThreatWatch AI is a threat-operations platform for phishing, scam, and suspicious-message analysis across email, chat, SMS, and URLs.
 
 It combines:
@@ -11,6 +16,35 @@ It combines:
 - self-hosted or BYOK LLM support
 
 The local product is designed to run as a single operator surface on `http://localhost:5080`.
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/nusabyte-my/ThreatWatch-AI.git
+cd ThreatWatch-AI
+cp .env.example .env
+docker compose up --build -d
+```
+
+Open:
+- UI: `http://localhost:5080`
+- Health: `http://localhost:5080/api/v1/health`
+
+---
+
+## Demo Flow
+
+For evaluators, reviewers, or first-time users:
+1. Open `http://localhost:5080`
+2. Use `Dashboard` to review posture and recent incidents
+3. Click `Launch investigation`
+4. Paste suspicious content or upload a `.eml`
+5. Run a threat assessment
+6. Review the verdict, summary, timeline, evidence, and AI trace
+7. Open `AI Copilot` for summary, action, or executive briefing
+8. Use `Print brief` for a stakeholder-ready incident report
 
 ---
 
@@ -186,6 +220,18 @@ What still needs production follow-through:
 - stronger auth persistence and audit logging
 - production deployment hardening
 - extension runtime testing across real mail environments
+
+---
+
+## Screens And Demo Notes
+
+Recommended GitHub additions next:
+- dashboard screenshot
+- investigation workspace screenshot
+- analytics screenshot
+- short animated GIF showing scan -> result -> copilot flow
+
+This README is already structured so those visuals can be dropped near the top without changing the rest of the document.
 
 ---
 
