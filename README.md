@@ -19,6 +19,19 @@ The local product is designed to run as a single operator surface on `http://loc
 
 ---
 
+## Quick Links
+
+- [Quick Start](#quick-start)
+- [Demo Flow](#demo-flow)
+- [Tech Stack](#tech-stack)
+- [Build Information](#build-information)
+- [Project Tree](#project-tree)
+- [How To Use](#how-to-use)
+- [Self-Hosted Gemma](#self-hosted-gemma)
+- [Product Stage](#product-stage)
+
+---
+
 ## Quick Start
 
 ```bash
@@ -31,6 +44,33 @@ docker compose up --build -d
 Open:
 - UI: `http://localhost:5080`
 - Health: `http://localhost:5080/api/v1/health`
+
+Services:
+
+| Surface | URL | Purpose |
+|---------|-----|---------|
+| UI | `http://localhost:5080` | Main operator dashboard |
+| API | `http://localhost:5080/api/v1` | Backend API base |
+| Health | `http://localhost:5080/api/v1/health` | Runtime verification |
+
+---
+
+## Feature Status
+
+| Area | Status | Notes |
+|------|--------|-------|
+| Dashboard | Implemented | Executive posture, KPI, incidents, navigation |
+| Investigation Workspace | Implemented | Verdict, risk, timeline, evidence, AI trace |
+| Analytics | Implemented | Mix, quality, categories, reasons, incidents |
+| Rules Manager | Implemented | UI plus auth/RBAC-aware backend flow |
+| AI Copilot | Implemented | Chat, summary, action, exec briefing, custom prompts |
+| Branded Print Brief | Implemented | Printable incident report |
+| BYOK LLM | Implemented | OpenAI and Anthropic request-level support |
+| Self-Hosted Gemma | Implemented | Ollama-backed assistant and recommendation path |
+| Gmail / Chrome Stub | Implemented as stub | Needs runtime validation |
+| Thunderbird Stub | Implemented as stub | Needs runtime validation |
+| Outlook Web Stub | Implemented as stub | Needs runtime validation |
+| Production Hardening | Partial | Good baseline, still needs deeper validation and ops work |
 
 ---
 
