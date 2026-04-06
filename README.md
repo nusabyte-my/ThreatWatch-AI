@@ -245,6 +245,11 @@ Content-Type: application/json
   "verdict": "scam",
   "risk_score": 0.91,
   "risk_percent": 91,
+  "ml_score": 0.87,
+  "rule_score": 0.95,
+  "reasons": ["Bank impersonation", "URL shortener used", "Urgency pressure tactic"],
+  "highlighted_tokens": ["urgent", "bit.ly", "suspended"],
+  "channel": "email",
   "agent": {
     "verdict": "scam",
     "confidence": 0.97,
@@ -260,7 +265,54 @@ Content-Type: application/json
     "user_action": "Do NOT click the link. Call Maybank fraud at 1300-88-6688 or the National Scam Response Centre at 997.",
     "url_findings": ["bit.ly is a URL shortener — real destination hidden"],
     "is_uncertain": false,
-    "latency_ms": 1840
+    "latency_ms": 1840,
+    "verifier": {
+      "ml_verdict": "scam",
+      "llm_verdict": "scam",
+      "agreement": true,
+      "adjudication_note": "Both layers agree — high confidence scam verdict."
+    }
+  }
+}
+```
+
+**Pipeline modes** (returned in `agent.pipeline_mode`):
+
+| Mode | Condition |
+|------|-----------|
+| `full` | All agents ran with LLM calls |
+| `partial` | Some agents fell back to rule-only |
+| `rule-only` | All LLMs unavailable — deterministic fallback |
+| `disabled` | `AGENT_PIPELINE_ENABLED=false` |
+| `error` | Unexpected error — base ML/rule result returned |
+
+### .eml Upload
+
+```
+POST /api/v1/scan/upload
+Content-Type: multipart/form-data
+```
+
+Upload a forwarded scam email as a `.eml` file. The server parses the MIME tree, extracts plain-text body, detects URLs, and runs the standard scan engine.
+
+**Request** — `multipart/form-data` with `file` field (`.eml`, max 2 MB)
+
+**Response**
+```json
+{
+  "scan_id": 44,
+  "verdict": "scam",
+  "risk_score": 0.88,
+  "risk_percent": 88,
+  "reasons": ["Bank impersonation", "URL shortener used"],
+  "source": "eml_upload",
+  "email_metadata": {
+    "from": "noreply@maybank-secure.xyz",
+    "subject": "URGENT: Account Verification Required",
+    "date": "Mon, 6 Apr 2026 09:14:33 +0800",
+    "urls_found": 2,
+    "first_url": "http://bit.ly/mb-verify2026",
+    "body_length": 412
   }
 }
 ```
@@ -270,7 +322,8 @@ Content-Type: application/json
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `POST` | `/api/v1/scan` | — | Standard scan (ML + rules) |
-| `POST` | `/api/v1/scan/ai` | — | AI scan (ML + rules + 4-agent LLM) |
+| `POST` | `/api/v1/scan/ai` | — | AI scan — ML + rules + 4-agent LLM pipeline |
+| `POST` | `/api/v1/scan/upload` | — | Upload `.eml` file → parse + scan |
 | `GET` | `/api/v1/scan/{id}` | — | Retrieve scan by ID |
 | `POST` | `/api/v1/scan/{id}/feedback` | — | Submit verdict feedback |
 | `GET` | `/api/v1/stats` | — | Live totals + recent 5 scans |
@@ -355,7 +408,8 @@ ThreatWatch-AI/
 │       ├── config.py           — pydantic-settings, all env vars, origin parser
 │       ├── api/
 │       │   ├── scan.py         — POST /scan, GET /stats, feedback, health
-│       │   ├── scan_ai.py      — POST /scan/ai (agent pipeline endpoint) [planned]
+│       │   ├── scan_ai.py      — POST /scan/ai — 4-agent LLM pipeline endpoint
+│       │   ├── upload.py       — POST /scan/upload — .eml file parse + scan
 │       │   ├── rules.py        — Rule CRUD, API-key protected
 │       │   └── auth.py         — API key dependency
 │       ├── db/
@@ -370,14 +424,15 @@ ThreatWatch-AI/
 │       ├── engine/
 │       │   ├── scanner.py      — blend ML + rules → final verdict + DB persist
 │       │   └── rule_engine.py  — regex eval against DB rules, URL domain check
-│       └── agents/             — multi-agent LLM pipeline [planned — see AGENTS_PLAN.md]
-│           ├── base.py
-│           ├── llm_client.py
-│           ├── orchestrator.py
-│           ├── classifier_agent.py
-│           ├── url_analyst_agent.py
-│           ├── verifier_agent.py
-│           └── explainer_agent.py
+│       └── agents/             — multi-agent LLM pipeline
+│           ├── __init__.py     — exports run_pipeline, ScanContext, AgentPipelineResult
+│           ├── base.py         — ScanContext, AgentVerdict, *Result dataclasses
+│           ├── llm_client.py   — fallback chain: GPT-4o → mini → Claude Haiku
+│           ├── orchestrator.py — asyncio.gather pipeline, score blending
+│           ├── classifier_agent.py   — Step 1: LLM scam classification
+│           ├── url_analyst_agent.py  — Step 2a: domain + URL structural analysis
+│           ├── verifier_agent.py     — Step 2b: ML vs LLM cross-check
+│           └── explainer_agent.py    — Step 3: plain-English user explanation
 │
 ├── frontend/
 │   ├── index.html              — single-page dark UI, live stats, feedback
@@ -636,18 +691,19 @@ Open Supabase Table Editor. Show the `scans` table with the scan just recorded.
 
 ---
 
-## Planned Enhancements
+## Enhancements
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| Multi-agent pipeline | Planned | 4-agent LLM layer: Classifier + URL Analyst + Verifier + Explainer |
-| `.eml` file upload | Planned | Parse forwarded scam emails directly |
+| Multi-agent pipeline | ✅ Built | 4-agent LLM layer: Classifier + URL Analyst + Verifier + Explainer |
+| `.eml` file upload | ✅ Built | MIME-tree parse, URL extraction, feeds standard scan engine |
+| LLM fallback chain | ✅ Built | GPT-4o → GPT-4o-mini → Claude Haiku → rule-only (never errors) |
 | Google Safe Browsing | Planned | URL reputation via Google API (10k free lookups/day) |
 | Rule Manager UI | Planned | In-browser rule editor with API key auth |
 | Chrome Extension | Planned | Real-time detection overlay in Gmail |
 | Model retraining API | Planned | Trigger retrain from accumulated feedback data |
 
-See [AGENTS_PLAN.md](AGENTS_PLAN.md) for the full multi-agent implementation plan.
+See [AGENTS_PLAN.md](AGENTS_PLAN.md) for the full multi-agent design, prompts, and cost estimates.
 
 ---
 
@@ -672,6 +728,19 @@ See [AGENTS_PLAN.md](AGENTS_PLAN.md) for the full multi-agent implementation pla
 | Hosting — API | Railway (Docker) |
 | Hosting — DB | Supabase (managed PostgreSQL) |
 | CI/CD | GitHub Actions |
+
+---
+
+## Changelog
+
+| Commit | What shipped |
+|--------|-------------|
+| [`3526808`](https://github.com/nusabyte-my/ThreatWatch-AI/commit/3526808) | **feat: multi-agent pipeline + .eml upload** — 4-agent LLM pipeline (`/scan/ai`), GPT-4o → mini → Claude Haiku fallback chain with per-agent independent fallback, `.eml` file upload endpoint with MIME parsing, `agent_analysis` JSONB column on `scans` table, `pytest.ini` async mode |
+| [`02473af`](https://github.com/nusabyte-my/ThreatWatch-AI/commit/02473af) | **docs: full README rewrite** — executive summary, architecture diagram, operational runbook, demo script, API reference with examples, DB schema |
+| [`e3936b2`](https://github.com/nusabyte-my/ThreatWatch-AI/commit/e3936b2) | **docs: AGENTS_PLAN.md** — multi-agent design, full system prompts, cost estimates, execution sequence |
+| [`7b4b24a`](https://github.com/nusabyte-my/ThreatWatch-AI/commit/7b4b24a) | **chore: project credits** — Nexpert Hackathon 2026, Team U, ThreatWatch Team |
+| [`e18531c`](https://github.com/nusabyte-my/ThreatWatch-AI/commit/e18531c) | **feat: security hardening + CI/CD** — CORS tightened, rate limiting (slowapi), API key auth on admin routes, input validation, lifespan pre-warm, GitHub Actions CI/CD, pytest suite |
+| [`12efd69`](https://github.com/nusabyte-my/ThreatWatch-AI/commit/12efd69) | **init: ThreatWatch AI** — FastAPI backend, TF-IDF + LR + NB ensemble, PostgreSQL-backed rule engine, 15 seeded rules, dark single-page UI, docker-compose, PLAN.md |
 
 ---
 
