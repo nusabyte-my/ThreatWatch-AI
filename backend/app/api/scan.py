@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Path
 from pydantic import BaseModel, Field
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +21,11 @@ class FeedbackRequest(BaseModel):
 
 
 @router.post("/scan")
-async def scan_message(req: ScanRequest, db: AsyncSession = Depends(get_db)):
+async def scan_message(  # noqa: F811
+    request: Request,
+    req: ScanRequest,
+    db: AsyncSession = Depends(get_db),
+):
     try:
         result = await run_scan(
             text=req.text,
@@ -37,7 +41,11 @@ async def scan_message(req: ScanRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/scan/{scan_id}/feedback")
-async def submit_feedback(scan_id: int, req: FeedbackRequest, db: AsyncSession = Depends(get_db)):
+async def submit_feedback(
+    scan_id: int = Path(..., ge=1),
+    req: FeedbackRequest = ...,
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(Scan).where(Scan.id == scan_id))
     scan = result.scalar_one_or_none()
     if not scan:
@@ -48,7 +56,7 @@ async def submit_feedback(scan_id: int, req: FeedbackRequest, db: AsyncSession =
 
 
 @router.get("/scan/{scan_id}")
-async def get_scan(scan_id: int, db: AsyncSession = Depends(get_db)):
+async def get_scan(scan_id: int = Path(..., ge=1), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Scan).where(Scan.id == scan_id))
     scan = result.scalar_one_or_none()
     if not scan:

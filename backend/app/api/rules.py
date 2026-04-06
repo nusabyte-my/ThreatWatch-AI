@@ -1,4 +1,4 @@
-"""Admin endpoints for managing rules — no auth for hackathon demo."""
+"""Admin endpoints for managing rules — protected by API key."""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -6,8 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.base import get_db
 from app.db.models import Rule
+from app.api.auth import require_api_key
 
-router = APIRouter(prefix="/api/v1/rules", tags=["rules"])
+router = APIRouter(
+    prefix="/api/v1/rules",
+    tags=["rules"],
+    dependencies=[Depends(require_api_key)],
+)
 
 
 class RuleCreate(BaseModel):
