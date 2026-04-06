@@ -9,6 +9,8 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.api.scan import router as scan_router
+from app.api.scan_ai import router as scan_ai_router
+from app.api.upload import router as upload_router
 from app.api.rules import router as rules_router
 from app.config import settings
 
@@ -51,6 +53,8 @@ app.add_middleware(
 )
 
 app.include_router(scan_router)
+app.include_router(scan_ai_router)
+app.include_router(upload_router)
 app.include_router(rules_router)
 
 

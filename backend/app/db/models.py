@@ -38,6 +38,9 @@ class Scan(Base):
     reasons = Column(JSON, nullable=False, default=list)
     highlighted_tokens = Column(JSON, nullable=False, default=list)
 
+    # Agent pipeline result (set by /scan/ai endpoint only)
+    agent_analysis = Column(JSON, nullable=True, default=None)
+
     # Metadata
     user_feedback = Column(String(20), nullable=True)   # correct / false_positive / false_negative
     created_at = Column(DateTime(timezone=True), server_default=func.now())

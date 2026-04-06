@@ -8,8 +8,24 @@ async def run():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("[migrate] Tables created / verified.")
+    await add_agent_analysis_column()
     await seed_rules()
     await seed_domains()
+
+
+async def add_agent_analysis_column():
+    """Idempotent — adds agent_analysis JSONB column if missing."""
+    from sqlalchemy import text
+    async with engine.begin() as conn:
+        await conn.execute(text(
+            "ALTER TABLE scans ADD COLUMN IF NOT EXISTS agent_analysis JSONB DEFAULT NULL;"
+        ))
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_scans_agent_verdict "
+            "ON scans ((agent_analysis->>'agent_verdict')) "
+            "WHERE agent_analysis IS NOT NULL;"
+        ))
+    print("[migrate] agent_analysis column verified.")
 
 
 async def seed_rules():
