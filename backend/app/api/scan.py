@@ -6,6 +6,7 @@ from sqlalchemy import select, func, desc
 from app.db.base import get_db
 from app.db.models import Scan, VerdictType
 from app.engine.scanner import scan as run_scan
+from app.limiter import limiter
 
 router = APIRouter(prefix="/api/v1", tags=["scan"])
 
@@ -21,6 +22,7 @@ class FeedbackRequest(BaseModel):
 
 
 @router.post("/scan")
+@limiter.limit("20/minute")
 async def scan_message(  # noqa: F811
     request: Request,
     req: ScanRequest,
@@ -41,7 +43,9 @@ async def scan_message(  # noqa: F811
 
 
 @router.post("/scan/{scan_id}/feedback")
+@limiter.limit("30/minute")
 async def submit_feedback(
+    request: Request,
     scan_id: int = Path(..., ge=1),
     req: FeedbackRequest = ...,
     db: AsyncSession = Depends(get_db),

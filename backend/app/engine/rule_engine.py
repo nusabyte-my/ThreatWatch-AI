@@ -2,11 +2,17 @@
 Rule engine — loads active rules from PostgreSQL, evaluates them against input.
 Returns list of triggered flags + cumulative rule score.
 """
+import logging
 import re
 from typing import List
+import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.models import Rule, SuspiciousDomain
+from app.config import settings
+
+
+logger = logging.getLogger("threatwatch.rule_engine")
 
 
 async def evaluate(text: str, url: str | None, db: AsyncSession) -> dict:
@@ -59,6 +65,7 @@ async def evaluate(text: str, url: str | None, db: AsyncSession) -> dict:
     # URL domain check
     if url:
         url_flags = await _check_url(url, db)
+        url_flags.extend(await _check_google_safe_browsing(url))
         flags.extend(url_flags)
         for f in url_flags:
             reasons.append(f["description"])
@@ -110,3 +117,63 @@ async def _check_url(url: str, db: AsyncSession) -> list:
         })
 
     return flags
+
+
+async def _check_google_safe_browsing(url: str) -> list:
+    """
+    Optional Google Safe Browsing v4 lookup.
+    Returns zero flags when the API key is not configured or the lookup fails.
+    """
+    api_key = settings.google_safe_browsing_key.strip()
+    if not api_key or not url:
+        return []
+
+    endpoint = (
+        "https://safebrowsing.googleapis.com/v4/threatMatches:find"
+        f"?key={api_key}"
+    )
+    payload = {
+        "client": {
+            "clientId": "threatwatch-ai",
+            "clientVersion": "1.0.0",
+        },
+        "threatInfo": {
+            "threatTypes": [
+                "MALWARE",
+                "SOCIAL_ENGINEERING",
+                "UNWANTED_SOFTWARE",
+                "POTENTIALLY_HARMFUL_APPLICATION",
+            ],
+            "platformTypes": ["ANY_PLATFORM"],
+            "threatEntryTypes": ["URL"],
+            "threatEntries": [{"url": url}],
+        },
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=settings.google_safe_browsing_timeout) as client:
+            response = await client.post(endpoint, json=payload)
+            response.raise_for_status()
+            data = response.json()
+    except Exception as exc:
+        logger.warning(f"[rule_engine] Safe Browsing lookup failed: {type(exc).__name__}: {exc}")
+        return []
+
+    matches = data.get("matches") or []
+    if not matches:
+        return []
+
+    threat_types = sorted({m.get("threatType", "UNKNOWN") for m in matches})
+    threat_summary = ", ".join(t.lower().replace("_", " ") for t in threat_types[:3])
+
+    return [{
+        "flag_type": "url",
+        "rule_name": "google_safe_browsing",
+        "value": url[:500],
+        "weight": 0.50,
+        "description": (
+            "Google Safe Browsing flagged this URL"
+            + (f" ({threat_summary})" if threat_summary else "")
+        ),
+        "category": "url",
+    }]

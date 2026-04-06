@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ThreatWatch Gmail Extension Settings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 24px;
+      color: #111827;
+      background: #f9fafb;
+    }
+    .card {
+      max-width: 720px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 8px;
+    }
+    p {
+      color: #4b5563;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 18px 0 8px;
+    }
+    input,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #166534;
+      min-height: 20px;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>ThreatWatch Gmail Extension</h1>
+    <p>Set the backend API URL the extension should use when scanning Gmail messages.</p>
+    <label for="apiUrl">ThreatWatch API URL</label>
+    <input id="apiUrl" type="url" placeholder="http://localhost:8100">
+    <label for="scanMode">Scan mode</label>
+    <select id="scanMode">
+      <option value="standard">Standard scan</option>
+      <option value="ai">AI scan</option>
+    </select>
+    <button id="saveBtn" type="button">Save</button>
+    <div id="status"></div>
+    <p>Examples: <code>http://localhost:8100</code> or <code>https://threatwatch-ai-api.up.railway.app</code></p>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

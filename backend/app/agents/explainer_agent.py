@@ -151,6 +151,7 @@ async def run(
             max_tokens=350,
             temperature=0.2,   # slightly higher for natural language
             json_mode=True,
+            llm_config=ctx.llm_config,
         )
         data = safe_parse_json(text)
 

@@ -142,6 +142,7 @@ async def run(ctx: ScanContext) -> URLAnalystResult:
             max_tokens=256,
             temperature=0.0,
             json_mode=True,
+            llm_config=ctx.llm_config,
         )
         data = safe_parse_json(text)
 

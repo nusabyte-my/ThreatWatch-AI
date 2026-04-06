@@ -11,6 +11,10 @@ import logging
 import os
 from typing import Optional
 
+import httpx
+
+from app.config import settings
+
 logger = logging.getLogger("threatwatch.llm")
 
 # Ordered fallback chain — edit AGENT_PRIMARY_MODEL env var to change head
@@ -21,13 +25,15 @@ _DEFAULT_CHAIN = [
 ]
 
 
-def _get_chain() -> list[tuple[str, str]]:
-    primary = os.environ.get("AGENT_PRIMARY_MODEL", "gpt-4o")
+def _get_chain(preferred_model: Optional[str] = None) -> list[tuple[str, str]]:
+    primary = preferred_model or os.environ.get("AGENT_PRIMARY_MODEL", "gpt-4o")
     chain = [e for e in _DEFAULT_CHAIN if e[0] != primary]
     return [(primary, _provider_for(primary))] + chain
 
 
 def _provider_for(model: str) -> str:
+    if model.startswith("ollama/"):
+        return "ollama"
     return "anthropic" if model.startswith("claude") else "openai"
 
 
@@ -38,6 +44,7 @@ async def call_llm_with_fallback(
     temperature: float = 0.1,
     json_mode: bool = True,
     timeout: int = 15,
+    llm_config: Optional[dict] = None,
 ) -> tuple[str, str]:
     """
     Try each model in the fallback chain in order.
@@ -48,20 +55,22 @@ async def call_llm_with_fallback(
     Raises:
         RuntimeError — all models failed (caller should use rule-only fallback)
     """
-    chain = _get_chain()
+    llm_config = llm_config or {}
+    chain = _get_chain(llm_config.get("preferred_model"))
     last_error: Optional[Exception] = None
 
     for model, provider in chain:
+        request_timeout = settings.ollama_timeout if provider == "ollama" else timeout
         try:
             text = await asyncio.wait_for(
-                _call(model, provider, system_prompt, user_prompt, max_tokens, temperature, json_mode),
-                timeout=timeout,
+                _call(model, provider, system_prompt, user_prompt, max_tokens, temperature, json_mode, llm_config),
+                timeout=request_timeout,
             )
             logger.info(f"[llm] {model} responded OK")
             return text, model
 
         except asyncio.TimeoutError:
-            logger.warning(f"[llm] {model} timed out after {timeout}s")
+            logger.warning(f"[llm] {model} timed out after {request_timeout}s")
             last_error = asyncio.TimeoutError(f"{model} timed out")
 
         except Exception as exc:
@@ -79,11 +88,14 @@ async def _call(
     max_tokens: int,
     temperature: float,
     json_mode: bool,
+    llm_config: Optional[dict],
 ) -> str:
     if provider == "openai":
-        return await _call_openai(model, system_prompt, user_prompt, max_tokens, temperature, json_mode)
+        return await _call_openai(model, system_prompt, user_prompt, max_tokens, temperature, json_mode, llm_config)
     elif provider == "anthropic":
-        return await _call_anthropic(model, system_prompt, user_prompt, max_tokens, temperature)
+        return await _call_anthropic(model, system_prompt, user_prompt, max_tokens, temperature, llm_config)
+    elif provider == "ollama":
+        return await _call_ollama(model, system_prompt, user_prompt, max_tokens, temperature, json_mode, llm_config)
     raise ValueError(f"Unknown provider: {provider}")
 
 
@@ -94,8 +106,9 @@ async def _call_openai(
     max_tokens: int,
     temperature: float,
     json_mode: bool,
+    llm_config: Optional[dict],
 ) -> str:
-    api_key = os.environ.get("OPENAI_API_KEY", "")
+    api_key = (llm_config or {}).get("openai_api_key") or os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
         raise ValueError("OPENAI_API_KEY not set")
 
@@ -124,8 +137,9 @@ async def _call_anthropic(
     user_prompt: str,
     max_tokens: int,
     temperature: float,
+    llm_config: Optional[dict],
 ) -> str:
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    api_key = (llm_config or {}).get("anthropic_api_key") or os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY not set")
 
@@ -143,6 +157,51 @@ async def _call_anthropic(
         messages=[{"role": "user", "content": user_prompt}],
     )
     return response.content[0].text
+
+
+async def _call_ollama(
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    max_tokens: int,
+    temperature: float,
+    json_mode: bool,
+    llm_config: Optional[dict],
+) -> str:
+    base_url = (llm_config or {}).get("ollama_base_url") or settings.ollama_base_url
+    if not base_url:
+        raise ValueError("OLLAMA_BASE_URL not set")
+    request_timeout = (llm_config or {}).get("ollama_timeout") or settings.ollama_timeout
+
+    model_name = model.split("/", 1)[1] if model.startswith("ollama/") else model
+    model_name = model_name or (llm_config or {}).get("ollama_model") or settings.ollama_model
+
+    payload = {
+        "model": model_name,
+        "stream": False,
+        "think": False,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        "options": {
+            "temperature": temperature,
+            "num_predict": max_tokens,
+        },
+    }
+    if json_mode:
+        payload["format"] = "json"
+
+    async with httpx.AsyncClient(timeout=request_timeout + 5) as client:
+        response = await client.post(f"{base_url.rstrip('/')}/api/chat", json=payload)
+        response.raise_for_status()
+        data = response.json()
+
+    message = data.get("message", {}) if isinstance(data, dict) else {}
+    content = message.get("content", "")
+    if not content:
+        raise ValueError("Ollama returned an empty response")
+    return content
 
 
 def safe_parse_json(text: str) -> dict:

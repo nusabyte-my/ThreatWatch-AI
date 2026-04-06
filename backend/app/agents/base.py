@@ -26,6 +26,7 @@ class ScanContext:
     rule_score: float        # 0.0–1.0 from rule engine
     rule_flags: list[dict]   # triggered rule entries from rule_engine.py
     include_explanation: bool = True
+    llm_config: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

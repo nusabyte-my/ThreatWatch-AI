@@ -6,13 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.base import get_db
 from app.db.models import Rule
-from app.api.auth import require_api_key
+from app.api.auth import require_role
 
-router = APIRouter(
-    prefix="/api/v1/rules",
-    tags=["rules"],
-    dependencies=[Depends(require_api_key)],
-)
+router = APIRouter(prefix="/api/v1/rules", tags=["rules"])
 
 
 class RuleCreate(BaseModel):
@@ -25,7 +21,10 @@ class RuleCreate(BaseModel):
 
 
 @router.get("")
-async def list_rules(db: AsyncSession = Depends(get_db)):
+async def list_rules(
+    user: dict = Depends(require_role("analyst")),
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(Rule).order_by(Rule.category, Rule.name))
     rules = result.scalars().all()
     return [
@@ -44,7 +43,11 @@ async def list_rules(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("")
-async def create_rule(req: RuleCreate, db: AsyncSession = Depends(get_db)):
+async def create_rule(
+    req: RuleCreate,
+    user: dict = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(Rule).where(Rule.name == req.name))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Rule name already exists")
@@ -56,7 +59,11 @@ async def create_rule(req: RuleCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/{rule_id}/toggle")
-async def toggle_rule(rule_id: int, db: AsyncSession = Depends(get_db)):
+async def toggle_rule(
+    rule_id: int,
+    user: dict = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(Rule).where(Rule.id == rule_id))
     rule = result.scalar_one_or_none()
     if not rule:
@@ -67,7 +74,11 @@ async def toggle_rule(rule_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.delete("/{rule_id}")
-async def delete_rule(rule_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_rule(
+    rule_id: int,
+    user: dict = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(Rule).where(Rule.id == rule_id))
     rule = result.scalar_one_or_none()
     if not rule:

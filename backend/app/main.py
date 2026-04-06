@@ -2,17 +2,22 @@ import subprocess
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.api.scan import router as scan_router
 from app.api.scan_ai import router as scan_ai_router
 from app.api.upload import router as upload_router
+from app.api.auth import router as auth_router
 from app.api.rules import router as rules_router
+from app.api.analytics import router as analytics_router
+from app.api.assistant import router as assistant_router
 from app.config import settings
+from app.limiter import limiter
 
 
 @asynccontextmanager
@@ -29,8 +34,6 @@ async def lifespan(app: FastAPI):
         _load()
     yield
 
-
-limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title="ThreatWatch AI API",
@@ -51,11 +54,37 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-API-Key"],
     allow_credentials=False,
 )
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
+
+
+@app.middleware("http")
+async def request_size_guard(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > settings.max_request_bytes:
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Request payload too large."},
+                )
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Invalid content-length header."},
+            )
+
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
 
 app.include_router(scan_router)
 app.include_router(scan_ai_router)
 app.include_router(upload_router)
+app.include_router(auth_router)
 app.include_router(rules_router)
+app.include_router(analytics_router)
+app.include_router(assistant_router)
 
 
 @app.get("/")

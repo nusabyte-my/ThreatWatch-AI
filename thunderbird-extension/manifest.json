@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "ThreatWatch AI for Thunderbird",
+  "version": "0.1.0",
+  "description": "Scans displayed Thunderbird messages with ThreatWatch AI and injects a verdict banner.",
+  "author": "NusaByte",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "threatwatch-thunderbird@nusabyte.my",
+      "strict_min_version": "128.0"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "options_ui": {
+    "page": "options.html"
+  },
+  "permissions": [
+    "messagesRead",
+    "messagesModify",
+    "sensitiveDataUpload",
+    "storage",
+    "http://localhost:8100/*",
+    "https://threatwatch-ai-api.up.railway.app/*"
+  ]
+}

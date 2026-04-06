@@ -1,596 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ThreatWatch AI — Scam Detection</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThreatWatch AI Dashboard</title>
   <style>
-    :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3250;
-      --accent: #5b6ef5;
-      --accent-glow: rgba(91,110,245,0.18);
-      --safe: #22c55e;
-      --suspicious: #f59e0b;
-      --scam: #ef4444;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --font: 'Inter', system-ui, sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      min-height: 100vh;
-    }
-
-    /* NAV */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 2rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
-    .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--accent);
-    }
-    .logo span { color: var(--text); }
-    .nav-badge {
-      background: var(--accent-glow);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      font-size: 0.7rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      letter-spacing: 0.05em;
-    }
-
-    /* LAYOUT */
-    main {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 2.5rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.2;
-    }
-    h1 span { color: var(--accent); }
-    .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 0.3rem; }
-
-    /* CARD */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-    }
-
-    /* CHANNEL SELECTOR */
-    .channels {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-    .channel-btn {
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.15s;
-    }
-    .channel-btn.active {
-      background: var(--accent-glow);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    /* TEXTAREA */
-    textarea {
-      width: 100%;
-      min-height: 140px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.95rem;
-      font-family: var(--font);
-      padding: 0.9rem 1rem;
-      resize: vertical;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    textarea:focus { border-color: var(--accent); }
-
-    .url-row {
-      display: flex;
-      gap: 0.6rem;
-      margin-top: 0.6rem;
-    }
-    input[type="text"] {
-      flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.9rem;
-      font-family: var(--font);
-      padding: 0.6rem 0.9rem;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    input[type="text"]:focus { border-color: var(--accent); }
-
-    /* ANALYZE BUTTON */
-    #analyzeBtn {
-      margin-top: 1rem;
-      width: 100%;
-      padding: 0.85rem;
-      background: var(--accent);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      letter-spacing: 0.01em;
-    }
-    #analyzeBtn:hover { opacity: 0.9; }
-    #analyzeBtn:active { transform: scale(0.99); }
-    #analyzeBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* RESULT */
-    #resultCard { display: none; }
-
-    .verdict-banner {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.2rem;
-      border-radius: 10px;
-      margin-bottom: 1.2rem;
-    }
-    .verdict-banner.safe    { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.3); }
-    .verdict-banner.suspicious { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); }
-    .verdict-banner.scam    { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3); }
-
-    .verdict-icon { font-size: 2rem; }
-    .verdict-text .label {
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-    .verdict-text.safe    .label { color: var(--safe); }
-    .verdict-text.suspicious .label { color: var(--suspicious); }
-    .verdict-text.scam    .label { color: var(--scam); }
-    .verdict-text .sublabel { color: var(--muted); font-size: 0.85rem; }
-
-    /* RISK METER */
-    .meter-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
-    .meter-label strong { color: var(--text); }
-    .meter-track {
-      height: 10px;
-      background: var(--surface2);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-bottom: 1.2rem;
-    }
-    .meter-fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.6s ease;
-    }
-    .meter-fill.safe       { background: var(--safe); }
-    .meter-fill.suspicious { background: var(--suspicious); }
-    .meter-fill.scam       { background: var(--scam); }
-
-    /* SCORE GRID */
-    .score-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      margin-bottom: 1.2rem;
-    }
-    .score-box {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-    }
-    .score-box .label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.2rem; }
-    .score-box .value { font-size: 1.1rem; font-weight: 700; }
-
-    /* REASONS */
-    .section-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 0.6rem;
-    }
-    .reasons-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
-    .reason-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-      font-size: 0.88rem;
-      color: var(--text);
-    }
-    .reason-item::before {
-      content: "→";
-      color: var(--accent);
-      flex-shrink: 0;
-      margin-top: 0.05rem;
-    }
-
-    /* HIGHLIGHTS */
-    .highlights { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.2rem; }
-    .highlight-chip {
-      background: rgba(239,68,68,0.12);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
-      font-size: 0.78rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-
-    /* FEEDBACK */
-    .feedback-row {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    .feedback-row span { font-size: 0.82rem; color: var(--muted); }
-    .fb-btn {
-      padding: 0.3rem 0.8rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .fb-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .fb-btn.selected { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
-
-    /* STATS BAR */
-    #statsBar {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.75rem;
-    }
-    .stat-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem;
-      text-align: center;
-    }
-    .stat-box .num {
-      font-size: 1.6rem;
-      font-weight: 700;
-    }
-    .stat-box .num.scam  { color: var(--scam); }
-    .stat-box .num.suspicious { color: var(--suspicious); }
-    .stat-box .num.safe  { color: var(--safe); }
-    .stat-box .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
-
-    .spinner {
-      display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--muted);
-      font-size: 0.8rem;
-      border-top: 1px solid var(--border);
-    }
+    :root{--bg:#09111f;--panel:#101b30;--panel2:#16243c;--panel3:#1b2942;--border:#243553;--text:#edf3ff;--muted:#89a0c7;--accent:#57c7ff;--accent-soft:#8fdcff;--safe:#34d399;--warn:#fbbf24;--danger:#f87171;font-family:"Segoe UI","Inter",sans-serif}
+    *{box-sizing:border-box;margin:0;padding:0}body{background:radial-gradient(circle at top left,rgba(87,199,255,.08),transparent 26%),var(--bg);color:var(--text)}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}
+    .app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}.side{padding:1rem;border-right:1px solid var(--border);background:rgba(9,17,31,.94)}.brand{padding:.25rem .2rem .85rem}.brand-shell{padding:.95rem;border:1px solid rgba(87,199,255,.12);border-radius:18px;background:linear-gradient(180deg,rgba(87,199,255,.05),rgba(16,27,48,.28))}.brand-logo{width:88px;display:block;margin:0 auto .7rem;filter:drop-shadow(0 8px 18px rgba(0,0,0,.24))}.brand small{display:block;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;margin-bottom:.4rem;font-size:.68rem}.brand h1{font-size:1.28rem;text-align:center}.brand p{color:var(--muted);line-height:1.45;margin-top:.45rem;text-align:center;font-size:.84rem}
+    .nav{display:flex;flex-direction:column;gap:.5rem}.nav button{display:flex;justify-content:space-between;align-items:center;padding:.8rem .9rem;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--muted);text-align:left;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}.nav button.active,.nav button:hover{background:rgba(87,199,255,.08);border-color:rgba(87,199,255,.25);color:var(--text);transform:translateX(2px)}
+    .rail{margin-top:.8rem;padding:.9rem;border:1px solid var(--border);border-radius:16px;background:rgba(87,199,255,.03)}.rail p{color:var(--muted);line-height:1.45;font-size:.84rem;margin:.35rem 0 .75rem}
+    .main{padding:1rem;display:flex;flex-direction:column;gap:.9rem;max-width:1480px;width:100%;margin:0 auto}.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:end;padding:1.15rem 1.2rem;border:1px solid rgba(87,199,255,.12);border-radius:24px;background:radial-gradient(circle at top left,rgba(87,199,255,.12),transparent 20%),linear-gradient(135deg,rgba(87,199,255,.08),rgba(16,27,48,.95) 42%,rgba(16,27,48,1));box-shadow:0 18px 38px rgba(0,0,0,.16);position:relative;overflow:hidden}.top:after{content:"";position:absolute;right:-56px;top:-56px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(87,199,255,.12),transparent 68%);pointer-events:none}.top h2{font-size:2.02rem;line-height:1.02;letter-spacing:-.05em;max-width:15ch}.top p{color:var(--muted);line-height:1.55;margin-top:.52rem;max-width:58ch;font-size:.94rem}
+    .hero-kicker{display:inline-flex;align-items:center;gap:.45rem;padding:.34rem .72rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.05);color:var(--accent-soft);font-size:.74rem;text-transform:uppercase;letter-spacing:.13em}
+    .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin-top:1rem;max-width:720px}.hero-stat{padding:.82rem .88rem;border-radius:18px;border:1px solid rgba(87,199,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(9,17,31,.24))}.hero-stat strong{display:block;font-size:1.08rem;letter-spacing:-.02em}.hero-stat span{display:block;color:var(--muted);font-size:.8rem;line-height:1.42;margin-top:.2rem}
+    .btn,.btn-primary,.pill{padding:.68rem .9rem;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);transition:transform .18s ease,border-color .18s ease,background .18s ease}.btn:hover,.btn-primary:hover{transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,#0ea5e9,var(--accent));border:none;color:#06111d;font-weight:700;box-shadow:0 12px 26px rgba(14,165,233,.2)}.pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.22rem .58rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}.trust-row{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.75rem}.trust-pill{padding:.34rem .6rem;border-radius:999px;border:1px solid rgba(87,199,255,.12);background:rgba(87,199,255,.04);color:var(--text);font-size:.74rem}
+    .sec{display:none;flex-direction:column;gap:.9rem;animation:sectionIn .34s ease}.sec.active{display:flex}.card{padding:1rem;border:1px solid rgba(87,199,255,.08);border-radius:18px;background:linear-gradient(180deg,rgba(18,29,49,.98),rgba(12,21,38,.98));box-shadow:0 10px 26px rgba(0,0,0,.08);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease}.card:hover{transform:translateY(-1px);border-color:rgba(87,199,255,.15);box-shadow:0 14px 28px rgba(0,0,0,.14);background:linear-gradient(180deg,rgba(20,32,54,.98),rgba(12,21,38,.98))}.card h3{margin-bottom:.18rem;font-size:1.02rem;letter-spacing:-.02em}.sub{color:var(--muted);font-size:.84rem;line-height:1.48;margin-bottom:.72rem}
+    .hero,.two,.three,.four,.analysis{display:grid;gap:.9rem}.hero{grid-template-columns:1fr}.two{grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr)}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(4,minmax(0,1fr))}.analysis{grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}.metric{padding:1rem;border-radius:18px;border:1px solid rgba(87,199,255,.08);background:linear-gradient(180deg,rgba(28,42,67,.94),rgba(17,27,45,.98));position:relative;overflow:hidden}.metric:before{content:"";position:absolute;inset:auto auto 0 0;width:100%;height:2px;background:linear-gradient(90deg,rgba(87,199,255,.95),rgba(52,211,153,.45));opacity:.7}.metric:nth-child(1),.metric:nth-child(2),.metric:nth-child(3),.metric:nth-child(4){grid-column:auto}.metric small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.38rem;font-size:.7rem}.metric strong{font-size:1.42rem;letter-spacing:-.04em}.metric span{display:block;color:var(--muted);font-size:.78rem;margin-top:.32rem}.metric-spark{display:flex;align-items:flex-end;gap:4px;height:34px;margin-top:.65rem}.metric-spark i{display:block;flex:1;border-radius:999px;background:linear-gradient(180deg,rgba(87,199,255,.92),rgba(87,199,255,.26));min-height:6px;opacity:.9}.metric-head{display:flex;align-items:center;gap:.5rem}.metric-mark{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 .4rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase}
+    .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.85rem}.panel-head .eyebrow{font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.12em}.panel-head .side-note{color:var(--muted);font-size:.8rem;text-align:right;max-width:20ch}
+    .overview-strip{display:grid;grid-template-columns:1.1fr .9fr;gap:.8rem;margin-top:.85rem}.mini-visual{padding:.9rem;border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(22,36,60,.92),rgba(14,23,39,.98))}.mini-visual h4{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem}.mini-visual p{color:var(--muted);font-size:.8rem;line-height:1.45;margin-top:.4rem}.severity-ring{width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--danger) 0 0deg,rgba(255,255,255,.05) 0 360deg);position:relative;margin-bottom:.5rem}.severity-ring:before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--panel)}.severity-ring strong,.severity-ring span{position:relative;z-index:1;display:block;text-align:center}.severity-ring strong{font-size:1.5rem}.severity-ring span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.channel-bars{display:flex;flex-direction:column;gap:.55rem}.channel-bar{display:grid;grid-template-columns:72px 1fr auto;gap:.65rem;align-items:center}.channel-bar label{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.channel-bar-track{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.channel-bar-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(87,199,255,.95),rgba(52,211,153,.55))}
+    .list,.rules{display:flex;flex-direction:column;gap:.65rem}.item,.incident,.channel,.rule,.intel,.queue-item{padding:.82rem;border:1px solid rgba(87,199,255,.07);border-radius:15px;background:linear-gradient(180deg,var(--panel2),var(--panel3));transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}.item,.queue-item{display:flex;justify-content:space-between;align-items:center;gap:1rem}.item span,.muted,.incident p,.channel p,.rule p,.intel p,.queue-item p{color:var(--muted);line-height:1.45;font-size:.84rem}
+    .muted{padding:.85rem 0;border:1px dashed rgba(137,160,199,.14);border-radius:12px;background:rgba(255,255,255,.01);text-align:center}
+    .item:hover,.incident:hover,.channel:hover,.rule:hover,.intel:hover,.queue-item:hover{border-color:rgba(87,199,255,.14);transform:translateY(-1px);box-shadow:0 10px 20px rgba(0,0,0,.08)}.incident .toprow,.channel .toprow,.rule .toprow{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.55rem}.incident{box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}.incident .toprow > div,.queue-item > div{min-width:0}.chips{display:flex;gap:.4rem;flex-wrap:wrap}.chip{padding:.24rem .52rem;border-radius:999px;border:1px solid var(--border);font-size:.74rem}.safe{color:var(--safe);border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.08)}.suspicious{color:var(--warn);border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.08)}.scam{color:var(--danger);border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.08)}
+    .queue-item{align-items:flex-start;padding:.9rem}.queue-head{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-bottom:.42rem}.queue-item strong{display:block;line-height:1.45;margin-bottom:.18rem}.queue-time{display:block;color:var(--muted);font-size:.76rem;margin-top:.42rem}.queue-copy{max-width:64ch}.priority-chip{padding:.24rem .52rem;border-radius:999px;border:1px solid rgba(87,199,255,.14);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}.priority-high{color:var(--danger);border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.08)}.priority-medium{color:var(--warn);border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.08)}.priority-low{color:var(--safe);border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.08)}
+    .chart{display:grid;grid-template-columns:repeat(7,1fr);gap:.55rem;align-items:end;min-height:190px;padding:.2rem 0}.barwrap{display:flex;flex-direction:column;align-items:center;gap:.38rem;font-size:.82rem}.stack{height:132px;width:36px;border-radius:12px;overflow:hidden;display:flex;flex-direction:column-reverse;background:rgba(137,160,199,.08);border:1px solid rgba(137,160,199,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}.bar-safe{background:linear-gradient(180deg,rgba(90,225,175,.95),rgba(52,211,153,.9))}.bar-warn{background:linear-gradient(180deg,rgba(255,216,112,.95),rgba(251,191,36,.9))}.bar-danger{background:linear-gradient(180deg,rgba(255,145,145,.95),rgba(248,113,113,.9))}.day{color:var(--muted);font-size:.7rem}
+    .field{display:flex;flex-direction:column;gap:.35rem}.field label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}input[type=text],input[type=password],input[type=number],select,textarea{width:100%;padding:.82rem .9rem;border-radius:14px;border:1px solid var(--border);background:var(--panel2);color:var(--text)}textarea{min-height:156px;resize:vertical;line-height:1.5}
+    .modes,.row,.quick,.feedback{display:flex;gap:.55rem;flex-wrap:wrap}.toggle{padding:.72rem .9rem;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted)}.toggle.active,.toggle:hover,.fb.active,.fb:hover{background:rgba(87,199,255,.08);border-color:rgba(87,199,255,.28);color:var(--text)}
+    .status,.admin-status{min-height:1.2rem;color:var(--muted);font-size:.86rem;line-height:1.5}.status.success,.admin-status.success{color:var(--safe)}.status.error,.admin-status.error{color:var(--danger)}.status.info{color:var(--accent)}
+    .result{display:none;flex-direction:column;gap:.9rem}.result.active{display:flex}.banner{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding:1rem;border-radius:20px;border:1px solid rgba(87,199,255,.1);background:linear-gradient(180deg,rgba(25,38,61,.99),rgba(18,28,46,.99));box-shadow:0 12px 24px rgba(0,0,0,.12)}.banner strong{font-size:1.08rem}.banner .risk{text-align:right;min-width:82px}.banner .risk b{font-size:1.72rem}.evidence{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem}.evidence .box{padding:.88rem;border:1px solid rgba(87,199,255,.08);border-radius:15px;background:linear-gradient(180deg,rgba(24,39,65,.98),rgba(17,28,46,.98))}.evidence small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.28rem;font-size:.68rem}.evidence strong{font-size:1.08rem}
+    .report-grid{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(260px,.84fr);gap:.9rem}.report-stack{display:flex;flex-direction:column;gap:.9rem}.report-box{padding:.9rem;border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(22,36,60,.96),rgba(17,28,46,.99))}.report-box h4{margin-bottom:.4rem;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.report-box p{color:var(--text);line-height:1.58;font-size:.91rem}.report-box .muted{color:var(--muted)}.report-actions{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}
+    .timeline{display:flex;flex-direction:column;gap:.8rem}.timeline-step{display:grid;grid-template-columns:18px 1fr;gap:.75rem;align-items:flex-start}.timeline-dot{width:18px;height:18px;border-radius:50%;background:linear-gradient(180deg,rgba(87,199,255,.95),rgba(87,199,255,.35));box-shadow:0 0 0 5px rgba(87,199,255,.08);margin-top:.15rem}.timeline-dot.warn{background:linear-gradient(180deg,rgba(251,191,36,.95),rgba(251,191,36,.35));box-shadow:0 0 0 5px rgba(251,191,36,.1)}.timeline-dot.danger{background:linear-gradient(180deg,rgba(248,113,113,.95),rgba(248,113,113,.35));box-shadow:0 0 0 5px rgba(248,113,113,.1)}.timeline-copy strong{display:flex;align-items:center;gap:.45rem;font-size:.88rem;margin-bottom:.18rem}.timeline-marker{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 .45rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}.timeline-copy p{color:var(--muted);font-size:.84rem;line-height:1.5}
+    .report-disclosure{border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(22,36,60,.96),rgba(17,28,46,.99));overflow:hidden}.report-disclosure summary{list-style:none;cursor:pointer;padding:.9rem 1rem;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center}.report-disclosure summary::-webkit-details-marker{display:none}.report-disclosure summary:after{content:"Open";font-size:.68rem;letter-spacing:.08em;color:var(--accent-soft)}.report-disclosure[open] summary:after{content:"Expanded"}.report-disclosure .disclosure-body{padding:0 1rem 1rem}
+    .analytics-strip{display:grid;grid-template-columns:1.08fr .92fr;gap:.9rem}.mix-panel{padding:1rem;border:1px solid rgba(87,199,255,.08);border-radius:18px;background:linear-gradient(180deg,rgba(20,31,52,.98),rgba(13,22,38,.99))}.mix-panel h4{margin-bottom:.35rem;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.mix-row{display:grid;grid-template-columns:88px 1fr auto;gap:.7rem;align-items:center;margin-top:.7rem}.mix-row label{font-size:.78rem;color:var(--text);text-transform:uppercase;letter-spacing:.08em}.mix-track{height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.mix-track i{display:block;height:100%;border-radius:999px}.mix-track .safe-fill{background:linear-gradient(90deg,rgba(52,211,153,.95),rgba(52,211,153,.45))}.mix-track .warn-fill{background:linear-gradient(90deg,rgba(251,191,36,.95),rgba(251,191,36,.45))}.mix-track .danger-fill{background:linear-gradient(90deg,rgba(248,113,113,.95),rgba(248,113,113,.45))}.quality-card{display:grid;grid-template-columns:116px 1fr;gap:1rem;align-items:center}.quality-ring{width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) 0 0deg,rgba(255,255,255,.05) 0 360deg);position:relative}.quality-ring:before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--panel)}.quality-ring strong,.quality-ring span{position:relative;z-index:1;display:block;text-align:center}.quality-ring strong{font-size:1.45rem}.quality-ring span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.quality-copy strong{display:block;font-size:1.05rem;margin-bottom:.25rem}.quality-copy p{color:var(--muted);line-height:1.55;font-size:.86rem}
+    .mini-bars{display:flex;flex-direction:column;gap:.75rem}.mini-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.7rem;align-items:center}.mini-bar strong{display:flex;align-items:center;gap:.45rem;font-size:.84rem;margin-bottom:.25rem}.mini-bar-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 .4rem;border-radius:999px;border:1px solid rgba(87,199,255,.14);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase}.mini-bar-track{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.mini-bar-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(87,199,255,.95),rgba(87,199,255,.38))}
+    .executive-summary{font-size:1.02rem;line-height:1.7}
+    .assistant-fab{position:fixed;right:22px;bottom:22px;z-index:60;border:none;border-radius:999px;padding:.85rem 1.05rem;background:linear-gradient(135deg,#0ea5e9,var(--accent));color:#06111d;font-weight:700;box-shadow:0 16px 36px rgba(14,165,233,.28)}
+    .assistant-panel{position:fixed;right:22px;bottom:84px;z-index:59;width:min(372px,calc(100vw - 32px));border:1px solid rgba(87,199,255,.16);border-radius:22px;background:linear-gradient(180deg,rgba(17,28,46,.98),rgba(11,18,31,.99));box-shadow:0 22px 54px rgba(0,0,0,.34);padding:1rem;display:none;flex-direction:column;gap:.85rem;backdrop-filter:blur(12px)}
+    .assistant-panel.open{display:flex}.assistant-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem}.assistant-head strong{font-size:1rem}.assistant-head span{display:block;color:var(--muted);font-size:.82rem;line-height:1.5;margin-top:.2rem}.assistant-prompts{display:flex;flex-wrap:wrap;gap:.45rem}.assistant-prompts button{padding:.5rem .7rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.05);color:var(--text)}
+    .assistant-status{font-size:.8rem;color:var(--accent)}
+    .assistant-meta{display:flex;gap:.45rem;flex-wrap:wrap}
+    .assistant-meta .chip{font-size:.72rem}
+    .assistant-feed{display:flex;flex-direction:column;gap:.7rem;max-height:320px;overflow:auto;padding-right:.2rem}
+    .assistant-msg{padding:.82rem .9rem;border-radius:18px;border:1px solid rgba(87,199,255,.1);line-height:1.6;font-size:.9rem;animation:messageIn .24s ease;position:relative}
+    .assistant-msg.user{background:linear-gradient(180deg,rgba(87,199,255,.12),rgba(87,199,255,.05));color:var(--text);margin-left:1.1rem}
+    .assistant-msg.ai{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(87,199,255,.04));color:var(--muted);margin-right:1.1rem}
+    .assistant-msg strong{display:block;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.32rem;color:var(--accent)}
+    .assistant-body{display:flex;flex-direction:column;gap:.55rem}.assistant-line{padding:.5rem .58rem;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(87,199,255,.06);color:inherit}.assistant-line.label{color:var(--text);font-weight:600;background:rgba(87,199,255,.07)}.assistant-card{padding:.65rem .72rem;border-radius:14px;border:1px solid rgba(87,199,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(87,199,255,.035))}.assistant-card-head{display:flex;align-items:center;gap:.45rem;margin-bottom:.35rem}.assistant-card-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 .4rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase}.assistant-card-title{color:var(--text);font-weight:600;font-size:.83rem;letter-spacing:.02em}.assistant-card p{margin:0;color:inherit;line-height:1.6}
+    .assistant-compose{display:flex;flex-direction:column;gap:.55rem;padding-top:.15rem;border-top:1px solid rgba(87,199,255,.09)}.assistant-compose textarea{min-height:84px}.assistant-actions{display:flex;justify-content:space-between;gap:.6rem;align-items:center}.assistant-actions .muted{padding:0;border:none;background:none;text-align:left;font-size:.76rem}
+    .incident-drawer{position:fixed;top:20px;right:20px;z-index:58;width:min(420px,calc(100vw - 28px));max-height:calc(100vh - 40px);overflow:auto;padding:1rem;border:1px solid rgba(87,199,255,.16);border-radius:24px;background:linear-gradient(180deg,rgba(15,24,41,.98),rgba(10,18,31,.99));box-shadow:0 24px 54px rgba(0,0,0,.34);display:none;flex-direction:column;gap:.8rem}.incident-drawer.open{display:flex}.drawer-head{display:flex;justify-content:space-between;gap:.8rem;align-items:flex-start}.drawer-copy p{color:var(--muted);font-size:.84rem;line-height:1.5;margin-top:.2rem}.drawer-section{padding:.85rem;border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(20,31,51,.96),rgba(13,21,37,.99))}.drawer-section h4{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.38rem}
+    @keyframes sectionIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes messageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .admin-key,.create{display:grid;gap:.75rem}.admin-key{grid-template-columns:1fr auto auto}.create{grid-template-columns:repeat(2,1fr)}.full{grid-column:1/-1}.quiet{display:none}.tight{display:flex;flex-direction:column;gap:.75rem}.disclosure{border:1px solid var(--border);border-radius:14px;background:rgba(87,199,255,.02)}.disclosure summary{list-style:none;cursor:pointer;padding:.8rem .9rem;color:var(--text);font-weight:600}.disclosure summary::-webkit-details-marker{display:none}.disclosure[open] summary{border-bottom:1px solid var(--border)}.disclosure-body{padding:.85rem}.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(6,17,29,.25);border-top-color:#06111d;display:inline-block;vertical-align:-2px;margin-right:.45rem;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:1100px){.app,.two,.analysis,.report-grid,.top,.overview-strip,.analytics-strip,.quality-card{grid-template-columns:1fr}.side{position:relative}.hero-stats,.metric-grid{grid-template-columns:1fr 1fr}}@media(max-width:800px){.three,.evidence,.create,.metric-grid,.hero-stats,.overview-strip,.analytics-strip{grid-template-columns:1fr}.top h2{font-size:1.68rem}.top{padding:1rem}.main{padding:.85rem}.banner{flex-direction:column}.banner .risk{text-align:left;min-width:0}.report-actions{justify-content:flex-start}.assistant-msg.user,.assistant-msg.ai{margin-left:0;margin-right:0}}@media(max-width:620px){.app,.four,.three,.evidence,.admin-key,.create,.metric-grid,.overview-strip,.analytics-strip{grid-template-columns:1fr}.assistant-fab{right:14px;bottom:14px}.assistant-panel{right:14px;bottom:74px;width:min(340px,calc(100vw - 24px))}.main{padding:.72rem}.card{padding:.9rem}.top{border-radius:20px}.hero-stats{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr}.timeline-step{grid-template-columns:16px 1fr;gap:.6rem}.timeline-marker,.mini-bar-badge,.assistant-card-badge{min-width:20px;height:20px;font-size:.62rem}}
   </style>
 </head>
 <body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-shell">
+          <img class="brand-logo" src="./threatai-logo.png" alt="ThreatWatch AI logo">
+          <small>Threat Ops Console</small>
+          <h1>ThreatWatch AI</h1>
+          <p>Threat detection, analyst triage, and response operations in one place.</p>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="active" data-sec="dashboard"><span>Dashboard</span><span id="navDash">Overview</span></button>
+        <button data-sec="analyze"><span>Analyze</span><span id="navAnalyze">Workspace</span></button>
+        <button data-sec="analytics"><span>Analytics</span><span id="navAnalytics">Detail</span></button>
+        <button data-sec="rules"><span>Rules</span><span>Admin</span></button>
+      </div>
+      <div class="rail">
+        <div class="pill">Phase 2</div>
+        <p>Live AI copilot with self-hosted Gemma support.</p>
+        <button class="btn" type="button" onclick="launchInvestigation()">Start investigation</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="top">
+        <div>
+          <div class="hero-kicker">Security Operations Console</div>
+          <h2>Move from suspicious message to executive-ready incident response in one operating surface.</h2>
+          <p>Detect phishing and scams, review evidence, and move to action without bouncing between separate tools.</p>
+          <div class="hero-stats">
+            <div class="hero-stat"><strong>Review faster</strong><span>Assess evidence and risk in one flow.</span></div>
+            <div class="hero-stat"><strong>Escalate clearly</strong><span>Turn signals into an action-ready brief.</span></div>
+            <div class="hero-stat"><strong>Copilot ready</strong><span>Use local or hosted AI when needed.</span></div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="refreshDashboardBtn" type="button" onclick="refreshDashboardAction()">Refresh dashboard</button>
+          <button class="btn-primary" type="button" onclick="launchInvestigation()">Launch investigation</button>
+        </div>
+      </div>
 
-<nav>
-  <div class="logo">Threat<span>Watch AI</span></div>
-  <div class="nav-badge">AI · POWERED</div>
-</nav>
+      <section class="sec active" id="sec-dashboard">
+        <div class="card">
+          <div class="panel-head"><div><div class="eyebrow">Overview</div><h3>Threat posture at a glance.</h3></div><div class="side-note">Dashboard for oversight. Analyze for active work.</div></div>
+          <div class="row"><button class="btn-primary" type="button" onclick="launchInvestigation()">Investigate a threat</button><button class="btn" type="button" onclick="showSection('analytics')">View analytics</button></div>
+          <div class="overview-strip">
+            <div class="mini-visual">
+              <h4>Risk concentration</h4>
+              <div class="severity-ring" id="severityRing">
+                <div>
+                  <strong id="severityRate">0%</strong>
+                  <span>critical</span>
+                </div>
+              </div>
+              <p id="severityNote">Critical incident share will update from the latest seven-day case mix.</p>
+            </div>
+            <div class="mini-visual">
+              <h4>Channel pressure</h4>
+              <div class="channel-bars" id="heroChannelBars">
+                <div class="muted">Loading channel mix...</div>
+              </div>
+              <p id="channelPressureNote">The busiest attack path will surface here for faster prioritization.</p>
+            </div>
+          </div>
+        </div>
 
-<main>
-  <div>
-    <h1>Detect <span>Scams</span> Instantly</h1>
-    <p class="subtitle">Paste any message — email, SMS, or chat. Our ML + rule engine flags threats in real time.</p>
+        <div class="metric-grid">
+          <div class="metric"><div class="metric-head"><span class="metric-mark">01</span><small>Incidents reviewed</small></div><strong id="mTotal">0</strong><span>Latest 250 cases</span><div class="metric-spark" id="sparkTotal"></div></div>
+          <div class="metric"><div class="metric-head"><span class="metric-mark">02</span><small>Critical threat rate</small></div><strong id="mScamRate">0%</strong><span>High-risk incident share</span><div class="metric-spark" id="sparkScam"></div></div>
+          <div class="metric"><div class="metric-head"><span class="metric-mark">03</span><small>Average exposure</small></div><strong id="mRisk">0%</strong><span>Across recent assessments</span><div class="metric-spark" id="sparkRisk"></div></div>
+          <div class="metric"><div class="metric-head"><span class="metric-mark">04</span><small>AI-assisted reviews</small></div><strong id="mAi">0</strong><span>Incidents with AI support</span><div class="metric-spark" id="sparkAi"></div></div>
+        </div>
+
+        <div class="card"><div class="panel-head"><div><div class="eyebrow">Threat posture</div><h3>Threat trend</h3></div><div class="side-note">Seven-day incident mix.</div></div><p class="sub">Safe, suspicious, and high-risk activity over the last seven days.</p><div class="chart" id="trendChart"><div class="muted">Loading trend data...</div></div></div>
+
+        <div class="card"><h3>Recent incidents</h3><p class="sub">Quick-look queue for priority review.</p><div class="list" id="recentIncidents"><div class="muted">Loading incidents...</div></div></div>
+
+        <div class="quiet">
+          <div id="topSignals"></div>
+          <div id="channelList"></div>
+        </div>
+      </section>
+
+      <section class="sec" id="sec-analyze">
+        <div class="analysis">
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <h3>Threat investigation workspace</h3>
+              <p class="sub">Review suspicious messages, links, and emails as structured incidents with business-ready explanations, evidence, and response guidance.</p>
+              <div class="field"><label>Scan mode</label><div class="modes"><button class="toggle active" data-mode="standard">Standard Engine</button><button class="toggle" data-mode="ai">AI Pipeline</button></div><div class="muted" id="modeNote">High-speed detection for frontline triage. Uses ML plus the live rule engine.</div></div>
+              <div class="field" style="margin-top:1rem"><label>Channel</label><div class="modes"><button class="toggle active" data-channel="chat">Chat</button><button class="toggle" data-channel="email">Email</button><button class="toggle" data-channel="sms">SMS</button><button class="toggle" data-channel="url">URL</button></div></div>
+              <div class="field" style="margin-top:1rem"><label for="messageInput">Content to inspect</label><textarea id="messageInput" placeholder="Paste suspicious content here. Example: Your account is locked. Verify now or access will be suspended."></textarea></div>
+              <div class="field" style="margin-top:1rem"><label for="urlInput">Reference URL</label><input id="urlInput" type="text" placeholder="Paste the linked destination or landing page if one was included..."></div>
+              <div class="field quiet" style="margin-top:1rem"><label>Quick samples</label><div class="quick"><button class="btn" type="button" onclick="fillExample('safe')">Safe</button><button class="btn" type="button" onclick="fillExample('suspicious')">Suspicious</button><button class="btn" type="button" onclick="fillExample('scam')">Scam</button><button class="btn" type="button" onclick="clearComposer()">Clear</button></div></div>
+              <div class="row" style="margin-top:1rem"><button class="btn-primary" id="analyzeBtn" type="button" onclick="analyze()">Run threat assessment</button><label class="btn" for="emlFile">Upload .eml</label><input id="emlFile" type="file" accept=".eml" style="display:none" onchange="analyzeEml(this)"></div>
+              <div class="status" id="scanStatus">Ready. Standard mode is optimized for rapid frontline review.</div>
+            </div>
+
+            <div class="card result" id="resultCard">
+              <div class="banner" id="banner"><div><div class="chips" style="margin-bottom:.45rem"><span class="chip safe" id="vPill">SAFE</span><span class="chip" id="modeChip">standard engine</span><span class="chip" id="modelChip">default path</span></div><strong id="vLabel">No incident yet</strong><p id="vSub" class="sub" style="margin:.4rem 0 0">Run an assessment to generate a business-ready incident summary, risk context, and recommended next step.</p></div><div class="risk"><small class="muted">Risk</small><b id="riskPct">0%</b></div></div>
+              <div class="evidence"><div class="box"><small>ML score</small><strong id="mlScore">0%</strong></div><div class="box"><small>Rule score</small><strong id="ruleScore">0%</strong></div><div class="box"><small>Threat class</small><strong id="threatClass">Unknown</strong></div><div class="box"><small>Action</small><strong id="actionLevel">Review</strong></div></div>
+              <div class="report-grid">
+                <div class="report-stack">
+                  <div class="report-box"><h4>Executive summary</h4><p class="executive-summary" id="reportSummary">Run an assessment to generate an executive-ready incident summary.</p></div>
+                  <div class="report-box"><h4>Recommended response</h4><p id="recText">Recommended response guidance will appear here after a scan, including what to do next and why it matters.</p></div>
+                  <div class="report-box"><h4>Threat story</h4><p id="storyText">The threat narrative is built after each scan from the available evidence.</p></div>
+                  <div class="report-box"><h4>Investigation timeline</h4><div class="timeline" id="incidentTimeline"><div class="muted">Run an assessment to build the incident timeline.</div></div></div>
+                </div>
+                <div class="report-stack">
+                  <details class="report-disclosure" open>
+                    <summary>Evidence signals</summary>
+                    <div class="disclosure-body">
+                      <div class="list" id="reasonList"><div class="muted">No signals yet.</div></div>
+                    </div>
+                  </details>
+                  <details class="report-disclosure" open>
+                    <summary>Indicators and intel</summary>
+                    <div class="disclosure-body">
+                      <div class="list" id="tokenListInline"><div class="muted">No indicators yet.</div></div>
+                    </div>
+                  </details>
+                  <details class="report-disclosure" open>
+                    <summary>AI trace</summary>
+                    <div class="disclosure-body">
+                      <div class="report-box" style="padding:0;border:none;background:none">
+                        <h4>AI explanation</h4>
+                        <p id="agentExplanation">No AI explanation returned yet. Enable AI mode for deeper narrative context.</p>
+                      </div>
+                      <div class="report-box" style="padding:0;border:none;background:none;margin-top:.9rem">
+                        <h4>AI pipeline</h4>
+                        <p><span id="agentMode">standard-only</span><span class="muted"> · </span><span id="agentLatency">N/A</span></p>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              </div>
+              <div class="report-actions"><button class="btn" type="button" onclick="printIncidentBrief()">Print brief</button></div>
+              <div class="intel"><h3 style="margin-bottom:.4rem">Validation feedback</h3><p class="sub" style="margin-bottom:.6rem">Mark whether the incident outcome was correct so the platform can surface model and rule quality over time.</p><div class="feedback"><button class="btn fb" type="button" onclick="sendFeedback('correct',event)">Correct</button><button class="btn fb" type="button" onclick="sendFeedback('false_positive',event)">False positive</button><button class="btn fb" type="button" onclick="sendFeedback('false_negative',event)">Missed scam</button></div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <h3>Case controls</h3>
+              <p class="sub">Keep the investigation surface focused. Open AI settings only when you need to change providers or model path.</p>
+              <details class="disclosure">
+                <summary>AI settings</summary>
+                <div class="disclosure-body tight">
+                  <div class="field"><label for="preferredModel">Preferred model</label><select id="preferredModel"><option value="gpt-4o-mini">gpt-4o-mini</option><option value="gpt-4o">gpt-4o</option><option value="claude-haiku-3-5-20241022">claude-haiku-3-5-20241022</option><option value="ollama/gemma4:e2b">ollama/gemma4:e2b</option><option value="ollama/llama3.1:8b">ollama/llama3.1:8b</option></select></div>
+                  <div class="field"><label for="openaiKey">OpenAI API key</label><input id="openaiKey" type="password" placeholder="sk-proj-..."><div class="muted" id="openaiKeyStatus">Not loaded</div></div>
+                  <div class="field"><label for="anthropicKey">Anthropic API key</label><input id="anthropicKey" type="password" placeholder="sk-ant-..."><div class="muted" id="anthropicKeyStatus">Not loaded</div></div>
+                  <div class="row"><button class="btn" id="saveLlmBtn" type="button">Save session settings</button><button class="btn" id="clearLlmBtn" type="button">Clear session keys</button></div>
+                  <div class="intel"><p id="llmStatus">No AI provider settings saved yet. Switch to AI mode to attach them to the next scan request.</p></div>
+                </div>
+              </details>
+              <div class="list" style="margin-top:.75rem">
+                <div class="item"><div><strong>Open analytics</strong><span>Use the detailed view for signal and channel breakdown.</span></div><button class="btn" type="button" onclick="showSection('analytics')">Open</button></div>
+                <div class="item"><div><strong>Open rules</strong><span>Adjust detection logic when the case points to a coverage gap.</span></div><button class="btn" type="button" onclick="showSection('rules')">Open</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="sec-analytics">
+        <div class="analytics-strip">
+          <div class="mix-panel">
+            <h4>Incident mix</h4>
+            <p class="sub" style="margin-bottom:.2rem">See how reviewed traffic is currently split between safe, suspicious, and critical outcomes.</p>
+            <div class="mix-row"><label>Safe</label><div class="mix-track"><i class="safe-fill" id="mixSafeBar" style="width:0%"></i></div><span class="chip" id="mixSafeValue">0%</span></div>
+            <div class="mix-row"><label>Suspicious</label><div class="mix-track"><i class="warn-fill" id="mixSuspiciousBar" style="width:0%"></i></div><span class="chip" id="mixSuspiciousValue">0%</span></div>
+            <div class="mix-row"><label>Critical</label><div class="mix-track"><i class="danger-fill" id="mixScamBar" style="width:0%"></i></div><span class="chip" id="mixScamValue">0%</span></div>
+          </div>
+          <div class="mix-panel quality-card">
+            <div class="quality-ring" id="qualityRing">
+              <div>
+                <strong id="qualityScore">0%</strong>
+                <span>quality</span>
+              </div>
+            </div>
+            <div class="quality-copy">
+              <strong id="qualityHeadline">Detection quality snapshot</strong>
+              <p id="qualityNote">Feedback-adjusted detection quality will appear here once analysts start validating incidents.</p>
+            </div>
+          </div>
+        </div>
+        <div class="two">
+          <div class="card"><h3>Threat categories and patterns</h3><p class="sub">Use Analytics for the detailed breakdown behind what the dashboard summarizes.</p><div class="three"><div class="intel"><h3 style="margin-bottom:.4rem">Threat categories</h3><div class="mini-bars" id="catBars"><div class="muted">Loading categories...</div></div><div class="list" id="catList" style="margin-top:.75rem"><div class="muted">Loading categories...</div></div></div><div class="intel"><h3 style="margin-bottom:.4rem">Repeated reasons</h3><div class="mini-bars" id="reasonBars"><div class="muted">Loading reasons...</div></div><div class="list" id="reasonAnalytics" style="margin-top:.75rem"><div class="muted">Loading reasons...</div></div></div><div class="intel"><h3 style="margin-bottom:.4rem">Hot indicators</h3><div class="list" id="tokenAnalytics"><div class="muted">Loading indicators...</div></div></div></div></div>
+          <div class="card"><h3>Feedback quality</h3><p class="sub">Measure analyst confidence, identify tuning opportunities, and monitor detection quality over time.</p><div class="three"><div class="metric"><small>Correct</small><strong id="fbCorrect">0</strong><span>Confirmed outcomes</span></div><div class="metric"><small>False positive</small><strong id="fbFp">0</strong><span>Needs precision tuning</span></div><div class="metric"><small>False negative</small><strong id="fbFn">0</strong><span>Missed risk to address</span></div></div></div>
+        </div>
+        <div class="two">
+          <div class="card"><h3>Channel summary</h3><p class="sub">Understand where fraud pressure is rising so teams can prioritize controls and awareness work.</p><div class="list" id="channelAnalytics"><div class="muted">Loading channels...</div></div></div>
+          <div class="card"><h3>Recent threat cards</h3><p class="sub">A fast review queue for suspicious and high-risk incidents that deserve rapid attention and escalation.</p><div class="list" id="incidentAnalytics"><div class="muted">Loading incidents...</div></div></div>
+        </div>
+        <div class="card"><div class="panel-head"><div><div class="eyebrow">Signals</div><h3>Repeated signals</h3></div><div class="side-note">Secondary detail moved here to keep the dashboard cleaner.</div></div><div class="two"><div><p class="sub">Most repeated reasons behind detections.</p><div class="list" id="topSignals"><div class="muted">Loading signals...</div></div></div><div><p class="sub">Channel concentration across current cases.</p><div class="list" id="channelList"><div class="muted">Loading channels...</div></div></div></div></div>
+      </section>
+
+      <section class="sec" id="sec-rules">
+        <div class="two">
+          <div class="card">
+            <div class="toprow"><div><h3>Rule manager</h3><p class="sub">Govern live detection logic, inspect active controls, and keep coverage aligned with real attack behavior.</p></div><button class="btn" type="button" onclick="loadRules()">Refresh rules</button></div>
+            <details class="disclosure" style="margin-bottom:.75rem">
+              <summary>Access</summary>
+              <div class="disclosure-body tight">
+                <div class="create">
+                  <div class="field"><label for="ruleUsernameInput">Username</label><input id="ruleUsernameInput" type="text" placeholder="admin"></div>
+                  <div class="field"><label for="rulePasswordInput">Password</label><input id="rulePasswordInput" type="password" placeholder="Enter admin or analyst password"></div>
+                  <div class="field full"><div class="row"><button class="btn" type="button" onclick="loginRulesUser()">Sign in</button><button class="btn" type="button" onclick="logoutRulesUser()">Sign out</button></div></div>
+                </div>
+                <div class="admin-key"><input id="ruleApiKeyInput" type="password" placeholder="Legacy fallback: enter admin API key for this session"><button class="btn" type="button" onclick="saveRuleApiKey()">Save key</button><button class="btn" type="button" onclick="clearRuleApiKey()">Clear key</button></div>
+              </div>
+            </details>
+            <div class="admin-status" id="ruleStatus">Sign in with an admin or analyst account, or use the legacy admin API key fallback.</div>
+            <div class="rules" id="rulesList"><div class="muted">No rules loaded yet.</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <h3>Create new rule</h3><p class="sub">Add targeted detection logic with a category, explanation, and weight that supports credible analyst review.</p>
+              <form class="create" id="ruleCreateForm" onsubmit="event.preventDefault();createRule()">
+                <div class="field"><label for="ruleName">Name</label><input id="ruleName" type="text" maxlength="100" placeholder="telegram_investment"></div>
+                <div class="field"><label for="ruleCategory">Category</label><input id="ruleCategory" type="text" maxlength="50" placeholder="financial"></div>
+                <div class="field full"><label for="rulePattern">Pattern</label><input id="rulePattern" type="text" maxlength="500" placeholder="\b(telegram|whatsapp).{0,20}(invest|profit|join)\b"></div>
+                <div class="field"><label for="rulePatternType">Pattern type</label><select id="rulePatternType"><option value="regex">regex</option><option value="keyword">keyword</option><option value="combo">combo</option></select></div>
+                <div class="field"><label for="ruleWeight">Weight</label><input id="ruleWeight" type="number" min="0" max="1" step="0.01" value="0.25"></div>
+                <div class="field full"><label for="ruleDescription">Description</label><input id="ruleDescription" type="text" maxlength="300" placeholder="Telegram or WhatsApp investment recruitment language"></div>
+                <div class="field full"><button class="btn-primary" type="submit">Create rule</button></div>
+              </form>
+            </div>
+            <div class="card"><h3>Rule ops guidance</h3><p class="sub">Strong rules improve credibility with analysts, leadership, and end users.</p><div class="list"><div class="item"><div><strong>Write explanation-friendly descriptions</strong><span>Incident views surface rule reasons directly to reviewers.</span></div></div><div class="item"><div><strong>Use categories consistently</strong><span>Clean categories strengthen analytics, reporting, and future AI guidance.</span></div></div><div class="item"><div><strong>Tune with feedback</strong><span>False positives and missed threats are visible in analytics for continuous improvement.</span></div></div></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-
-  <!-- STATS -->
-  <div id="statsBar">
-    <div class="stat-box"><div class="num" id="s-total">—</div><div class="lbl">Total Scans</div></div>
-    <div class="stat-box"><div class="num scam" id="s-scam">—</div><div class="lbl">Scams Caught</div></div>
-    <div class="stat-box"><div class="num suspicious" id="s-susp">—</div><div class="lbl">Suspicious</div></div>
-    <div class="stat-box"><div class="num safe" id="s-safe">—</div><div class="lbl">Safe</div></div>
-  </div>
-
-  <!-- INPUT CARD -->
-  <div class="card">
-    <div class="channels">
-      <button class="channel-btn active" data-channel="chat">Chat / SMS</button>
-      <button class="channel-btn" data-channel="email">Email</button>
-      <button class="channel-btn" data-channel="url">URL</button>
+  <button class="assistant-fab" type="button" id="assistantFab">AI Copilot</button>
+  <div class="assistant-panel" id="assistantPanel">
+    <div class="assistant-head">
+      <div>
+        <strong>ThreatWatch Copilot</strong>
+        <span>Floating analyst aide for rapid summaries, escalation guidance, and stakeholder-ready talking points.</span>
+      </div>
+      <button class="btn" type="button" id="assistantClose">Close</button>
     </div>
-
-    <textarea id="messageInput" placeholder="Paste your message here…&#10;&#10;Example: URGENT! Your Maybank account is locked. Verify now: http://bit.ly/mb-verify"></textarea>
-
-    <div class="url-row">
-      <input type="text" id="urlInput" placeholder="Paste URL / link (optional)…" />
+    <div class="assistant-status" id="assistantStatus">Waiting for a case to analyze.</div>
+    <div class="assistant-meta" id="assistantMeta">
+      <span class="chip">status: standby</span>
+      <span class="chip">provider: not selected</span>
     </div>
-
-    <button id="analyzeBtn" onclick="analyze()">Analyze Now</button>
-
-    <div style="margin-top:0.75rem; display:flex; align-items:center; gap:0.75rem;">
-      <label style="font-size:0.82rem; color:var(--muted);">or upload .eml file</label>
-      <input type="file" id="emlFile" accept=".eml"
-        style="font-size:0.82rem; color:var(--muted); cursor:pointer;"
-        onchange="analyzeEml(this)" />
+    <div class="assistant-prompts">
+      <button type="button" onclick="setAssistantPrompt('summary')">Summarize case</button>
+      <button type="button" onclick="setAssistantPrompt('action')">Next best action</button>
+      <button type="button" onclick="setAssistantPrompt('exec')">Exec briefing</button>
+      <button type="button" onclick="setAssistantPrompt('rule')">Rule idea</button>
     </div>
-  </div>
-
-  <!-- RESULT CARD -->
-  <div class="card" id="resultCard">
-    <div class="verdict-banner" id="verdictBanner">
-      <div class="verdict-icon" id="verdictIcon"></div>
-      <div class="verdict-text" id="verdictText">
-        <div class="label" id="verdictLabel"></div>
-        <div class="sublabel" id="verdictSublabel"></div>
+    <div class="assistant-feed" id="assistantFeed">
+      <div class="assistant-msg ai"><strong>ThreatWatch Copilot</strong><span id="assistantOutput">Open the copilot after a scan to generate a faster narrative for analysts or stakeholders.</span></div>
+    </div>
+    <div class="assistant-compose">
+      <textarea id="assistantPromptInput" placeholder="Ask about this case. Example: Draft an analyst note for leadership."></textarea>
+      <div class="assistant-actions">
+        <div class="muted">Press Enter to send. Use Shift+Enter for a new line.</div>
+        <div class="row">
+          <button class="btn" type="button" id="assistantClear">Clear</button>
+          <button class="btn-primary" type="button" id="assistantSend">Ask copilot</button>
+        </div>
       </div>
     </div>
-
-    <div class="meter-label">
-      <span>Risk Score</span>
-      <strong><span id="riskPct">0</span>%</strong>
-    </div>
-    <div class="meter-track">
-      <div class="meter-fill" id="meterFill" style="width:0%"></div>
-    </div>
-
-    <div class="score-grid">
-      <div class="score-box">
-        <div class="label">ML Score</div>
-        <div class="value" id="mlScore">—</div>
+  </div>
+  <div class="incident-drawer" id="incidentDrawer">
+    <div class="drawer-head">
+      <div class="drawer-copy">
+        <strong>Incident quick view</strong>
+        <p>Review the case, then open it in the full workspace only when needed.</p>
       </div>
-      <div class="score-box">
-        <div class="label">Rule Score</div>
-        <div class="value" id="ruleScore">—</div>
-      </div>
+      <button class="btn" type="button" id="incidentDrawerClose">Close</button>
     </div>
-
-    <div id="reasonsSection" style="display:none">
-      <div class="section-title">Why it was flagged</div>
-      <div class="reasons-list" id="reasonsList"></div>
+    <div class="chips">
+      <span class="chip safe" id="drawerVerdict">SAFE</span>
+      <span class="chip" id="drawerChannel">CHAT</span>
+      <span class="chip" id="drawerRisk">0% risk</span>
     </div>
-
-    <div id="highlightsSection" style="display:none">
-      <div class="section-title">Suspicious tokens</div>
-      <div class="highlights" id="highlightsList"></div>
+    <div class="drawer-section">
+      <h4>Headline</h4>
+      <p id="drawerHeadline">No incident selected yet.</p>
     </div>
-
-    <div class="feedback-row">
-      <span>Was this correct?</span>
-      <button class="fb-btn" onclick="sendFeedback('correct')">Yes</button>
-      <button class="fb-btn" onclick="sendFeedback('false_positive')">False positive</button>
-      <button class="fb-btn" onclick="sendFeedback('false_negative')">Missed scam</button>
+    <div class="drawer-section">
+      <h4>Summary</h4>
+      <p id="drawerSummary">Open an incident from the queue to preview it here.</p>
+    </div>
+    <div class="drawer-section">
+      <h4>Response</h4>
+      <p id="drawerResponse">Recommended next action will appear here.</p>
+    </div>
+    <div class="drawer-section">
+      <h4>Signals</h4>
+      <div class="chips" id="drawerSignals"><span class="chip">No signals yet</span></div>
+    </div>
+    <div class="row">
+      <button class="btn-primary" type="button" id="drawerOpenWorkspace">Open in workspace</button>
+      <button class="btn" type="button" onclick="printIncidentBrief(previewIncidentData)">Print brief</button>
+      <button class="btn" type="button" onclick="showSection('analytics')">Analytics</button>
     </div>
   </div>
-</main>
-
-<footer>ThreatWatch AI · ThreatWatch Team · Team U · Nexpert Hackathon 2026</footer>
-
-<script>
-  const API = window.location.hostname === 'localhost'
-    ? 'http://localhost:8100'
-    : '';   // same-origin via nginx proxy
-
-  let activeChannel = 'chat';
-  let lastScanId = null;
-
-  // Channel buttons
-  document.querySelectorAll('.channel-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeChannel = btn.dataset.channel;
-    });
-  });
-
-  async function analyze() {
-    const text = document.getElementById('messageInput').value.trim();
-    if (!text) return;
-
-    const btn = document.getElementById('analyzeBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Analyzing…';
-
-    try {
-      const body = {
-        text,
-        channel: activeChannel,
-        url: document.getElementById('urlInput').value.trim() || null,
-      };
-      const res = await fetch(`${API}/api/v1/scan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      renderResult(data);
-      loadStats();
-    } catch (e) {
-      alert('Error: ' + e.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Analyze Now';
-    }
-  }
-
-  function renderResult(data) {
-    lastScanId = data.scan_id;
-    const card = document.getElementById('resultCard');
-    card.style.display = 'block';
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    const verdict = data.verdict;
-    const pct = data.risk_percent;
-
-    // Banner
-    const banner = document.getElementById('verdictBanner');
-    const icon = document.getElementById('verdictIcon');
-    const vtext = document.getElementById('verdictText');
-    const label = document.getElementById('verdictLabel');
-    const sublabel = document.getElementById('verdictSublabel');
-
-    banner.className = `verdict-banner ${verdict}`;
-    vtext.className = `verdict-text ${verdict}`;
-
-    const config = {
-      safe:       { icon: '✅', label: 'SAFE',       sub: 'No significant threats detected.' },
-      suspicious: { icon: '⚠️', label: 'SUSPICIOUS', sub: 'Potential threat — review carefully.' },
-      scam:       { icon: '🚨', label: 'SCAM',       sub: 'High confidence threat — do not click links.' },
-    };
-    icon.textContent = config[verdict].icon;
-    label.textContent = config[verdict].label;
-    sublabel.textContent = config[verdict].sub;
-
-    // Meter
-    document.getElementById('riskPct').textContent = pct;
-    const fill = document.getElementById('meterFill');
-    fill.className = `meter-fill ${verdict}`;
-    setTimeout(() => fill.style.width = pct + '%', 50);
-
-    // Scores
-    document.getElementById('mlScore').textContent = (data.ml_score * 100).toFixed(1) + '%';
-    document.getElementById('ruleScore').textContent = (data.rule_score * 100).toFixed(1) + '%';
-
-    // Reasons
-    const reasonsSec = document.getElementById('reasonsSection');
-    const reasonsList = document.getElementById('reasonsList');
-    if (data.reasons && data.reasons.length) {
-      reasonsSec.style.display = 'block';
-      reasonsList.innerHTML = data.reasons
-        .map(r => `<div class="reason-item">${r}</div>`)
-        .join('');
-    } else {
-      reasonsSec.style.display = 'none';
-    }
-
-    // Highlights
-    const hlSec = document.getElementById('highlightsSection');
-    const hlList = document.getElementById('highlightsList');
-    if (data.highlighted_tokens && data.highlighted_tokens.length) {
-      hlSec.style.display = 'block';
-      hlList.innerHTML = data.highlighted_tokens
-        .map(t => `<span class="highlight-chip">${t}</span>`)
-        .join('');
-    } else {
-      hlSec.style.display = 'none';
-    }
-
-    // Reset feedback buttons
-    document.querySelectorAll('.fb-btn').forEach(b => b.classList.remove('selected'));
-  }
-
-  async function sendFeedback(type) {
-    if (!lastScanId) return;
-    document.querySelectorAll('.fb-btn').forEach(b => b.classList.remove('selected'));
-    event.target.classList.add('selected');
-    await fetch(`${API}/api/v1/scan/${lastScanId}/feedback`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ feedback: type }),
-    });
-  }
-
-  async function loadStats() {
-    try {
-      const res = await fetch(`${API}/api/v1/stats`);
-      const d = await res.json();
-      document.getElementById('s-total').textContent = d.total_scans;
-      document.getElementById('s-scam').textContent = d.scam_detected;
-      document.getElementById('s-susp').textContent = d.suspicious;
-      document.getElementById('s-safe').textContent = d.safe;
-    } catch {}
-  }
-
-  // Initial stats load
-  loadStats();
-  setInterval(loadStats, 30000);
-
-  // .eml upload
-  async function analyzeEml(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const btn = document.getElementById('analyzeBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Parsing email…';
-    try {
-      const form = new FormData();
-      form.append('file', file);
-      const res = await fetch(`${API}/api/v1/scan/upload`, { method: 'POST', body: form });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      // Show email metadata in textarea
-      const meta = data.email_metadata || {};
-      document.getElementById('messageInput').value =
-        `From: ${meta.from || ''}\nSubject: ${meta.subject || ''}\n[.eml parsed — ${meta.body_length || 0} chars, ${meta.urls_found || 0} URL(s) found]`;
-      renderResult(data);
-      loadStats();
-    } catch (e) {
-      alert('Upload error: ' + e.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Analyze Now';
-      input.value = '';
-    }
-  }
-
-  // Allow Enter+Ctrl to submit
-  document.getElementById('messageInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.ctrlKey) analyze();
-  });
-</script>
+  <script>
+    const API=(()=>{const c=window.THREATWATCH_API_URL;if(c)return c.replace(/\/$/,"");const h=window.location.hostname,p=window.location.port;if((h==="localhost"||h==="127.0.0.1")&&p==="5080")return "";if(h==="localhost"||h==="127.0.0.1")return "http://localhost:8100";return ""})();
+    const EXAMPLES={safe:{channel:"chat",text:"Hi team, the finance call moved to 3:30 PM. Please review the updated agenda in the shared drive before the meeting.",url:""},suspicious:{channel:"email",text:"We noticed unusual activity on your account. Please contact support before sharing credentials or approving transfers.",url:"https://account-review.example.com"},scam:{channel:"email",text:"URGENT: Your bank account is suspended. Verify now or your access will be permanently disabled today.",url:"http://bit.ly/secure-banking-check"}};
+    let activeChannel="chat",activeScanMode=sessionStorage.getItem("threatwatch_scan_mode")||"standard",lastScanId=null,lastScanData=null,previewIncidentData=null,assistantHistory=[],assistantMeta={status:"standby",provider:"not selected"};
+    const esc=v=>String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    const pct=v=>`${Math.round((Number(v)||0)*100)}%`,share=(a,b)=>b?`${Math.round((a/b)*100)}%`:"0%";
+    function showSection(s){document.querySelectorAll(".sec").forEach(el=>el.classList.toggle("active",el.id===`sec-${s}`));document.querySelectorAll("[data-sec]").forEach(btn=>btn.classList.toggle("active",btn.dataset.sec===s))}
+    function setStatus(msg,type=""){const el=document.getElementById("scanStatus");el.textContent=msg;el.className=`status${type?" "+type:""}`}
+    function launchInvestigation(){showSection("analyze");toggleAssistant(false);setStatus("Investigation workspace is ready. Paste suspicious content, upload an email, or load a sample to begin.","info");setTimeout(()=>document.getElementById("messageInput").focus(),50)}
+    function selectedModel(){return sessionStorage.getItem("threatwatch_preferred_model")||document.getElementById("preferredModel").value||"gpt-4o-mini"}
+    function updateAssistantMeta(status,provider){assistantMeta={status:status||assistantMeta.status,provider:provider||assistantMeta.provider};document.getElementById("assistantMeta").innerHTML=`<span class="chip">status: ${esc(assistantMeta.status)}</span><span class="chip">provider: ${esc(assistantMeta.provider)}</span>`}
+    function formatAssistantMessage(text){const cleaned=String(text||"").split(/\n+/).map(x=>x.trim()).filter(Boolean);const parts=(cleaned.length?cleaned:String(text||"").split(/(?<=[.!?])\s+/)).map(x=>x.trim()).filter(Boolean);const structured=parts.every(p=>p.includes(":"));if(structured){return `<div class="assistant-body">${parts.map((part,idx)=>{const m=part.match(/^([^:]+):\s*(.*)$/);const title=(m&&m[1])||`Section ${idx+1}`;const body=(m&&m[2])||part;return `<div class="assistant-card"><div class="assistant-card-head"><span class="assistant-card-badge">${idx+1}</span><span class="assistant-card-title">${esc(title)}</span></div><p>${esc(body)}</p></div>`}).join("")}</div>`}return `<div class="assistant-body">${parts.map((part,idx)=>`<div class="assistant-line${idx===0?" label":""}">${esc(part)}</div>`).join("")}</div>`}
+    function renderAssistantFeed(){const el=document.getElementById("assistantFeed");if(!assistantHistory.length){el.innerHTML=`<div class="assistant-msg ai"><strong>ThreatWatch Copilot</strong>${formatAssistantMessage(assistantDefault())}</div>`;return}el.innerHTML=assistantHistory.map(m=>`<div class="assistant-msg ${m.role}"><strong>${esc(m.title)}</strong>${formatAssistantMessage(m.text)}</div>`).join("");el.scrollTop=el.scrollHeight}
+    function pushAssistant(role,title,text){assistantHistory.push({role,title,text});assistantHistory=assistantHistory.slice(-6);document.getElementById("assistantOutput").textContent=text;renderAssistantFeed()}
+    function syncMode(){document.querySelectorAll("[data-mode]").forEach(btn=>btn.classList.toggle("active",btn.dataset.mode===activeScanMode));document.getElementById("modeNote").textContent=activeScanMode==="ai"?"Multi-agent analysis is enabled. Saved provider keys and preferred model ride with this request only.":"Fastest path for quick checks. Uses ML plus the live rule engine.";document.getElementById("navAnalyze").textContent=activeScanMode==="ai"?"AI armed":"Ready";syncLlm()}
+    function syncLlm(msg=""){const model=selectedModel(),o=!!sessionStorage.getItem("threatwatch_openai_key"),a=!!sessionStorage.getItem("threatwatch_anthropic_key");document.getElementById("openaiKeyStatus").textContent=o?"Loaded in session":"Not loaded";document.getElementById("anthropicKeyStatus").textContent=a?"Loaded in session":"Not loaded";document.getElementById("llmStatus").textContent=msg||(activeScanMode==="ai"?`AI mode is active. Preferred model ${model} will be sent with the next request.`:"Standard mode is active. Saved BYOK settings are held for later but ignored until AI mode is enabled.");updateAssistantMeta(activeScanMode==="ai"?"armed":"standby",model)}
+    function saveLlm(){const model=document.getElementById("preferredModel").value,ok=document.getElementById("openaiKey").value.trim(),ak=document.getElementById("anthropicKey").value.trim();sessionStorage.setItem("threatwatch_preferred_model",model);ok?sessionStorage.setItem("threatwatch_openai_key",ok):sessionStorage.removeItem("threatwatch_openai_key");ak?sessionStorage.setItem("threatwatch_anthropic_key",ak):sessionStorage.removeItem("threatwatch_anthropic_key");syncLlm("Session-only provider settings saved. Nothing was written to the server.")}
+    function clearLlm(){["threatwatch_preferred_model","threatwatch_openai_key","threatwatch_anthropic_key"].forEach(k=>sessionStorage.removeItem(k));document.getElementById("preferredModel").value="gpt-4o-mini";document.getElementById("openaiKey").value="";document.getElementById("anthropicKey").value="";syncLlm("Session-only provider settings cleared.")}
+    function aiPayload(){return{preferred_model:sessionStorage.getItem("threatwatch_preferred_model")||document.getElementById("preferredModel").value,openai_api_key:sessionStorage.getItem("threatwatch_openai_key")||undefined,anthropic_api_key:sessionStorage.getItem("threatwatch_anthropic_key")||undefined,include_explanation:true}}
+    function incidentPayload(data){return{scan_id:data.scan_id||null,verdict:data.verdict||"safe",risk_percent:Number(data.risk_percent||0),channel:data.channel||activeChannel,threat_class:document.getElementById("threatClass").textContent||threatClass(data.verdict||"safe",data.reasons||[]),action_level:document.getElementById("actionLevel").textContent||actionLevel(data.verdict||"safe"),summary:document.getElementById("reportSummary").textContent||"",recommendation:document.getElementById("recText").textContent||"",story:document.getElementById("storyText").textContent||"",reasons:data.reasons||[],indicators:data.highlighted_tokens||[],pipeline_mode:data.agent&&data.agent.pipeline_mode?data.agent.pipeline_mode:"standard-only",agent_explanation:data.agent&&data.agent.explanation?data.agent.explanation:"",message_excerpt:(document.getElementById("messageInput").value||"").slice(0,1800)}}
+    async function fetchAssistant(kind,promptText=""){if(!lastScanData)return assistantDefault();try{const chosenModel=selectedModel();updateAssistantMeta("thinking",chosenModel);const r=await fetch(`${API}/api/v1/assistant/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt_kind:kind,incident:incidentPayload(lastScanData),prompt_text:promptText||undefined,preferred_model:chosenModel,openai_api_key:sessionStorage.getItem("threatwatch_openai_key")||undefined,anthropic_api_key:sessionStorage.getItem("threatwatch_anthropic_key")||undefined})});if(!r.ok)throw new Error(await r.text());const data=await r.json();document.getElementById("assistantStatus").textContent=data.source==="llm"?`Copilot response generated via ${data.model_used}.`:"Using fallback guidance while no live model is available.";updateAssistantMeta(data.source==="llm"?"live":"fallback",data.model_used||chosenModel);return data.answer||assistantText(kind,lastScanData)}catch(_){document.getElementById("assistantStatus").textContent="Copilot fell back to built-in guidance.";updateAssistantMeta("fallback",selectedModel());return promptText?`Unable to reach a live model. Re-run the request after the incident is loaded or provider access is restored.`:assistantText(kind,lastScanData)}}
+    async function enrichRecommendation(data){try{const chosenModel=selectedModel();const r=await fetch(`${API}/api/v1/assistant/recommend`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({incident:incidentPayload(data),preferred_model:chosenModel,openai_api_key:sessionStorage.getItem("threatwatch_openai_key")||undefined,anthropic_api_key:sessionStorage.getItem("threatwatch_anthropic_key")||undefined})});if(!r.ok)throw new Error(await r.text());const rec=await r.json();document.getElementById("reportSummary").textContent=rec.summary||document.getElementById("reportSummary").textContent;document.getElementById("recText").textContent=rec.analyst_action||document.getElementById("recText").textContent;if(rec.confidence_note)document.getElementById("storyText").textContent=`${document.getElementById("storyText").textContent} ${rec.confidence_note}`.trim();document.getElementById("agentMode").textContent=rec.source==="llm"?(lastScanData&&lastScanData.agent&&lastScanData.agent.pipeline_mode?lastScanData.agent.pipeline_mode:"assistant-enriched"):(lastScanData&&lastScanData.agent&&lastScanData.agent.pipeline_mode?lastScanData.agent.pipeline_mode:"standard-only");document.getElementById("agentExplanation").textContent=rec.source==="llm"?`Recommendation model: ${rec.model_used}. ${rec.user_action||""}`.trim():document.getElementById("agentExplanation").textContent;if(rec.source==="llm"){document.getElementById("assistantStatus").textContent=`Recommendations enriched via ${rec.model_used}.`;updateAssistantMeta("live",rec.model_used)}}catch(_){}} 
+    function fillExample(k){const e=EXAMPLES[k];activeChannel=e.channel;document.querySelectorAll("[data-channel]").forEach(btn=>btn.classList.toggle("active",btn.dataset.channel===activeChannel));document.getElementById("messageInput").value=e.text;document.getElementById("urlInput").value=e.url;showSection("analyze");setStatus(`${k.charAt(0).toUpperCase()+k.slice(1)} sample loaded. Review it or run the scan now.`,"info")}
+    function clearComposer(){document.getElementById("messageInput").value="";document.getElementById("urlInput").value="";setStatus("Composer cleared. Paste content, paste a URL, or load a sample to continue.")}
+    function fallbackRec(v,r,rs){const s=(rs||[]).slice(0,2).join("; ");if(v==="scam")return`Escalate immediately. Do not click links or share credentials. Quarantine the message and warn the user.${s?` Primary evidence: ${s}`:""}`;if(v==="suspicious")return`Hold for analyst review. Validate the sender, inspect the URL separately, and watch for impersonation or urgency cues.${s?` Current signals: ${s}`:""}`;return`Low risk at the moment. Keep monitoring if the sender, link, or request context changes.${s?` Context: ${s}`:""}`}
+    function priorityLabel(verdict,risk){if(verdict==="scam"||Number(risk||0)>=75)return{label:"High priority",tone:"priority-high"};if(verdict==="suspicious"||Number(risk||0)>=40)return{label:"Review soon",tone:"priority-medium"};return{label:"Monitor",tone:"priority-low"}}
+    function threatClass(v,rs){const h=(rs||[]).join(" ").toLowerCase();if(h.includes("otp"))return"OTP abuse";if(h.includes("bank")||h.includes("financial"))return"Financial scam";if(h.includes("urgent")||h.includes("suspend"))return"Urgency lure";if(h.includes("phish")||h.includes("credential"))return"Phishing";if(v==="scam")return"High-risk scam";if(v==="suspicious")return"Suspicious social engineering";return"Likely benign"}
+    function actionLevel(v){return v==="scam"?"Escalate":v==="suspicious"?"Review":"Monitor"}
+    function story(data){if(data.agent&&data.agent.explanation)return data.agent.explanation;const rs=(data.reasons||[]).slice(0,3);return rs.length?`This incident was driven by ${rs.join(", ").toLowerCase()}. Review the message context and any linked infrastructure before taking action.`:"The current incident has limited evidence and should be interpreted with caution."}
+    function executiveSummary(data){const v=String(data.verdict||"unknown"),r=Number(data.risk_percent||0),rs=(data.reasons||[]).slice(0,2),channel=String(data.channel||activeChannel||"message").toUpperCase(),threat=threatClass(v,data.reasons||[]),action=actionLevel(v).toLowerCase();const lead=v==="scam"?"ThreatWatch AI classifies this incident as high risk and suitable for immediate containment.":v==="suspicious"?"ThreatWatch AI classifies this incident as suspicious and suitable for analyst validation before user action.":"ThreatWatch AI currently sees this incident as low risk, with no urgent response required.";const support=rs.length?`Primary drivers include ${rs.join(" and ").toLowerCase()}.`:"The available evidence is limited, so confidence should be treated as directional.";return `${lead} The assessed exposure for this ${channel} case is ${r}%, with ${threat.toLowerCase()} characteristics. Recommended posture: ${action}. ${support}`}
+    function assistantDefault(){return"Summary: Open the copilot after a scan.\nUse it for fast analyst notes, next actions, or leadership-ready wording."}
+    function assistantText(kind,data){if(!data)return assistantDefault();const v=String(data.verdict||"unknown").toUpperCase(),r=Number(data.risk_percent||0),channel=String(data.channel||activeChannel||"message").toUpperCase(),summary=executiveSummary(data),rec=document.getElementById("recText").textContent||fallbackRec(data.verdict||"safe",r,data.reasons||[]),signals=(data.reasons||[]).slice(0,3),tokens=(data.highlighted_tokens||[]).slice(0,3),threat=threatClass(data.verdict||"safe",data.reasons||[]),pipeline=data.agent&&data.agent.pipeline_mode?data.agent.pipeline_mode:"standard-only";if(kind==="summary")return `Summary: ${summary}\nVerdict: ${v} at ${r}% risk.\nSignals: ${signals.length?signals.join(", ").toLowerCase():"Limited at this stage."}`;if(kind==="action")return `Next action: ${rec}\nLane: ${threat} via ${pipeline}.\nPreserve: ${tokens.length?tokens.join(", "):"Sender, delivery context, and linked infrastructure."}`;if(kind==="exec")return `Leadership brief: ${channel} traffic produced a ${v.toLowerCase()} assessment with ${r}% estimated exposure.\nImpact: ${summary}\nAction: Use this case to guide user communication, control tuning, and monitoring.`;if(kind==="rule")return `Rule direction: Strengthen detection around ${signals.length?signals.join(", ").toLowerCase():"the suspicious pattern set"}.\nCandidate indicators: ${tokens.length?tokens.join(", "):"Sender wording, urgency, and destination reputation"}.\nGuardrail: Validate against recent false positives before promotion.`;return assistantDefault()}
+    function toggleIncidentDrawer(open){const drawer=document.getElementById("incidentDrawer");drawer.classList.toggle("open",typeof open==="boolean"?open:!drawer.classList.contains("open"))}
+    function renderIncidentDrawer(data){previewIncidentData=data;const v=String(data.verdict||"safe");const reasons=(data.reasons||[]).slice(0,5);const drawerVerdict=document.getElementById("drawerVerdict");drawerVerdict.className=`chip ${v}`;drawerVerdict.textContent=v.toUpperCase();document.getElementById("drawerChannel").textContent=String(data.channel||activeChannel).toUpperCase();document.getElementById("drawerRisk").textContent=`${Number(data.risk_percent||0)}% risk`;document.getElementById("drawerHeadline").textContent=data.headline||data.summary||"No headline captured.";document.getElementById("drawerSummary").textContent=executiveSummary(data);document.getElementById("drawerResponse").textContent=(data.agent&&data.agent.user_action)||fallbackRec(v,Number(data.risk_percent||0),data.reasons||[]);document.getElementById("drawerSignals").innerHTML=reasons.length?reasons.map(r=>`<span class="chip">${esc(r)}</span>`).join(""):'<span class="chip">No signals yet</span>';toggleIncidentDrawer(true)}
+    function renderHeroOverview(channels,overview){const scamRate=Number(share(overview.scam||0,overview.total_scans||0).replace("%",""))||0;const severityRing=document.getElementById("severityRing");if(severityRing)severityRing.style.background=`conic-gradient(var(--danger) 0 ${Math.max(0,Math.min(360,scamRate*3.6))}deg,rgba(255,255,255,.05) ${Math.max(0,Math.min(360,scamRate*3.6))}deg 360deg)`;document.getElementById("severityRate").textContent=`${scamRate}%`;document.getElementById("severityNote").textContent=scamRate>=40?"Critical cases are elevated relative to total reviewed volume.":"Critical case share remains contained, but should still be watched for spikes.";const heroBars=document.getElementById("heroChannelBars");if(!channels||!channels.length){heroBars.innerHTML='<div class="muted">No channel mix available yet.</div>';document.getElementById("channelPressureNote").textContent="The busiest attack path will surface here for faster prioritization.";return}const sorted=[...channels].sort((a,b)=>(b.total||0)-(a.total||0)).slice(0,3);const max=Math.max(...sorted.map(c=>Number(c.total||0)),1);heroBars.innerHTML=sorted.map(c=>`<div class="channel-bar"><label>${esc(String(c.channel||"unknown"))}</label><div class="channel-bar-track"><i style="width:${Math.max(12,Math.round((Number(c.total||0)/max)*100))}%"></i></div><span class="chip">${Number(c.total||0)}</span></div>`).join("");const lead=sorted[0];document.getElementById("channelPressureNote").textContent=`${String(lead.channel||"unknown").toUpperCase()} is carrying the heaviest incident volume in the current review window.`}
+    function renderAnalyticsOverview(overview,feedback){const total=Math.max(Number(overview.total_scans||0),1),safePct=Math.round(((Number(overview.safe||0))/total)*100),suspiciousPct=Math.round(((Number(overview.suspicious||0))/total)*100),scamPct=Math.round(((Number(overview.scam||0))/total)*100);document.getElementById("mixSafeBar").style.width=`${Math.max(8,safePct)}%`;document.getElementById("mixSuspiciousBar").style.width=`${Math.max(8,suspiciousPct)}%`;document.getElementById("mixScamBar").style.width=`${Math.max(8,scamPct)}%`;document.getElementById("mixSafeValue").textContent=`${safePct}%`;document.getElementById("mixSuspiciousValue").textContent=`${suspiciousPct}%`;document.getElementById("mixScamValue").textContent=`${scamPct}%`;const reviewed=Number(feedback.correct||0)+Number(feedback.false_positive||0)+Number(feedback.false_negative||0),quality=reviewed?Math.round((Number(feedback.correct||0)/reviewed)*100):0,qualityRing=document.getElementById("qualityRing");if(qualityRing)qualityRing.style.background=`conic-gradient(var(--accent) 0 ${Math.max(0,Math.min(360,quality*3.6))}deg,rgba(255,255,255,.05) ${Math.max(0,Math.min(360,quality*3.6))}deg 360deg)`;document.getElementById("qualityScore").textContent=`${quality}%`;document.getElementById("qualityHeadline").textContent=reviewed?`Quality from ${reviewed} validated cases`:"Detection quality snapshot";document.getElementById("qualityNote").textContent=reviewed?quality>=75?"Analyst feedback suggests detection quality is holding up well. Focus on coverage gaps and review speed.":"Feedback shows meaningful tuning headroom. Review repeated false positives and missed threats for rule or model adjustments.":"Feedback-adjusted detection quality will appear here once analysts start validating incidents."}
+    function renderMiniBars(id,items,empty){const el=document.getElementById(id);if(!items||!items.length){el.innerHTML=`<div class="muted">${empty}</div>`;return}const top=items.slice(0,4),max=Math.max(...top.map(x=>Number(x.count||0)),1);el.innerHTML=top.map((x,idx)=>`<div class="mini-bar"><div><strong><span class="mini-bar-badge">${idx+1}</span>${esc(x.label)}</strong><div class="mini-bar-track"><i style="width:${Math.max(10,Math.round((Number(x.count||0)/max)*100))}%"></i></div></div><span class="chip">${esc(String(x.count||0))}</span></div>`).join("")}
+    function renderIncidentTimeline(data){const el=document.getElementById("incidentTimeline");if(!el)return;const v=String(data.verdict||"safe"),reasons=(data.reasons||[]).slice(0,2).join(", ")||"No dominant reason surfaced.",pipeline=data.agent&&data.agent.pipeline_mode?data.agent.pipeline_mode:"standard engine",latency=data.agent&&typeof data.agent.latency_ms==="number"?`${data.agent.latency_ms} ms`:"Latency unavailable";el.innerHTML=[{badge:"01",tone:"",title:"Intake captured",copy:`${String(data.channel||activeChannel).toUpperCase()} content moved into the investigation workspace for triage.`},{badge:"02",tone:"warn",title:"Detection engines scored the case",copy:`ML and rule engines produced ${pct(data.ml_score||0)} and ${pct(data.rule_score||0)} signals.`},{badge:"03",tone:v==="scam"?"danger":v==="suspicious"?"warn":"",title:"Threat posture assigned",copy:`ThreatWatch classified the case as ${v.toUpperCase()} at ${Number(data.risk_percent||0)}% risk. Leading evidence: ${reasons}`},{badge:"04",tone:"",title:"AI and response guidance",copy:`${pipeline} completed with ${latency}. Recommended action: ${actionLevel(v)}.`}].map(step=>`<div class="timeline-step"><div class="timeline-dot ${step.tone}"></div><div class="timeline-copy"><strong><span class="timeline-marker">${esc(step.badge)}</span>${esc(step.title)}</strong><p>${esc(step.copy)}</p></div></div>`).join("")}
+    function incidentBriefText(data){if(!data)return"";const summary=executiveSummary(data);const response=(data.agent&&data.agent.user_action)||fallbackRec(data.verdict||"safe",Number(data.risk_percent||0),data.reasons||[]);const storyText=story(data);const reasons=(data.reasons||[]).slice(0,5);const indicators=(data.highlighted_tokens||data.indicators||[]).slice(0,5);return JSON.stringify({summary,response,story:storyText,reasons,indicators},null,2)}
+    function printIncidentBrief(source){const data=source||lastScanData||previewIncidentData;if(!data){setStatus("Run or preview an incident before printing a brief.","error");return}const popup=window.open("","threatwatch-print","width=1040,height=820");if(!popup){setStatus("Popup blocked. Allow popups to print the incident brief.","error");return}const summary=executiveSummary(data),response=(data.agent&&data.agent.user_action)||fallbackRec(data.verdict||"safe",Number(data.risk_percent||0),data.reasons||[]),storyText=story(data),reasons=(data.reasons||[]).slice(0,5),indicators=(data.highlighted_tokens||data.indicators||[]).slice(0,5),verdict=String(data.verdict||"unknown").toUpperCase(),risk=Number(data.risk_percent||0),channel=String(data.channel||activeChannel).toUpperCase(),generatedAt=new Date().toLocaleString(),safeLogo=esc("./threatai-logo.png"),chipTone=verdict==="SCAM"?"#b91c1c":verdict==="SUSPICIOUS"?"#92400e":"#166534";popup.document.write(`<!DOCTYPE html><html><head><title>ThreatWatch AI Incident Brief</title><style>body{font-family:'Segoe UI',Arial,sans-serif;margin:0;background:#eef4fb;color:#0f172a}*{box-sizing:border-box}.page{padding:34px 38px 44px}.hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;padding:28px 30px;border-radius:28px;background:linear-gradient(135deg,#0f1d34,#123457 55%,#0f1d34);color:#f8fbff}.brand{display:flex;gap:18px;align-items:center}.brand img{width:78px;height:auto}.brand small{display:block;letter-spacing:.16em;text-transform:uppercase;color:#9fdcff;font-size:11px;margin-bottom:6px}.brand h1{margin:0;font-size:30px;letter-spacing:-.04em}.brand p{margin:8px 0 0;color:#c9d8eb;line-height:1.55;max-width:56ch}.stamp{text-align:right}.stamp .tag{display:inline-block;padding:8px 12px;border-radius:999px;background:${chipTone};color:#fff;font-weight:700;font-size:12px;letter-spacing:.08em}.stamp p{margin:14px 0 0;color:#d7e5f6;font-size:13px;line-height:1.5}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}.metric{padding:16px 18px;border-radius:18px;background:#fff;border:1px solid #d7e4f2}.metric span{display:block;color:#5b6b82;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}.metric strong{font-size:22px;letter-spacing:-.03em}.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.panel{padding:20px 22px;border-radius:22px;background:#fff;border:1px solid #d7e4f2;box-shadow:0 8px 28px rgba(15,23,42,.05)}.panel h2{margin:0 0 10px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#5b6b82}.panel p{margin:0;line-height:1.68;color:#1e293b}.stack{display:flex;flex-direction:column;gap:16px}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;padding:7px 11px;border-radius:999px;background:#eef4fb;border:1px solid #d7e4f2;color:#1e293b;font-size:12px}.footer{margin-top:18px;padding-top:14px;border-top:1px solid #d7e4f2;color:#64748b;font-size:12px;line-height:1.6}@media print{body{background:#fff}.page{padding:20px}.panel,.metric{box-shadow:none}}@media(max-width:900px){.metrics,.grid{grid-template-columns:1fr 1fr}.hero{flex-direction:column}.stamp{text-align:left}}<\/style></head><body><div class="page"><div class="hero"><div class="brand"><img src="${safeLogo}" alt="ThreatWatch AI logo"><div><small>Incident Brief</small><h1>ThreatWatch AI</h1><p>Executive-ready incident reporting for analyst review, escalation planning, and stakeholder communication.</p></div></div><div class="stamp"><span class="tag">${esc(verdict)}</span><p>Generated: ${esc(generatedAt)}<br>Channel: ${esc(channel)}<br>Assessment risk: ${esc(String(risk))}%</p></div></div><div class="metrics"><div class="metric"><span>Threat class</span><strong>${esc(threatClass(data.verdict||"safe",data.reasons||[]))}</strong></div><div class="metric"><span>Action level</span><strong>${esc(actionLevel(data.verdict||"safe"))}</strong></div><div class="metric"><span>Pipeline</span><strong>${esc((data.agent&&data.agent.pipeline_mode)||"standard-only")}</strong></div><div class="metric"><span>Latency</span><strong>${esc(data.agent&&typeof data.agent.latency_ms==="number"?`${data.agent.latency_ms} ms`:"N/A")}</strong></div></div><div class="grid"><div class="stack"><div class="panel"><h2>Executive summary</h2><p>${esc(summary)}</p></div><div class="panel"><h2>Recommended response</h2><p>${esc(response)}</p></div><div class="panel"><h2>Threat story</h2><p>${esc(storyText)}</p></div></div><div class="stack"><div class="panel"><h2>Key signals</h2><div class="chips">${(reasons.length?reasons:["No repeated signals surfaced."]).map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</div></div><div class="panel"><h2>Indicators</h2><div class="chips">${(indicators.length?indicators:["No suspicious indicators extracted."]).map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</div></div><div class="panel"><h2>Assessment notes</h2><p>This brief summarizes the current machine, rule, and optional AI-assisted assessment. Treat it as an analyst support artifact and validate high-impact action before user communication or containment.</p></div></div></div><div class="footer">ThreatWatch AI incident brief. Use alongside analyst validation, rule review, and channel monitoring for final operational decisions.</div></div></body></html>`);popup.document.close();popup.focus();popup.print()}
+    async function setAssistantPrompt(kind){const label=kind==="summary"?"Summarize case":kind==="action"?"Next best action":kind==="exec"?"Exec briefing":"Rule idea";pushAssistant("user","Request",label);document.getElementById("assistantStatus").textContent=lastScanData?"Generating copilot response...":"Waiting for a case to analyze.";toggleAssistant(true);const text=await fetchAssistant(kind);pushAssistant("ai","ThreatWatch Copilot",text)}
+    async function sendAssistantMessage(){const input=document.getElementById("assistantPromptInput"),prompt=input.value.trim();if(!prompt){document.getElementById("assistantStatus").textContent="Type a question for the copilot first.";return}if(!lastScanData){document.getElementById("assistantStatus").textContent="Run a scan first to ask about a live incident.";toggleAssistant(true);return}pushAssistant("user","Analyst prompt",prompt);toggleAssistant(true);document.getElementById("assistantStatus").textContent="Generating copilot response...";input.value="";const text=await fetchAssistant("summary",prompt);pushAssistant("ai","ThreatWatch Copilot",text)}
+    function clearAssistantThread(){assistantHistory=[];renderAssistantFeed();document.getElementById("assistantPromptInput").value="";document.getElementById("assistantStatus").textContent=lastScanData?"Latest incident remains loaded. Ask a fresh question any time.":"Waiting for a case to analyze.";updateAssistantMeta(lastScanData?(activeScanMode==="ai"?"ready":"analysis loaded"):"standby",selectedModel())}
+    function toggleAssistant(open){const panel=document.getElementById("assistantPanel");panel.classList.toggle("open",typeof open==="boolean"?open:!panel.classList.contains("open"));if(panel.classList.contains("open")&&!lastScanData){document.getElementById("assistantStatus").textContent="Run a scan to unlock incident-specific guidance.";updateAssistantMeta("standby",selectedModel());if(!assistantHistory.length)renderAssistantFeed()}else if(panel.classList.contains("open")){document.getElementById("assistantStatus").textContent="Using the latest incident context.";updateAssistantMeta(activeScanMode==="ai"?"armed":"ready",selectedModel())}}
+    function renderSimpleList(id,items,empty){const el=document.getElementById(id);if(!items||!items.length){el.innerHTML=`<div class="muted">${empty}</div>`;return}el.innerHTML=items.map(it=>typeof it==="string"?`<div class="item"><div><strong>${esc(it)}</strong></div></div>`:`<div class="item"><div><strong>${esc(it.label)}</strong>${it.meta?`<span>${esc(it.meta)}</span>`:""}</div><span class="chip">${esc(String(it.count??""))}</span></div>`).join("")}
+    function renderTrend(trend){const el=document.getElementById("trendChart");if(!trend||!trend.length){el.innerHTML=`<div class="muted">No trend data yet.</div>`;return}const max=Math.max(...trend.map(d=>d.total||0),1);el.innerHTML=trend.map(d=>`<div class="barwrap"><div>${d.total||0}</div><div class="stack"><div class="bar-safe" style="height:${((d.safe||0)/max)*100}%"></div><div class="bar-warn" style="height:${((d.suspicious||0)/max)*100}%"></div><div class="bar-danger" style="height:${((d.scam||0)/max)*100}%"></div></div><div class="day">${esc(d.date.slice(5))}</div></div>`).join("")}
+    function renderMetricSpark(id,values){const el=document.getElementById(id);if(!el)return;const arr=(values||[]).slice(-7);if(!arr.length){el.innerHTML='<i style="height:10px"></i>';return}const max=Math.max(...arr,1);el.innerHTML=arr.map(v=>`<i style="height:${Math.max(18,(Number(v)||0)/max*100)}%"></i>`).join("")}
+    function renderChannels(id,channels){const el=document.getElementById(id);if(!channels||!channels.length){el.innerHTML='<div class="muted">No channel data yet.</div>';return}el.innerHTML=channels.map(c=>`<div class="channel"><div class="toprow"><div><strong style="text-transform:uppercase;letter-spacing:.08em">${esc(c.channel)}</strong><p>${c.total} incidents · ${c.scam} scam · ${c.suspicious} suspicious</p></div><span class="chip">${share(c.scam,c.total)} scam</span></div></div>`).join("")}
+    function renderIncidentQueue(id,incs){const el=document.getElementById(id);if(!incs||!incs.length){el.innerHTML='<div class="muted">No incidents yet.</div>';return}el.innerHTML=incs.map(i=>{const p=priorityLabel(i.verdict,i.risk_percent);return `<div class="queue-item"><div class="queue-copy"><div class="queue-head"><span class="chip ${i.verdict}">${esc(i.verdict)}</span><span class="chip">${esc(i.channel.toUpperCase())}</span><span class="chip">${i.risk_percent}% risk</span><span class="priority-chip ${p.tone}">${esc(p.label)}</span></div><strong>${esc(i.headline||"No headline captured.")}</strong><p>${esc((i.recommendation||fallbackRec(i.verdict,i.risk_percent,i.reasons)).slice(0,140))}</p><span class="queue-time">${new Date(i.created_at).toLocaleString()}</span></div><button class="btn" type="button" onclick="previewIncident(${i.id})">Preview</button></div>`}).join("")}
+    function renderIncidents(id,incs){const el=document.getElementById(id);if(!incs||!incs.length){el.innerHTML='<div class="muted">No incidents yet.</div>';return}el.innerHTML=incs.map(i=>{const p=priorityLabel(i.verdict,i.risk_percent);return `<div class="incident"><div class="toprow"><div><div class="chips"><span class="chip ${i.verdict}">${esc(i.verdict)}</span><span class="chip">${esc(i.channel.toUpperCase())}</span><span class="chip">${i.risk_percent}% risk</span><span class="priority-chip ${p.tone}">${esc(p.label)}</span></div><div style="margin-top:.45rem;font-weight:600;line-height:1.45">${esc(i.headline||"No headline captured.")}</div></div><button class="btn" type="button" onclick="openIncident(${i.id})">Open</button></div><p>${new Date(i.created_at).toLocaleString()}</p><div class="chips">${(i.reasons||[]).slice(0,3).map(r=>`<span class="chip">${esc(r)}</span>`).join("")}</div><p>${esc(i.recommendation||fallbackRec(i.verdict,i.risk_percent,i.reasons))}</p></div>`}).join("")}
+    function renderAnalytics(s){const o=s.overview||{};const trend=s.verdict_trend||[];const f=s.feedback||{};const cats=(s.threat_categories||[]).map(x=>({label:x.label,count:x.count}));const reasons=(s.top_reasons||[]).map(x=>({label:x.label,count:x.count}));document.getElementById("mTotal").textContent=o.total_scans||0;document.getElementById("mScamRate").textContent=share(o.scam||0,o.total_scans||0);document.getElementById("mRisk").textContent=pct(o.avg_risk_score||0);document.getElementById("mAi").textContent=o.ai_usage||0;document.getElementById("navDash").textContent=`${o.total_scans||0} scans`;document.getElementById("navAnalytics").textContent=`${trend.length}d`;renderTrend(trend);renderMetricSpark("sparkTotal",trend.map(d=>d.total||0));renderMetricSpark("sparkScam",trend.map(d=>d.scam||0));renderMetricSpark("sparkRisk",trend.map(d=>Math.round((((d.scam||0)+(d.suspicious||0)*0.6)/(Math.max(d.total||0,1)))*100)));renderMetricSpark("sparkAi",trend.map((d,idx)=>idx<trend.length-1?Math.round((idx+1)/(Math.max(trend.length,1))*100):o.ai_usage||0));renderHeroOverview(s.channel_breakdown||[],o);renderAnalyticsOverview(o,f);renderMiniBars("catBars",cats,"No category data yet.");renderMiniBars("reasonBars",reasons,"No reason data yet.");renderSimpleList("topSignals",[...reasons,...(s.top_tokens||[]).slice(0,3).map(x=>({label:x.label,count:x.count,meta:"indicator"}))].slice(0,8),"No repeated signals yet.");renderIncidentQueue("recentIncidents",s.recent_incidents||[]);renderChannels("channelList",s.channel_breakdown||[]);renderSimpleList("catList",cats,"No AI categories yet.");renderSimpleList("reasonAnalytics",reasons,"No repeated reasons yet.");renderSimpleList("tokenAnalytics",(s.top_tokens||[]).map(x=>({label:x.label,count:x.count})),"No hot indicators yet.");renderChannels("channelAnalytics",s.channel_breakdown||[]);renderIncidents("incidentAnalytics",s.recent_incidents||[]);document.getElementById("fbCorrect").textContent=f.correct||0;document.getElementById("fbFp").textContent=f.false_positive||0;document.getElementById("fbFn").textContent=f.false_negative||0}
+    async function refreshDashboard(){try{const r=await fetch(`${API}/api/v1/analytics/summary`);if(!r.ok)throw new Error(await r.text());renderAnalytics(await r.json());return true}catch(e){document.getElementById("trendChart").innerHTML=`<div class="muted">Could not load analytics: ${esc(e.message)}</div>`;return false}}
+    async function refreshDashboardAction(){const btn=document.getElementById("refreshDashboardBtn");const original=btn.textContent;btn.disabled=true;btn.textContent="Refreshing...";const ok=await refreshDashboard();btn.disabled=false;btn.textContent=original;if(ok)setStatus("Dashboard refreshed with the latest analytics snapshot.","success");else setStatus("Dashboard refresh failed. Check API connectivity and try again.","error")}
+    function renderResult(data){lastScanData=data;lastScanId=data.scan_id;assistantHistory=[];const v=data.verdict,r=Number(data.risk_percent||0),rs=data.reasons||[],hs=data.highlighted_tokens||[],agent=data.agent||null,rec=(agent&&agent.user_action)||fallbackRec(v,r,rs),expl=(agent&&agent.explanation)||"No AI explanation returned. Review the evidence and recommendation blocks instead.",model=selectedModel();document.getElementById("resultCard").classList.add("active");showSection("analyze");const vp=document.getElementById("vPill");vp.className=`chip ${v}`;vp.textContent=v.toUpperCase();document.getElementById("modeChip").textContent=activeScanMode==="ai"?`pipeline: ${(agent&&agent.pipeline_mode)||"ai"}`:"standard engine";document.getElementById("modelChip").textContent=activeScanMode==="ai"?`model: ${model}`:"default path";document.getElementById("vLabel").textContent=v==="scam"?"High-risk incident detected":v==="suspicious"?"Suspicious content needs review":"Low-risk content at current confidence";document.getElementById("vSub").textContent=rec;document.getElementById("riskPct").textContent=`${r}%`;document.getElementById("mlScore").textContent=pct(data.ml_score||0);document.getElementById("ruleScore").textContent=pct(data.rule_score||0);document.getElementById("threatClass").textContent=threatClass(v,rs);document.getElementById("actionLevel").textContent=actionLevel(v);document.getElementById("reportSummary").textContent=executiveSummary(data);document.getElementById("recText").textContent=rec;document.getElementById("agentExplanation").textContent=expl;document.getElementById("agentMode").textContent=(agent&&agent.pipeline_mode)||"standard-only";document.getElementById("agentLatency").textContent=agent&&typeof agent.latency_ms==="number"?`${agent.latency_ms} ms`:"N/A";document.getElementById("storyText").textContent=story(data);renderIncidentTimeline(data);renderSimpleList("reasonList",rs.map(x=>({label:x})),"No specific rule or model signals were surfaced.");renderSimpleList("tokenListInline",hs.map(x=>({label:x})),"No suspicious indicators were extracted.");document.querySelectorAll(".fb").forEach(b=>b.classList.remove("active"));document.getElementById("navAnalyze").textContent=`${v.toUpperCase()} · ${r}%`;pushAssistant("ai","ThreatWatch Copilot",assistantText("summary",data));document.getElementById("assistantStatus").textContent="Latest incident loaded into copilot context.";updateAssistantMeta(activeScanMode==="ai"?"ready":"analysis loaded",model);toggleAssistant(true);enrichRecommendation(data)}
+    async function analyze(){const text=document.getElementById("messageInput").value.trim();if(!text){setStatus("Paste content or load a sample before analyzing.","error");return}const body={text,channel:activeChannel,url:document.getElementById("urlInput").value.trim()||null};if(activeScanMode==="ai")Object.assign(body,aiPayload());const btn=document.getElementById("analyzeBtn");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Analyzing...';setStatus(`Submitting ${activeChannel.toUpperCase()} content to the ${activeScanMode==="ai"?"AI pipeline":"standard engine"}...`,"info");try{const ep=activeScanMode==="ai"?"/api/v1/scan/ai":"/api/v1/scan";const r=await fetch(`${API}${ep}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());const data=await r.json();renderResult(data);setStatus(`Scan complete. Verdict: ${String(data.verdict||"unknown").toUpperCase()} at ${data.risk_percent}% risk.`,"success");await refreshDashboard()}catch(e){setStatus(`Scan failed: ${e.message}`,"error")}finally{btn.disabled=false;btn.textContent="Analyze content"}}
+    async function analyzeEml(input){const file=input.files[0];if(!file)return;const btn=document.getElementById("analyzeBtn");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Parsing email...';setStatus("Uploading and parsing .eml file...","info");try{const r=await fetch(`${API}/api/v1/scan/upload`,{method:"POST",body:(()=>{const f=new FormData();f.append("file",file);return f})()});if(!r.ok)throw new Error(await r.text());const data=await r.json(),m=data.email_metadata||{};document.getElementById("messageInput").value=`From: ${m.from||""}\nSubject: ${m.subject||""}\n[Parsed .eml with ${m.body_length||0} chars and ${m.urls_found||0} URL(s)]`;renderResult(data);setStatus(`Uploaded email parsed and scanned. Verdict: ${String(data.verdict||"unknown").toUpperCase()}.`,"success");await refreshDashboard()}catch(e){setStatus(`Upload error: ${e.message}`,"error")}finally{btn.disabled=false;btn.textContent="Analyze content";input.value=""}}
+    async function previewIncident(id){try{const r=await fetch(`${API}/api/v1/scan/${id}`);if(!r.ok)throw new Error(await r.text());renderIncidentDrawer(await r.json())}catch(e){setStatus(`Could not preview incident ${id}: ${e.message}`,"error")}}
+    async function openIncident(id){try{const r=await fetch(`${API}/api/v1/scan/${id}`);if(!r.ok)throw new Error(await r.text());toggleIncidentDrawer(false);renderResult(await r.json())}catch(e){setStatus(`Could not load incident ${id}: ${e.message}`,"error")}}
+    async function sendFeedback(type,event){if(!lastScanId)return;document.querySelectorAll(".fb").forEach(b=>b.classList.remove("active"));if(event&&event.currentTarget)event.currentTarget.classList.add("active");try{await fetch(`${API}/api/v1/scan/${lastScanId}/feedback`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({feedback:type})});await refreshDashboard()}catch(_){}} 
+    function ruleKey(){return sessionStorage.getItem("threatwatch_rule_api_key")||""}
+    function ruleToken(){return sessionStorage.getItem("threatwatch_rule_token")||""}
+    function ruleHeaders(extra={}){const token=ruleToken(),key=ruleKey(),headers={...extra};if(token)headers.Authorization=`Bearer ${token}`;else if(key)headers["X-API-Key"]=key;return headers}
+    function syncRuleKey(){document.getElementById("ruleApiKeyInput").value=ruleKey();document.getElementById("ruleUsernameInput").value=sessionStorage.getItem("threatwatch_rule_username")||"";document.getElementById("rulePasswordInput").value=""}
+    function ruleStatus(msg,type=""){const el=document.getElementById("ruleStatus");el.textContent=msg;el.className=`admin-status${type?" "+type:""}`}
+    async function loginRulesUser(){const username=document.getElementById("ruleUsernameInput").value.trim(),password=document.getElementById("rulePasswordInput").value;if(!username||!password){ruleStatus("Username and password are required for sign-in.","error");return}ruleStatus(`Signing in as ${username}...`);try{const r=await fetch(`${API}/api/v1/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});if(!r.ok)throw new Error(await r.text());const data=await r.json();sessionStorage.setItem("threatwatch_rule_token",data.access_token);sessionStorage.setItem("threatwatch_rule_username",data.user.username);document.getElementById("rulePasswordInput").value="";ruleStatus(`Signed in as ${data.user.username} (${data.user.role}).`,"success");await loadRules()}catch(e){ruleStatus(`Sign-in failed: ${e.message}`,"error")}}
+    function logoutRulesUser(){sessionStorage.removeItem("threatwatch_rule_token");sessionStorage.removeItem("threatwatch_rule_username");document.getElementById("rulePasswordInput").value="";document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';ruleStatus("Signed out of rule management.")}
+    function saveRuleApiKey(){const v=document.getElementById("ruleApiKeyInput").value.trim();if(!v){sessionStorage.removeItem("threatwatch_rule_api_key");ruleStatus("Legacy API key cleared. Sign in or add it again to manage rules.");document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';syncRuleKey();return}sessionStorage.setItem("threatwatch_rule_api_key",v);ruleStatus("Legacy API key saved for this session.","success");loadRules()}
+    function clearRuleApiKey(){sessionStorage.removeItem("threatwatch_rule_api_key");syncRuleKey();document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';ruleStatus("Legacy API key cleared. Sign in or add it again to manage rules.")}
+    function renderRules(rules){const el=document.getElementById("rulesList");if(!rules||!rules.length){el.innerHTML='<div class="muted">No rules to show.</div>';return}el.innerHTML=rules.map(r=>`<div class="rule"><div class="toprow"><div><div class="chips"><span style="font-weight:700">${esc(r.name)}</span><span class="chip ${r.is_active?"safe":"scam"}">${r.is_active?"active":"inactive"}</span><span class="chip">${esc(r.category||"uncategorized")}</span><span class="chip">${esc(r.pattern_type||"regex")}</span></div><p style="margin:.45rem 0">Weight ${Number(r.weight||0).toFixed(2)}${r.description?` · ${esc(r.description)}`:""}</p><div style="font-family:Consolas,monospace;line-height:1.5">${esc(r.pattern||"")}</div></div><button class="btn" type="button" onclick="toggleRule(${r.id})">${r.is_active?"Disable":"Enable"}</button></div></div>`).join("")}
+    async function loadRules(){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in with an admin or analyst account, or set the legacy admin API key.");return}ruleStatus("Loading rules...");try{const r=await fetch(`${API}/api/v1/rules`,{headers:ruleHeaders()});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Access denied for this account or API key.","error");return}if(!r.ok)throw new Error(await r.text());const data=await r.json();renderRules(data);ruleStatus(`Loaded ${data.length} rule${data.length===1?"":"s"}.`,"success")}catch(e){ruleStatus(`Could not load rules: ${e.message}`,"error")}}
+    async function toggleRule(id){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in as an admin or set the legacy admin API key before toggling rules.","error");return}ruleStatus(`Updating rule #${id}...`);try{const r=await fetch(`${API}/api/v1/rules/${id}/toggle`,{method:"PATCH",headers:ruleHeaders()});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Only admins can change rule state.","error");return}if(!r.ok)throw new Error(await r.text());await loadRules()}catch(e){ruleStatus(`Could not update rule: ${e.message}`,"error")}}
+    async function createRule(){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in as an admin or set the legacy admin API key before creating rules.","error");return}const payload={name:document.getElementById("ruleName").value.trim(),category:document.getElementById("ruleCategory").value.trim()||null,pattern:document.getElementById("rulePattern").value.trim(),pattern_type:document.getElementById("rulePatternType").value,weight:Number(document.getElementById("ruleWeight").value),description:document.getElementById("ruleDescription").value.trim()||null};if(!payload.name||!payload.pattern||Number.isNaN(payload.weight)){ruleStatus("Name, pattern, and a valid weight are required.","error");return}ruleStatus(`Creating rule "${payload.name}"...`);try{const r=await fetch(`${API}/api/v1/rules`,{method:"POST",headers:ruleHeaders({"Content-Type":"application/json"}),body:JSON.stringify(payload)});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Only admins can create rules.","error");return}if(!r.ok)throw new Error(await r.text());document.getElementById("ruleCreateForm").reset();document.getElementById("ruleWeight").value="0.25";ruleStatus(`Rule "${payload.name}" created.`,"success");await loadRules()}catch(e){ruleStatus(`Could not create rule: ${e.message}`,"error")}}
+    document.querySelectorAll("[data-sec]").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.sec)));document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{activeScanMode=b.dataset.mode;sessionStorage.setItem("threatwatch_scan_mode",activeScanMode);syncMode()}));document.querySelectorAll("[data-channel]").forEach(b=>b.addEventListener("click",()=>{activeChannel=b.dataset.channel;document.querySelectorAll("[data-channel]").forEach(x=>x.classList.toggle("active",x.dataset.channel===activeChannel));setStatus(`Channel set to ${activeChannel.toUpperCase()}. ${activeScanMode==="ai"?"AI pipeline":"Standard engine"} will be used for the next scan.`,"info")}));document.getElementById("saveLlmBtn").addEventListener("click",saveLlm);document.getElementById("clearLlmBtn").addEventListener("click",clearLlm);document.getElementById("preferredModel").addEventListener("change",()=>{sessionStorage.setItem("threatwatch_preferred_model",document.getElementById("preferredModel").value);syncLlm(`Preferred model changed to ${selectedModel()}. It will be used on the next AI request.`)});document.getElementById("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.ctrlKey)analyze()});document.getElementById("assistantFab").addEventListener("click",()=>toggleAssistant());document.getElementById("assistantClose").addEventListener("click",()=>toggleAssistant(false));document.getElementById("assistantSend").addEventListener("click",sendAssistantMessage);document.getElementById("assistantClear").addEventListener("click",clearAssistantThread);document.getElementById("assistantPromptInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendAssistantMessage()}});document.getElementById("incidentDrawerClose").addEventListener("click",()=>toggleIncidentDrawer(false));document.getElementById("drawerOpenWorkspace").addEventListener("click",()=>{if(previewIncidentData){toggleIncidentDrawer(false);renderResult(previewIncidentData)}});window.addEventListener("keydown",e=>{if(e.key==="Escape"){toggleAssistant(false);toggleIncidentDrawer(false)}});
+    document.getElementById("preferredModel").value=sessionStorage.getItem("threatwatch_preferred_model")||"gpt-4o-mini";document.getElementById("openaiKey").value=sessionStorage.getItem("threatwatch_openai_key")||"";document.getElementById("anthropicKey").value=sessionStorage.getItem("threatwatch_anthropic_key")||"";syncRuleKey();syncMode();refreshDashboard();setInterval(refreshDashboard,3e4);if(ruleKey()||ruleToken())loadRules();
+  </script>
 </body>
 </html>

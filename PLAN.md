@@ -298,11 +298,13 @@ Add `pytest==8.2.0` + `pytest-asyncio==0.23.6` to requirements.
 - Add `GOOGLE_SAFE_BROWSING_KEY` env var
 - In `rule_engine.py`, async HTTP call to Safe Browsing Lookup API v4
 - If flagged: add `{"flag_type": "url", "weight": 0.5, "description": "Google Safe Browsing: known malicious URL"}`
+Status: Implemented as optional enrichment in the rule engine. If the key is unset or the lookup fails, scans continue normally.
 
 ### P3 — History / Recent Scans Panel
 - Fetch `/api/v1/stats` returns `recent_scans[]` — already implemented
 - Add a collapsible "Recent Scans" section below the result card
 - Show last 5 scans: verdict chip + risk% + timestamp
+Status: Implemented in `frontend/index.html`.
 
 ### P4 — Rule Manager UI
 - Simple table listing all rules from `GET /api/v1/rules`
@@ -310,12 +312,14 @@ Add `pytest==8.2.0` + `pytest-asyncio==0.23.6` to requirements.
 - Add custom rule form (name, pattern, weight, category)
 - Protected by API key (prompt for it once, store in sessionStorage)
 - **Demo value**: live-edit rules during judging to show extensibility
+Status: Implemented in `frontend/index.html`.
 
 ### P5 — Chrome Extension Stub
 - `manifest.json` (MV3) + `content_script.js` that scrapes Gmail message body
 - Posts to ThreatWatch AI API on page load if URL matches `mail.google.com`
 - Shows result as a badge overlay on the email subject line
 - **Demo value**: extremely visual, shows real-world applicability
+Status: Stub implemented under `chrome-extension/`.
 
 ---
 

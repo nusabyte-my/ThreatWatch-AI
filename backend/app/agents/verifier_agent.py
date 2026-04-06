@@ -91,6 +91,7 @@ async def run(ctx: ScanContext, classifier: ClassifierResult) -> VerifierResult:
             max_tokens=200,
             temperature=0.0,
             json_mode=True,
+            llm_config=ctx.llm_config,
         )
         data = safe_parse_json(text)
 

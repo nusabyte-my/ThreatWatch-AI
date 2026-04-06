@@ -4,8 +4,6 @@ Uses Python's built-in `email` module — no extra dependency.
 Extracts: Subject, From, body text, and any URLs found in body.
 Then feeds into the standard scan engine.
 """
-from __future__ import annotations
-
 import email
 import email.policy
 import re
@@ -17,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import get_db
 from app.engine.scanner import scan as run_scan
+from app.limiter import limiter
 
 logger = logging.getLogger("threatwatch.api.upload")
 
@@ -27,6 +26,7 @@ MAX_EML_SIZE = 2 * 1024 * 1024   # 2 MB
 
 
 @router.post("/scan/upload")
+@limiter.limit("10/minute")
 async def scan_eml(
     request: Request,
     file: UploadFile = File(...),

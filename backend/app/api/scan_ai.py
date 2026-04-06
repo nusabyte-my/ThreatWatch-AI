@@ -3,7 +3,6 @@ POST /api/v1/scan/ai — multi-agent scan endpoint.
 Runs existing ML + rule engine first, then the 4-agent LLM pipeline,
 then blends both scores into a final result.
 """
-from __future__ import annotations
 
 import logging
 from dataclasses import asdict
@@ -19,6 +18,7 @@ from app.config import settings
 from app.db.base import get_db
 from app.db.models import Scan
 from app.engine.scanner import scan as run_scan
+from app.limiter import limiter
 
 logger = logging.getLogger("threatwatch.api.scan_ai")
 
@@ -30,9 +30,13 @@ class AIScanRequest(BaseModel):
     channel: str = Field(default="chat", pattern="^(email|sms|chat|url)$")
     url: Optional[str] = Field(default=None, max_length=2048)
     include_explanation: bool = Field(default=True)
+    preferred_model: Optional[str] = Field(default=None, max_length=80)
+    openai_api_key: Optional[str] = Field(default=None, max_length=400)
+    anthropic_api_key: Optional[str] = Field(default=None, max_length=400)
 
 
 @router.post("/scan/ai")
+@limiter.limit("5/minute")
 async def ai_scan(
     request: Request,
     req: AIScanRequest,
@@ -77,6 +81,11 @@ async def ai_scan(
                 rule_score=base["rule_score"],
                 rule_flags=[],   # flags come from DB after scan commit
                 include_explanation=req.include_explanation,
+                llm_config={
+                    "preferred_model": req.preferred_model.strip() if req.preferred_model else None,
+                    "openai_api_key": req.openai_api_key.strip() if req.openai_api_key else None,
+                    "anthropic_api_key": req.anthropic_api_key.strip() if req.anthropic_api_key else None,
+                },
             )
 
             pipeline = await run_pipeline(ctx)
