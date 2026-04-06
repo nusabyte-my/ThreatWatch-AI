@@ -2,7 +2,7 @@
 
 **Multi-channel AI scam & phishing detection** — ML + rule engine, built for real-world threat analysis across email, SMS, and chat.
 
-> Hackathon project by [NusaByte](https://github.com/nusabyte-my)
+> **Nexpert Hackathon 2026** — Submitted by ThreatWatch Team · Team U
 
 ---
 
@@ -174,4 +174,4 @@ Rule engine is weighted higher because it is more interpretable and domain-speci
 
 ## License
 
-MIT — NusaByte 2026
+MIT — ThreatWatch Team 2026
