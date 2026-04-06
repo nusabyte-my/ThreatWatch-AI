@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: threatwatch-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: threatwatch
+      POSTGRES_USER: threatwatch
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-threatwatch_secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U threatwatch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: threatwatch-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://threatwatch:${DB_PASSWORD:-threatwatch_secret}@db:5432/threatwatch
+      SECRET_KEY: ${SECRET_KEY:-changeme_in_prod}
+      MODEL_PATH: /app/ml/model.pkl
+    volumes:
+      - ./backend:/app
+      - model_data:/app/ml
+    ports:
+      - "8100:8100"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python -m app.db.migrate &&
+             python -m app.ml.train --seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8100 --reload"
+
+  frontend:
+    image: nginx:alpine
+    container_name: threatwatch-ui
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/frontend.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  nginx:
+    image: nginx:alpine
+    container_name: threatwatch-proxy
+    restart: unless-stopped
+    volumes:
+      - ./nginx/proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+      - frontend
+
+volumes:
+  pgdata:
+  model_data:
