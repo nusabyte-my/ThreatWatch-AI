@@ -67,18 +67,125 @@ Integrations:
 
 ---
 
-## Architecture
+## Tech Stack
 
-Local stack:
-- `nginx` reverse proxy on `5080`
-- `frontend` static dashboard
-- `api` FastAPI service
-- `db` PostgreSQL
+Frontend:
+- `HTML / CSS / Vanilla JavaScript`
+- single-page dashboard UI in `frontend/index.html`
+- nginx-served operator console on `http://localhost:5080`
 
-Main user entry points:
+Backend:
+- `Python`
+- `FastAPI`
+- `Uvicorn`
+- `Pydantic`
+- `SQLAlchemy`
+
+Data and storage:
+- `PostgreSQL`
+
+AI and detection:
+- rule engine
+- ML-assisted scan flow
+- assistant and recommendation endpoints
+- BYOK support for `OpenAI` and `Anthropic`
+- self-hosted `Ollama` support for `Gemma`
+
+Infrastructure:
+- `Docker`
+- `docker compose`
+- `nginx` reverse proxy
+
+Integrations:
+- Chrome/Gmail extension stub
+- Thunderbird extension stub
+- Outlook Web extension stub
+
+---
+
+## Build Information
+
+Runtime topology:
+- `nginx` proxy on port `5080`
+- `frontend` static app behind nginx
+- `api` FastAPI backend behind nginx
+- `db` PostgreSQL database
+
+Primary local entry points:
 - UI: `http://localhost:5080`
-- API: `http://localhost:5080/api/v1/...`
+- API base: `http://localhost:5080/api/v1`
 - Health: `http://localhost:5080/api/v1/health`
+
+Build and run model:
+- local build uses `docker compose`
+- frontend is served as a static app
+- backend runs as a containerized FastAPI service
+- nginx unifies frontend and API into one local surface
+
+Current local execution command:
+
+```bash
+docker compose up --build -d
+```
+
+Stop command:
+
+```bash
+docker compose down
+```
+
+---
+
+## Project Tree
+
+```text
+ThreatWatch-AI/
+├── backend/                  FastAPI app, auth, scan logic, analytics, assistant
+│   └── app/
+│       ├── api/              API routes: scan, auth, rules, analytics, assistant
+│       ├── agents/           LLM client and agent pipeline components
+│       ├── engine/           Rule and scan engine logic
+│       ├── db/               Models, session, bootstrap, migration helpers
+│       └── ml/               ML training and prediction path
+├── frontend/                 Main dashboard UI and static assets
+├── nginx/                    Reverse proxy configuration
+├── chrome-extension/         Gmail / Chrome integration stub
+├── thunderbird-extension/    Thunderbird integration stub
+├── outlook-web-extension/    Outlook Web integration stub
+├── docker-compose.yml        Local runtime entry point
+├── .env.example              Environment template
+├── PLAN.md                   Build and roadmap plan
+├── EXECUTIVE_SUMMARY.md      Business-facing one-page summary
+└── README.md                 Main project guide
+```
+
+---
+
+## Product Stage
+
+Current maturity:
+- working local full-stack product
+- operator-facing dashboard and investigation workflow implemented
+- analytics, rules, copilot, and print brief implemented
+- self-hosted Gemma path implemented through Ollama
+- extension integrations are currently stubs, not production-ready clients
+
+Current stage label:
+- `functional prototype / advanced internal demo`
+
+What is production-leaning already:
+- containerized local runtime
+- auth/RBAC foundation
+- security hardening pass
+- route-level rate limiting
+- structured operator workflow
+
+What still needs production follow-through:
+- full browser QA
+- deeper runtime validation
+- stronger auth persistence and audit logging
+- production deployment hardening
+- extension runtime testing across real mail environments
 
 ---
 
