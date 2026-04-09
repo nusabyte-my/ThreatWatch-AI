@@ -3,12 +3,18 @@
   "name": "ThreatWatch AI for Gmail",
   "version": "0.1.0",
   "description": "Scans open Gmail messages with ThreatWatch AI and shows an in-page scam verdict badge.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
     "https://mail.google.com/*",
     "http://localhost:8100/*",
     "https://threatwatch-ai-api.up.railway.app/*"
   ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
   "options_page": "options.html",
   "content_scripts": [
     {

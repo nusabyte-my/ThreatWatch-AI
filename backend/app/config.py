@@ -1,6 +1,5 @@
 import json
-from typing import List
-from pydantic import field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
@@ -9,17 +8,17 @@ class Settings(BaseSettings):
     secret_key: str = "changeme"
     model_path: str = "./ml/model.pkl"
     debug: bool = False
-    allowed_origins: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5080",
+    allowed_origins_raw: str = Field(
+        "http://localhost:3000,"
+        "http://127.0.0.1:3000,"
+        "http://localhost:5080,"
         "http://127.0.0.1:5080",
-    ]
-    allowed_hosts: List[str] = [
-        "localhost",
-        "127.0.0.1",
-        "testserver",
-    ]
+        validation_alias="ALLOWED_ORIGINS",
+    )
+    allowed_hosts_raw: str = Field(
+        "localhost,127.0.0.1,testserver",
+        validation_alias="ALLOWED_HOSTS",
+    )
     api_key: str = "changeme_api_key"
     max_request_bytes: int = 3 * 1024 * 1024
     auth_enabled: bool = True
@@ -41,19 +40,13 @@ class Settings(BaseSettings):
     google_safe_browsing_key: str = ""
     google_safe_browsing_timeout: int = 5
 
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def parse_origins(cls, v):
-        if isinstance(v, str):
-            return [o.strip() for o in v.split(",")]
-        return v
+    @property
+    def allowed_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.allowed_origins_raw.split(",") if origin.strip()]
 
-    @field_validator("allowed_hosts", mode="before")
-    @classmethod
-    def parse_hosts(cls, v):
-        if isinstance(v, str):
-            return [o.strip() for o in v.split(",")]
-        return v
+    @property
+    def allowed_hosts(self) -> list[str]:
+        return [host.strip() for host in self.allowed_hosts_raw.split(",") if host.strip()]
 
     @property
     def auth_users(self) -> list[dict]:

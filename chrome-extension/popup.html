@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ThreatWatch AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      width: 340px;
+      color: #111827;
+      background: #f9fafb;
+    }
+    .wrap {
+      padding: 16px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    p {
+      margin: 0 0 12px;
+      color: #4b5563;
+      line-height: 1.4;
+      font-size: 13px;
+    }
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    .card {
+      margin-top: 12px;
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .label {
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .risk {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+    .meta {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ThreatWatch AI</h1>
+    <p>Open a Gmail message and ThreatWatch will scan it automatically.</p>
+    <div id="result" class="card">
+      <div class="row">
+        <div class="label">Ready</div>
+        <div class="risk"></div>
+      </div>
+      <div class="meta">Open a Gmail message to see the latest result here.</div>
+    </div>
+    <div class="hint">The popup updates from the latest auto-scan result. Settings still live in the extension options page.</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
