@@ -223,45 +223,140 @@
     if (!panel) {
       panel = document.createElement("div");
       panel.id = INLINE_RESULT_ID;
-      panel.style.margin = "10px 0 6px";
-      panel.style.padding = "10px 12px";
-      panel.style.borderRadius = "10px";
-      panel.style.fontFamily = "Arial, sans-serif";
-      panel.style.fontSize = "13px";
-      panel.style.lineHeight = "1.35";
-      panel.style.boxShadow = "0 1px 2px rgba(0,0,0,0.10)";
+      panel.style.cssText = [
+        "margin:10px 0 8px",
+        "border-radius:12px",
+        "font-family:-apple-system,'Segoe UI',Arial,sans-serif",
+        "font-size:13px",
+        "line-height:1.45",
+        "box-shadow:0 2px 8px rgba(0,0,0,0.10)",
+        "overflow:hidden",
+      ].join(";");
     }
 
     if (!panel.parentElement || panel.previousElementSibling !== anchor) {
       anchor.insertAdjacentElement("afterend", panel);
     }
 
-    const theme = getTheme(result?.verdict);
-    const risk = typeof result?.risk_percent === "number" ? `${result.risk_percent}% risk` : "";
-    const summary = getSummaryText(result);
+    const v       = result?.verdict || "error";
+    const theme   = getTheme(v);
+    const risk    = typeof result?.risk_percent === "number" ? result.risk_percent : null;
+    const mlScore = result?.ml_score;
+    const ruleScore = result?.rule_score;
+    const agent   = result?.agent || {};
+    const reasons = Array.isArray(result?.reasons) ? result.reasons.filter(Boolean) : [];
+    const tokens  = Array.isArray(result?.highlighted_tokens) ? result.highlighted_tokens.filter(Boolean) : [];
+    const ruleFlags = Array.isArray(result?.rule_flags) ? result.rule_flags.filter(Boolean) : [];
+    const allFlags  = [...new Set([...reasons, ...ruleFlags])].slice(0, 6);
+    const explanation = agent.explanation || getDefaultExplain(v);
+    const rec     = agent.user_action || getDefaultRec(v);
+    const mode    = agent.pipeline_mode || result?.scan_mode || "";
+    const confidence = agent.confidence || "";
+
+    const pct = (n) => n !== undefined && n !== null ? `${Math.round(Number(n) * 100)}%` : "—";
+
+    let scoreHtml = "";
+    if (mlScore !== undefined || ruleScore !== undefined) {
+      scoreHtml = `
+        <div style="display:flex;gap:6px;margin:6px 0 0">
+          <div style="flex:1;padding:4px 6px;border-radius:6px;background:rgba(0,0,0,.04);text-align:center">
+            <div style="font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.06em">ML</div>
+            <div style="font-weight:700;font-size:12px;margin-top:1px">${pct(mlScore)}</div>
+          </div>
+          <div style="flex:1;padding:4px 6px;border-radius:6px;background:rgba(0,0,0,.04);text-align:center">
+            <div style="font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.06em">Rules</div>
+            <div style="font-weight:700;font-size:12px;margin-top:1px">${pct(ruleScore)}</div>
+          </div>
+          ${risk !== null ? `<div style="flex:1;padding:4px 6px;border-radius:6px;background:rgba(0,0,0,.04);text-align:center">
+            <div style="font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.06em">Risk</div>
+            <div style="font-weight:700;font-size:12px;margin-top:1px">${risk}%</div>
+          </div>` : ""}
+          ${mode ? `<div style="flex:1;padding:4px 6px;border-radius:6px;background:rgba(0,0,0,.04);text-align:center">
+            <div style="font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.06em">Mode</div>
+            <div style="font-weight:600;font-size:10px;margin-top:2px">${escapeHtml(mode)}</div>
+          </div>` : ""}
+        </div>`;
+    }
+
+    let flagsHtml = "";
+    if (allFlags.length && v !== "scanning" && v !== "error") {
+      flagsHtml = `
+        <div style="margin-top:7px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;opacity:.55;margin-bottom:4px;font-weight:700">Triggered signals</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${allFlags.map(f => `<span style="padding:2px 7px;border-radius:5px;font-size:11px;font-weight:500;background:rgba(0,0,0,.06);opacity:.9">${escapeHtml(String(f).replace(/_/g, " "))}</span>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    let tokensHtml = "";
+    if (tokens.length && v !== "scanning" && v !== "safe") {
+      tokensHtml = `
+        <div style="margin-top:6px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;opacity:.55;margin-bottom:4px;font-weight:700">Suspicious indicators</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px">
+            ${tokens.slice(0, 8).map(t => `<code style="padding:1px 5px;border-radius:4px;font-size:10px;background:rgba(0,0,0,.06)">${escapeHtml(t)}</code>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    let recHtml = "";
+    if (rec && v !== "scanning" && v !== "error") {
+      recHtml = `
+        <div style="margin-top:7px;padding:6px 9px;border-radius:7px;background:rgba(0,0,0,.06);font-size:12px;line-height:1.45">
+          <span style="font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.07em;opacity:.6;display:block;margin-bottom:2px">Recommended action</span>
+          ${escapeHtml(rec)}
+        </div>`;
+    }
 
     panel.style.background = theme.background;
     panel.style.border = `1px solid ${theme.border}`;
     panel.style.color = theme.color;
     panel.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <strong style="font-size:13px;">ThreatWatch AI: ${theme.label}</strong>
-        <span style="font-size:12px;opacity:0.85;">${escapeHtml(risk)}</span>
-      </div>
-      <div style="margin-top:4px;font-size:12px;opacity:0.92;">${escapeHtml(summary)}</div>
-    `;
+      <div style="padding:10px 13px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <strong style="font-size:13px;letter-spacing:-.01em">
+            🛡 ThreatWatch AI &nbsp;<span style="font-weight:800">${escapeHtml(theme.label)}</span>
+          </strong>
+          ${risk !== null ? `<span style="font-size:12px;font-weight:600;opacity:.8">${risk}% risk</span>` : ""}
+        </div>
+
+        ${explanation && v !== "scanning" ? `
+          <div style="margin-top:6px;font-size:12px;line-height:1.5;opacity:.9">${escapeHtml(explanation)}</div>` : ""}
+
+        ${v === "scanning" ? `
+          <div style="margin-top:5px;font-size:12px;opacity:.8">Analysing content with ML engine and rule patterns…</div>` : ""}
+
+        ${scoreHtml}
+        ${flagsHtml}
+        ${tokensHtml}
+        ${recHtml}
+
+        ${confidence ? `<div style="margin-top:5px;font-size:10px;opacity:.5">Confidence: ${escapeHtml(confidence)}</div>` : ""}
+      </div>`;
+  }
+
+  function getDefaultExplain(verdict) {
+    if (verdict === "safe") return "No threat indicators were detected. The content, sender, and any links appear legitimate based on ML analysis and rule matching.";
+    if (verdict === "suspicious") return "Some elements of this email match patterns associated with phishing or scams. Exercise caution before clicking links or sharing information.";
+    if (verdict === "scam") return "This email contains strong indicators of a phishing attempt or scam — such as urgent language, spoofed sender, or suspicious links. Do not interact with it.";
+    if (verdict === "scanning") return "";
+    return "The scan could not be completed. Verify the extension options and API connectivity.";
+  }
+
+  function getDefaultRec(verdict) {
+    if (verdict === "safe") return "No action required.";
+    if (verdict === "suspicious") return "Do not click links or download attachments without verifying the sender through a trusted channel.";
+    if (verdict === "scam") return "Do not reply, click any links, or provide personal information. Mark as spam and report to your IT/security team.";
+    return "";
   }
 
   function getSummaryText(result) {
     const reasons = Array.isArray(result?.reasons) ? result.reasons.filter(Boolean) : [];
     const explanation = result?.agent?.explanation || "";
-    if (reasons.length) return reasons.slice(0, 2).join(" • ");
     if (explanation) return explanation;
-    if (result?.verdict === "safe") return "No major threat indicators detected.";
-    if (result?.verdict === "suspicious") return "Potential risk detected. Review carefully.";
-    if (result?.verdict === "scam") return "High-confidence threat detected.";
-    if (result?.verdict === "scanning") return "Scanning current Gmail message...";
-    return "ThreatWatch could not complete the scan.";
+    if (reasons.length) return reasons.slice(0, 2).join(" • ");
+    return getDefaultExplain(result?.verdict || "error");
   }
 
   function getTheme(verdict) {

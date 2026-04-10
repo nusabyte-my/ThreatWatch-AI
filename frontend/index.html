@@ -386,9 +386,12 @@
       <!-- Auth bar (shown when no session token) ─────── -->
       <div id="authBar" style="display:none;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.75rem 1rem;background:var(--panel);border:1px solid var(--warn-border);border-radius:14px;box-shadow:var(--shadow)">
         <i data-lucide="lock" width="15" height="15" style="color:var(--warn);flex-shrink:0"></i>
-        <span style="font-size:.82rem;color:var(--muted);flex:1;min-width:140px">Analytics requires a session — sign in to view data.</span>
-        <input id="dashUser" type="text" placeholder="Username" autocomplete="username" style="width:130px;padding:.42rem .65rem;font-size:.82rem;border-radius:8px">
-        <input id="dashPass" type="password" placeholder="Password" autocomplete="current-password" style="width:130px;padding:.42rem .65rem;font-size:.82rem;border-radius:8px">
+        <div style="flex:1;min-width:140px">
+          <div style="font-size:.82rem;color:var(--text);font-weight:500">Sign in to view analytics</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.1rem">Demo credentials pre-filled — click Sign in to continue</div>
+        </div>
+        <input id="dashUser" type="text" value="demo" readonly autocomplete="username" style="width:110px;padding:.42rem .65rem;font-size:.82rem;border-radius:8px;color:var(--subtle);cursor:default;opacity:.7">
+        <input id="dashPass" type="password" value="demo2024" readonly autocomplete="current-password" style="width:110px;padding:.42rem .65rem;font-size:.82rem;border-radius:8px;color:var(--subtle);cursor:default;opacity:.7">
         <button class="btn-primary btn-sm" id="dashLoginBtn" type="button" onclick="dashLogin()">
           <i data-lucide="log-in" width="13" height="13"></i>Sign in
         </button>
@@ -731,6 +734,58 @@
             </div>
           </div>
         </div>
+
+        <!-- Extensions guide ──────────────────────────── -->
+        <div class="card" style="margin-top:.1rem">
+          <div class="card-hdr">
+            <div><div class="eyebrow">Client Extensions</div><h3>Available integrations &amp; how to install</h3></div>
+            <a href="install.html" class="btn btn-sm"><i data-lucide="external-link" width="13" height="13"></i> Full guide</a>
+          </div>
+          <div class="g3" style="margin-bottom:.85rem">
+            <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-bg);display:grid;place-items:center;color:var(--accent);flex-shrink:0"><i data-lucide="chrome" width="16" height="16"></i></div>
+                <div><strong style="font-size:.88rem">Chrome Extension</strong><div style="font-size:.72rem;color:var(--muted)">Gmail · Manifest V3</div></div>
+              </div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem">Scans open Gmail messages automatically. Shows a colour-coded verdict badge inline with the email and in the popup.</div>
+              <div class="row">
+                <span class="chip safe">Active</span>
+                <a href="https://github.com/nusabyte-my/ThreatWatch-AI/archive/refs/heads/main.zip" class="btn btn-sm" style="font-size:.75rem"><i data-lucide="download" width="12" height="12"></i>Download ZIP</a>
+              </div>
+            </div>
+            <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--panel3);display:grid;place-items:center;color:var(--muted);flex-shrink:0"><i data-lucide="mail" width="16" height="16"></i></div>
+                <div><strong style="font-size:.88rem">Outlook</strong><div style="font-size:.72rem;color:var(--muted)">Web + Desktop</div></div>
+              </div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem">No native add-in yet. Copy email content and paste into the Scan tab, or use the OWA bookmarklet for one-click scanning.</div>
+              <div class="row">
+                <span class="chip suspicious" style="font-size:.68rem">Workaround</span>
+                <a href="install.html" class="btn btn-sm" style="font-size:.75rem"><i data-lucide="book-open" width="12" height="12"></i>Setup guide</a>
+              </div>
+            </div>
+            <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--panel3);display:grid;place-items:center;color:var(--muted);flex-shrink:0"><i data-lucide="mail-check" width="16" height="16"></i></div>
+                <div><strong style="font-size:.88rem">Thunderbird</strong><div style="font-size:.72rem;color:var(--muted)">Desktop</div></div>
+              </div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem">No native add-on yet. Copy email text or headers from View Source and paste into the Scan tab for analysis.</div>
+              <div class="row">
+                <span class="chip suspicious" style="font-size:.68rem">Workaround</span>
+                <a href="install.html" class="btn btn-sm" style="font-size:.75rem"><i data-lucide="book-open" width="12" height="12"></i>Setup guide</a>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:.75rem 1rem;background:var(--accent-bg);border-radius:10px;border:1px solid rgba(14,165,233,.15)">
+            <div style="display:flex;align-items:flex-start;gap:.65rem">
+              <i data-lucide="info" width="15" height="15" style="color:var(--accent);flex-shrink:0;margin-top:.1rem"></i>
+              <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+                <strong style="color:var(--text)">Chrome install (sideload):</strong> Download ZIP → extract → <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.75rem">chrome://extensions</code> → enable <em>Developer mode</em> → <em>Load unpacked</em> → select the <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.75rem">chrome-extension/</code> folder. The API endpoint is pre-configured to this server.
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -901,7 +956,7 @@
     async function toggleRule(id){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in as an admin or set the legacy admin API key before toggling rules.","error");return}ruleStatus(`Updating rule #${id}...`);try{const r=await fetch(`${API}/api/v1/rules/${id}/toggle`,{method:"PATCH",headers:ruleHeaders()});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Only admins can change rule state.","error");return}if(!r.ok)throw new Error(await r.text());await loadRules()}catch(e){ruleStatus(`Could not update rule: ${e.message}`,"error")}}
     async function createRule(){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in as an admin or set the legacy admin API key before creating rules.","error");return}const payload={name:document.getElementById("ruleName").value.trim(),category:document.getElementById("ruleCategory").value.trim()||null,pattern:document.getElementById("rulePattern").value.trim(),pattern_type:document.getElementById("rulePatternType").value,weight:Number(document.getElementById("ruleWeight").value),description:document.getElementById("ruleDescription").value.trim()||null};if(!payload.name||!payload.pattern||Number.isNaN(payload.weight)){ruleStatus("Name, pattern, and a valid weight are required.","error");return}ruleStatus(`Creating rule "${payload.name}"...`);try{const r=await fetch(`${API}/api/v1/rules`,{method:"POST",headers:ruleHeaders({"Content-Type":"application/json"}),body:JSON.stringify(payload)});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Only admins can create rules.","error");return}if(!r.ok)throw new Error(await r.text());document.getElementById("ruleCreateForm").reset();document.getElementById("ruleWeight").value="0.25";ruleStatus(`Rule "${payload.name}" created.`,"success");await loadRules()}catch(e){ruleStatus(`Could not create rule: ${e.message}`,"error")}}
     document.querySelectorAll("[data-sec]").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.sec)));document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{activeScanMode=b.dataset.mode;sessionStorage.setItem("threatwatch_scan_mode",activeScanMode);syncMode()}));document.querySelectorAll("[data-channel]").forEach(b=>b.addEventListener("click",()=>{activeChannel=b.dataset.channel;document.querySelectorAll("[data-channel]").forEach(x=>x.classList.toggle("active",x.dataset.channel===activeChannel));setStatus(`Channel set to ${activeChannel.toUpperCase()}. ${activeScanMode==="ai"?"AI pipeline":"Standard engine"} will be used for the next scan.`,"info")}));document.getElementById("saveLlmBtn").addEventListener("click",saveLlm);document.getElementById("clearLlmBtn").addEventListener("click",clearLlm);document.getElementById("preferredModel").addEventListener("change",()=>{sessionStorage.setItem("threatwatch_preferred_model",document.getElementById("preferredModel").value);syncLlm(`Preferred model changed to ${selectedModel()}. It will be used on the next AI request.`)});document.getElementById("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.ctrlKey)analyze()});document.getElementById("assistantFab").addEventListener("click",()=>toggleAssistant());document.getElementById("assistantClose").addEventListener("click",()=>toggleAssistant(false));document.getElementById("assistantSend").addEventListener("click",sendAssistantMessage);document.getElementById("assistantClear").addEventListener("click",clearAssistantThread);document.getElementById("assistantPromptInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendAssistantMessage()}});document.getElementById("incidentDrawerClose").addEventListener("click",()=>toggleIncidentDrawer(false));document.getElementById("drawerOpenWorkspace").addEventListener("click",()=>{if(previewIncidentData){toggleIncidentDrawer(false);renderResult(previewIncidentData)}});window.addEventListener("keydown",e=>{if(e.key==="Escape"){toggleAssistant(false);toggleIncidentDrawer(false)}});
-    document.getElementById("preferredModel").value=sessionStorage.getItem("threatwatch_preferred_model")||"gpt-4o-mini";document.getElementById("openaiKey").value=sessionStorage.getItem("threatwatch_openai_key")||"";document.getElementById("anthropicKey").value=sessionStorage.getItem("threatwatch_anthropic_key")||"";syncRuleKey();syncMode();syncAuthBar();refreshDashboard();setInterval(refreshDashboard,3e4);if(ruleKey()||ruleToken())loadRules();document.getElementById("dashPass").addEventListener("keydown",e=>{if(e.key==="Enter")dashLogin()});document.getElementById("dashUser").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("dashPass").focus()});
+    document.getElementById("preferredModel").value=sessionStorage.getItem("threatwatch_preferred_model")||"gpt-4o-mini";document.getElementById("openaiKey").value=sessionStorage.getItem("threatwatch_openai_key")||"";document.getElementById("anthropicKey").value=sessionStorage.getItem("threatwatch_anthropic_key")||"";syncRuleKey();syncMode();syncAuthBar();refreshDashboard();setInterval(refreshDashboard,3e4);if(ruleKey()||ruleToken())loadRules();else setTimeout(dashLogin,600);document.getElementById("dashPass").addEventListener("keydown",e=>{if(e.key==="Enter")dashLogin()});document.getElementById("dashUser").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("dashPass").focus()});
   </script>
 </body>
 </html>

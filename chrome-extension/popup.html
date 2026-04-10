@@ -5,88 +5,166 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ThreatWatch AI</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      width: 340px;
-      color: #111827;
-      background: #f9fafb;
-    }
-    .wrap {
-      padding: 16px;
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 18px;
-    }
-    p {
-      margin: 0 0 12px;
-      color: #4b5563;
-      line-height: 1.4;
+      font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+      width: 360px;
+      background: #f0f4f8;
+      color: #0f172a;
       font-size: 13px;
+      -webkit-font-smoothing: antialiased;
     }
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: #fff;
-      padding: 10px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    button:disabled {
-      opacity: 0.7;
-      cursor: wait;
-    }
-    .card {
-      margin-top: 12px;
-      border-radius: 10px;
-      padding: 12px;
-      border: 1px solid #d1d5db;
+
+    /* Header */
+    .hd {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 14px 10px;
       background: #fff;
+      border-bottom: 1px solid #e2e8f0;
     }
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+    .hd-icon { font-size: 18px; }
+    .hd-title { font-size: 13px; font-weight: 700; letter-spacing: -.01em; }
+    .hd-sub { font-size: 11px; color: #64748b; margin-top: 1px; }
+    .hd-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+    .scan-now-btn {
+      padding: 5px 10px; border-radius: 7px; border: none;
+      background: #0ea5e9; color: #fff; font-size: 11px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
     }
-    .label {
-      font-weight: 700;
-      font-size: 13px;
+    .scan-now-btn:disabled { opacity: .6; cursor: wait; }
+
+    /* Main body */
+    .body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+    /* Verdict card */
+    .verdict-card {
+      border-radius: 10px; padding: 10px 12px;
+      border: 1px solid #e2e8f0; background: #fff;
     }
-    .risk {
-      font-size: 12px;
-      opacity: 0.85;
+    .verdict-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      margin-bottom: 6px;
     }
-    .meta {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #374151;
-      line-height: 1.4;
-      white-space: pre-wrap;
+    .verdict-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
     }
-    .hint {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #6b7280;
+    .verdict-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .7; }
+    .v-safe { color: #166534; background: #dcfce7; border: 1px solid #86efac; }
+    .v-suspicious { color: #92400e; background: #fef3c7; border: 1px solid #fcd34d; }
+    .v-scam { color: #991b1b; background: #fde8e8; border: 1px solid #fca5a5; }
+    .v-scanning { color: #1d4ed8; background: #dbeafe; border: 1px solid #93c5fd; }
+    .v-error, .v-ready { color: #374151; background: #f3f4f6; border: 1px solid #d1d5db; }
+    .risk-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
+      background: #f1f5f9; color: #475569;
     }
+    .risk-high { background: #fde8e8; color: #991b1b; }
+    .risk-med { background: #fef3c7; color: #92400e; }
+    .risk-low { background: #dcfce7; color: #166534; }
+
+    /* Score row */
+    .scores {
+      display: flex; gap: 6px; margin-bottom: 6px;
+    }
+    .score-pill {
+      flex: 1; padding: 4px 6px; border-radius: 7px;
+      background: #f8fafc; border: 1px solid #e2e8f0; text-align: center;
+    }
+    .score-pill .slabel { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; }
+    .score-pill .sval { font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 1px; }
+
+    /* Section label */
+    .sec-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #94a3b8; margin-bottom: 4px;
+    }
+
+    /* Explanation */
+    .explain {
+      font-size: 12px; color: #374151; line-height: 1.5;
+      padding: 8px 10px; background: #f8fafc; border-radius: 8px;
+      border: 1px solid #e2e8f0; max-height: 100px; overflow-y: auto;
+    }
+
+    /* Flags */
+    .flags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .flag {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 500;
+      background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+    }
+    .flag-safe { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+    /* Recommendation */
+    .rec {
+      font-size: 12px; color: #374151; line-height: 1.45;
+      padding: 7px 10px; border-radius: 8px;
+      border-left: 3px solid #0ea5e9; background: #f0f9ff;
+    }
+    .rec.rec-danger { border-color: #dc2626; background: #fff7f7; color: #991b1b; }
+    .rec.rec-warn { border-color: #d97706; background: #fffbeb; color: #92400e; }
+    .rec.rec-safe { border-color: #059669; background: #f0fdf4; color: #166534; }
+
+    /* Tokens */
+    .tokens { display: flex; flex-wrap: wrap; gap: 4px; }
+    .token {
+      padding: 1px 6px; border-radius: 5px; font-size: 10px;
+      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+      font-family: monospace;
+    }
+
+    /* Meta */
+    .meta { font-size: 11px; color: #94a3b8; line-height: 1.4; }
+
+    /* Mode badge */
+    .mode-badge {
+      display: inline-block; padding: 1px 6px; border-radius: 5px; font-size: 10px;
+      background: #e0f2fe; color: #0369a1; font-weight: 600;
+    }
+
+    /* Footer */
+    .ft {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: #fff; border-top: 1px solid #e2e8f0;
+      gap: 8px;
+    }
+    .ft-status { font-size: 11px; color: #94a3b8; }
+    .ft-link {
+      font-size: 11px; color: #0ea5e9; text-decoration: none; font-weight: 500;
+    }
+    .ft-link:hover { text-decoration: underline; }
+
+    /* Ready / empty state */
+    .empty { text-align: center; padding: 20px 16px; color: #94a3b8; font-size: 12px; line-height: 1.5; }
+    .empty strong { display: block; font-size: 13px; color: #64748b; margin-bottom: 4px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>ThreatWatch AI</h1>
-    <p>Open a Gmail message and ThreatWatch will scan it automatically.</p>
-    <div id="result" class="card">
-      <div class="row">
-        <div class="label">Ready</div>
-        <div class="risk"></div>
-      </div>
-      <div class="meta">Open a Gmail message to see the latest result here.</div>
+  <div class="hd">
+    <span class="hd-icon">🛡️</span>
+    <div>
+      <div class="hd-title">ThreatWatch AI</div>
+      <div class="hd-sub">Gmail Email Scanner</div>
     </div>
-    <div class="hint">The popup updates from the latest auto-scan result. Settings still live in the extension options page.</div>
+    <div class="hd-right">
+      <button class="scan-now-btn" id="scanNowBtn">Scan now</button>
+    </div>
   </div>
+
+  <div class="body" id="mainBody">
+    <div class="empty">
+      <strong>No scan result yet</strong>
+      Open a Gmail message — ThreatWatch will scan it automatically.
+    </div>
+  </div>
+
+  <div class="ft">
+    <span class="ft-status" id="ftStatus">Waiting for Gmail…</span>
+    <a class="ft-link" id="dashLink" href="#" target="_blank">Open Dashboard ↗</a>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
