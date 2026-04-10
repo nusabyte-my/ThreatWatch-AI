@@ -733,12 +733,14 @@
             <details class="disclosure" style="margin-bottom:.65rem">
               <summary><i data-lucide="log-in" width="14" height="14"></i> Access</summary>
               <div class="disclosure-body tight">
-                <div class="create">
-                  <div class="field"><label for="ruleUsernameInput">Username</label><input id="ruleUsernameInput" type="text" placeholder="admin"></div>
-                  <div class="field"><label for="rulePasswordInput">Password</label><input id="rulePasswordInput" type="password" placeholder="Password"></div>
-                  <div class="field full"><div class="row"><button class="btn btn-sm" type="button" onclick="loginRulesUser()">Sign in</button><button class="btn btn-sm" type="button" onclick="logoutRulesUser()">Sign out</button></div></div>
+                <div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center">
+                  <button class="btn btn-sm" type="button" onclick="demoRuleLogin()" style="border-color:var(--accent);color:var(--accent);font-weight:600">
+                    <i data-lucide="zap" width="12" height="12"></i>Demo
+                  </button>
+                  <button class="btn btn-sm" type="button" onclick="logoutRulesUser()">Sign out</button>
+                  <span style="font-size:.74rem;color:var(--muted)">One-click demo signs in with default credentials</span>
                 </div>
-                <div class="admin-key">
+                <div class="admin-key" style="margin-top:.5rem">
                   <input id="ruleApiKeyInput" type="password" placeholder="Legacy API key fallback">
                   <button class="btn btn-sm" type="button" onclick="saveRuleApiKey()">Save</button>
                   <button class="btn btn-sm" type="button" onclick="clearRuleApiKey()">Clear</button>
@@ -1038,10 +1040,10 @@
     function ruleKey(){return sessionStorage.getItem("threatwatch_rule_api_key")||""}
     function ruleToken(){return sessionStorage.getItem("threatwatch_rule_token")||""}
     function ruleHeaders(extra={}){const token=ruleToken(),key=ruleKey(),headers={...extra};if(token)headers.Authorization=`Bearer ${token}`;else if(key)headers["X-API-Key"]=key;return headers}
-    function syncRuleKey(){document.getElementById("ruleApiKeyInput").value=ruleKey();document.getElementById("ruleUsernameInput").value=sessionStorage.getItem("threatwatch_rule_username")||"";document.getElementById("rulePasswordInput").value=""}
+    function syncRuleKey(){const el=document.getElementById("ruleApiKeyInput");if(el)el.value=ruleKey()}
     function ruleStatus(msg,type=""){const el=document.getElementById("ruleStatus");el.textContent=msg;el.className=`admin-status${type?" "+type:""}`}
-    async function loginRulesUser(){const username=document.getElementById("ruleUsernameInput").value.trim(),password=document.getElementById("rulePasswordInput").value;if(!username||!password){ruleStatus("Username and password are required for sign-in.","error");return}ruleStatus(`Signing in as ${username}...`);try{const r=await fetch(`${API}/api/v1/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});if(!r.ok)throw new Error(await r.text());const data=await r.json();sessionStorage.setItem("threatwatch_rule_token",data.access_token);sessionStorage.setItem("threatwatch_rule_username",data.user.username);document.getElementById("rulePasswordInput").value="";ruleStatus(`Signed in as ${data.user.username} (${data.user.role}).`,"success");await loadRules()}catch(e){ruleStatus(`Sign-in failed: ${e.message}`,"error")}}
-    function logoutRulesUser(){sessionStorage.removeItem("threatwatch_rule_token");sessionStorage.removeItem("threatwatch_rule_username");document.getElementById("rulePasswordInput").value="";document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';ruleStatus("Signed out of rule management.")}
+    async function demoRuleLogin(){ruleStatus("Trying demo credentials…");const creds=[["demo","demo2024"],["admin","changeme_admin_password"]];for(const[username,password]of creds){try{const r=await fetch(`${API}/api/v1/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});if(!r.ok)continue;const data=await r.json();sessionStorage.setItem("threatwatch_rule_token",data.access_token);sessionStorage.setItem("threatwatch_rule_username",data.user.username);ruleStatus(`Signed in as ${data.user.username} (${data.user.role}).`,"success");await loadRules();return}catch(_){continue}}ruleStatus("Demo accounts unavailable on this server.","error")}
+    function logoutRulesUser(){sessionStorage.removeItem("threatwatch_rule_token");sessionStorage.removeItem("threatwatch_rule_username");document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';ruleStatus("Signed out of rule management.")}
     function saveRuleApiKey(){const v=document.getElementById("ruleApiKeyInput").value.trim();if(!v){sessionStorage.removeItem("threatwatch_rule_api_key");ruleStatus("Legacy API key cleared. Sign in or add it again to manage rules.");document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';syncRuleKey();return}sessionStorage.setItem("threatwatch_rule_api_key",v);ruleStatus("Legacy API key saved for this session.","success");loadRules()}
     function clearRuleApiKey(){sessionStorage.removeItem("threatwatch_rule_api_key");syncRuleKey();document.getElementById("rulesList").innerHTML='<div class="muted">No rules loaded yet.</div>';ruleStatus("Legacy API key cleared. Sign in or add it again to manage rules.")}
     function renderRules(rules){const el=document.getElementById("rulesList");if(!rules||!rules.length){el.innerHTML='<div class="muted">No rules to show.</div>';return}el.innerHTML=rules.map(r=>`<div class="rule"><div class="toprow"><div><div class="chips"><span style="font-weight:700">${esc(r.name)}</span><span class="chip ${r.is_active?"safe":"scam"}">${r.is_active?"active":"inactive"}</span><span class="chip">${esc(r.category||"uncategorized")}</span><span class="chip">${esc(r.pattern_type||"regex")}</span></div><p style="margin:.45rem 0">Weight ${Number(r.weight||0).toFixed(2)}${r.description?` · ${esc(r.description)}`:""}</p><div style="font-family:Consolas,monospace;line-height:1.5">${esc(r.pattern||"")}</div></div><button class="btn" type="button" onclick="toggleRule(${r.id})">${r.is_active?"Disable":"Enable"}</button></div></div>`).join("")}
