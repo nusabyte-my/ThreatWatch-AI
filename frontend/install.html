@@ -656,28 +656,40 @@ document.querySelectorAll(".tab").forEach(tab => {
 });
 
 // ── Auto-auth (demo account) ─────────────────────────────────
-const API = "https://threatwatch-ai.nusabyte.cloud";
+const LOCAL_API = "http://localhost:5080";
+const VPS_API = "https://threatwatch-ai.nusabyte.cloud";
+let API = null;  // resolved after health check
 let demoToken = null;
 
 const authDot   = document.getElementById("authDot");
 const authLabel = document.getElementById("authLabel");
 
 async function autoAuth() {
-  try {
-    const res = await fetch(`${API}/api/v1/auth/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: "demo", password: "demo2024" })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    demoToken = data.access_token || data.token;
-    authDot.className = "auth-dot ok";
-    authLabel.textContent = "Connected — demo mode";
-  } catch (e) {
-    authDot.className = "auth-dot err";
-    authLabel.textContent = "Offline — demo unavailable";
+  // Try local server first, then VPS
+  for (const candidate of [LOCAL_API, VPS_API]) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch(`${candidate}/api/v1/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "admin", password: "changeme_admin_password" }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      demoToken = data.access_token || data.token;
+      API = candidate;  // lock in the working endpoint
+      authDot.className = "auth-dot ok";
+      authLabel.textContent = candidate === LOCAL_API
+        ? "Connected — local demo mode"
+        : "Connected — VPS demo mode";
+      return;
+    } catch (_) { /* try next */ }
   }
+  authDot.className = "auth-dot err";
+  authLabel.textContent = "Offline — demo unavailable";
 }
 
 autoAuth();
@@ -719,6 +731,30 @@ async function runDemoScan() {
   if (lines[0].toLowerCase().startsWith("subject:")) {
     subject = lines[0].replace(/^subject:\s*/i, "").trim();
     body = lines.slice(1).join("\n").trim();
+  }
+
+  // Resolve API if not yet set
+  if (!API) {
+    for (const candidate of [LOCAL_API, VPS_API]) {
+      try {
+        const c = new AbortController();
+        const t = setTimeout(() => c.abort(), 3000);
+        const r = await fetch(`${candidate}/api/v1/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: "admin", password: "changeme_admin_password" }),
+          signal: c.signal
+        });
+        clearTimeout(t);
+        if (r.ok) { API = candidate; demoToken = (await r.json()).access_token; break; }
+      } catch (_) { /* try next */ }
+    }
+    if (!API) {
+      document.getElementById("demoScanStatus").textContent = "Both local and VPS servers are offline.";
+      document.getElementById("demoScanStatus").className = "status error";
+      document.getElementById("demoSpinner").classList.remove("visible");
+      return;
+    }
   }
 
   try {
@@ -786,7 +822,7 @@ document.getElementById("demoInput").addEventListener("keydown", e => {
 const bm = `javascript:(function(){
   var body=document.querySelector('[role="main"]');
   var text=body?body.innerText:'';
-  var base="${API}";
+  var base="${API || VPS_API}";
   var win=window.open(base+"/install.html?demo=1","_blank","width=700,height=600");
   win.addEventListener("load",function(){
     var ta=win.document.getElementById("demoInput");

@@ -368,6 +368,11 @@
           Rules
           <span class="nav-badge">Admin</span>
         </button>
+        <button class="nav-item" data-sec="extensions">
+          <i data-lucide="package" width="16" height="16"></i>
+          Extensions
+          <span class="nav-badge">Install</span>
+        </button>
       </nav>
       <div class="side-footer">
         <button class="theme-btn" id="themeToggle" type="button">
@@ -502,10 +507,17 @@
                 <button class="btn-primary" id="analyzeBtn" type="button" onclick="analyze()">
                   <i data-lucide="zap" width="14" height="14"></i> Run assessment
                 </button>
-                <label class="btn" for="emlFile"><i data-lucide="upload" width="13" height="13"></i> .eml</label>
-                <input id="emlFile" type="file" accept=".eml" style="display:none" onchange="analyzeEml(this)">
+                <label class="btn" for="emlFile" title="Upload .eml file (Thunderbird, Apple Mail, Outlook)"><i data-lucide="upload" width="13" height="13"></i> Upload email</label>
+                <input id="emlFile" type="file" accept=".eml,.msg,.mbox" style="display:none" onchange="analyzeEml(this)">
                 <button class="btn" type="button" onclick="fillExample('scam')">Sample</button>
                 <button class="btn" type="button" onclick="clearComposer()">Clear</button>
+              </div>
+              <div style="margin-top:.55rem;display:flex;gap:.35rem;flex-wrap:wrap;align-items:center">
+                <span style="font-size:.72rem;color:var(--muted);font-weight:500">Export &amp; upload from:</span>
+                <span class="chip" style="font-size:.68rem;cursor:default" title="File → Save As → .eml format">Outlook (.eml)</span>
+                <span class="chip" style="font-size:.68rem;cursor:default" title="Right-click message → Save As → .eml">Thunderbird (.eml)</span>
+                <span class="chip" style="font-size:.68rem;cursor:default" title="File → Save As → Raw Message Source (.eml)">Apple Mail (.eml)</span>
+                <span class="chip" style="font-size:.68rem;cursor:default" title="Or paste email text directly above">Gmail (paste text)</span>
               </div>
               <div class="status" id="scanStatus" style="margin-top:.6rem">Ready.</div>
             </div>
@@ -735,56 +747,110 @@
           </div>
         </div>
 
-        <!-- Extensions guide ──────────────────────────── -->
-        <div class="card" style="margin-top:.1rem">
-          <div class="card-hdr">
-            <div><div class="eyebrow">Client Extensions</div><h3>Available integrations &amp; how to install</h3></div>
-            <a href="install.html" class="btn btn-sm"><i data-lucide="external-link" width="13" height="13"></i> Full guide</a>
-          </div>
-          <div class="g3" style="margin-bottom:.85rem">
-            <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
-              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
-                <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-bg);display:grid;place-items:center;color:var(--accent);flex-shrink:0"><i data-lucide="chrome" width="16" height="16"></i></div>
-                <div><strong style="font-size:.88rem">Chrome Extension</strong><div style="font-size:.72rem;color:var(--muted)">Gmail · Manifest V3</div></div>
-              </div>
-              <div style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem">Scans open Gmail messages automatically. Shows a colour-coded verdict badge inline with the email and in the popup.</div>
-              <div class="row">
-                <span class="chip safe">Active</span>
-                <a href="https://github.com/nusabyte-my/ThreatWatch-AI/archive/refs/heads/main.zip" class="btn btn-sm" style="font-size:.75rem"><i data-lucide="download" width="12" height="12"></i>Download ZIP</a>
-              </div>
-            </div>
-            <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
-              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
-                <div style="width:32px;height:32px;border-radius:8px;background:var(--panel3);display:grid;place-items:center;color:var(--muted);flex-shrink:0"><i data-lucide="mail" width="16" height="16"></i></div>
-                <div><strong style="font-size:.88rem">Outlook</strong><div style="font-size:.72rem;color:var(--muted)">Web + Desktop</div></div>
-              </div>
-              <div style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem">No native add-in yet. Copy email content and paste into the Scan tab, or use the OWA bookmarklet for one-click scanning.</div>
-              <div class="row">
-                <span class="chip suspicious" style="font-size:.68rem">Workaround</span>
-                <a href="install.html" class="btn btn-sm" style="font-size:.75rem"><i data-lucide="book-open" width="12" height="12"></i>Setup guide</a>
-              </div>
-            </div>
-            <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
-              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
-                <div style="width:32px;height:32px;border-radius:8px;background:var(--panel3);display:grid;place-items:center;color:var(--muted);flex-shrink:0"><i data-lucide="mail-check" width="16" height="16"></i></div>
-                <div><strong style="font-size:.88rem">Thunderbird</strong><div style="font-size:.72rem;color:var(--muted)">Desktop</div></div>
-              </div>
-              <div style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem">No native add-on yet. Copy email text or headers from View Source and paste into the Scan tab for analysis.</div>
-              <div class="row">
-                <span class="chip suspicious" style="font-size:.68rem">Workaround</span>
-                <a href="install.html" class="btn btn-sm" style="font-size:.75rem"><i data-lucide="book-open" width="12" height="12"></i>Setup guide</a>
-              </div>
-            </div>
-          </div>
+      </section>
 
-          <div style="padding:.75rem 1rem;background:var(--accent-bg);border-radius:10px;border:1px solid rgba(14,165,233,.15)">
-            <div style="display:flex;align-items:flex-start;gap:.65rem">
-              <i data-lucide="info" width="15" height="15" style="color:var(--accent);flex-shrink:0;margin-top:.1rem"></i>
-              <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
-                <strong style="color:var(--text)">Chrome install (sideload):</strong> Download ZIP → extract → <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.75rem">chrome://extensions</code> → enable <em>Developer mode</em> → <em>Load unpacked</em> → select the <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.75rem">chrome-extension/</code> folder. The API endpoint is pre-configured to this server.
-              </div>
+      <!-- Extensions ─────────────────────────────────── -->
+      <section class="sec" id="sec-extensions">
+        <div class="page-hdr">
+          <div class="page-hdr-left">
+            <div class="page-hdr-icon"><i data-lucide="package" width="18" height="18"></i></div>
+            <div>
+              <h2>Extensions</h2>
+              <p>Client integrations for Gmail, Outlook, and Thunderbird</p>
             </div>
           </div>
+          <div class="page-hdr-actions">
+            <a href="install.html" class="btn btn-sm"><i data-lucide="external-link" width="13" height="13"></i> Full install guide</a>
+          </div>
+        </div>
+
+        <!-- Status tiles -->
+        <div class="g3">
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-bg);display:grid;place-items:center;color:var(--accent);flex-shrink:0;border:1px solid rgba(14,165,233,.18)"><i data-lucide="chrome" width="18" height="18"></i></div>
+              <div>
+                <strong style="font-size:.92rem">Chrome Extension</strong>
+                <div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">Gmail · Manifest V3</div>
+              </div>
+              <span class="chip safe" style="margin-left:auto">Available</span>
+            </div>
+            <p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.65rem">Scans open Gmail messages automatically. Overlays a verdict badge inline with every email and provides detailed threat context in the popup.</p>
+            <div class="row">
+              <a href="https://github.com/nusabyte-my/ThreatWatch-AI/archive/refs/heads/main.zip" class="btn-primary btn-sm"><i data-lucide="download" width="13" height="13"></i>Download ZIP</a>
+              <a href="install.html" class="btn btn-sm"><i data-lucide="book-open" width="13" height="13"></i>Install guide</a>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--panel3);display:grid;place-items:center;color:var(--muted);flex-shrink:0;border:1px solid var(--border)"><i data-lucide="mail" width="18" height="18"></i></div>
+              <div>
+                <strong style="font-size:.92rem">Outlook</strong>
+                <div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">Web &amp; Desktop</div>
+              </div>
+              <span class="chip suspicious" style="margin-left:auto;font-size:.68rem">Workaround</span>
+            </div>
+            <p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.65rem">No native add-in yet. Use dashboard paste for quick scans, or install the OWA bookmarklet for one-click scanning directly in Outlook Web.</p>
+            <div class="row">
+              <a href="install.html" class="btn btn-sm"><i data-lucide="book-open" width="13" height="13"></i>Setup guide</a>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--panel3);display:grid;place-items:center;color:var(--muted);flex-shrink:0;border:1px solid var(--border)"><i data-lucide="mail-check" width="18" height="18"></i></div>
+              <div>
+                <strong style="font-size:.92rem">Thunderbird</strong>
+                <div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">Desktop</div>
+              </div>
+              <span class="chip suspicious" style="margin-left:auto;font-size:.68rem">Workaround</span>
+            </div>
+            <p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.65rem">No add-on yet. Copy email text or raw headers (Ctrl+U) and paste into the Scan tab for full ML + AI analysis.</p>
+            <div class="row">
+              <a href="install.html" class="btn btn-sm"><i data-lucide="book-open" width="13" height="13"></i>Setup guide</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chrome install steps -->
+        <div class="card">
+          <div class="card-hdr">
+            <div><div class="eyebrow">Chrome · Sideload install</div><h3>Step-by-step setup</h3></div>
+            <span class="chip safe">5 steps</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.55rem">
+            <div style="display:grid;grid-template-columns:28px 1fr;gap:.65rem;align-items:start;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+              <div style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-bg);color:var(--accent);font-size:.75rem;font-weight:700;border:1px solid rgba(14,165,233,.2)">1</div>
+              <div><strong style="font-size:.85rem">Download &amp; extract the ZIP</strong><p style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Click <em>Download ZIP</em> above. Extract it anywhere — the <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.74rem">chrome-extension/</code> folder is what you need.</p></div>
+            </div>
+            <div style="display:grid;grid-template-columns:28px 1fr;gap:.65rem;align-items:start;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+              <div style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-bg);color:var(--accent);font-size:.75rem;font-weight:700;border:1px solid rgba(14,165,233,.2)">2</div>
+              <div><strong style="font-size:.85rem">Open Chrome Extensions</strong><p style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Navigate to <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.74rem">chrome://extensions</code> or go to Menu → More tools → Extensions.</p></div>
+            </div>
+            <div style="display:grid;grid-template-columns:28px 1fr;gap:.65rem;align-items:start;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+              <div style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-bg);color:var(--accent);font-size:.75rem;font-weight:700;border:1px solid rgba(14,165,233,.2)">3</div>
+              <div><strong style="font-size:.85rem">Enable Developer mode</strong><p style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Toggle <em>Developer mode</em> in the top-right corner. This allows loading unpacked extensions.</p></div>
+            </div>
+            <div style="display:grid;grid-template-columns:28px 1fr;gap:.65rem;align-items:start;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+              <div style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-bg);color:var(--accent);font-size:.75rem;font-weight:700;border:1px solid rgba(14,165,233,.2)">4</div>
+              <div><strong style="font-size:.85rem">Load Unpacked</strong><p style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Click <em>Load unpacked</em> and select the <code style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem;font-size:.74rem">chrome-extension/</code> folder. The <em>ThreatWatch AI for Gmail</em> card will appear.</p></div>
+            </div>
+            <div style="display:grid;grid-template-columns:28px 1fr;gap:.65rem;align-items:start;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+              <div style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-bg);color:var(--accent);font-size:.75rem;font-weight:700;border:1px solid rgba(14,165,233,.2)">5</div>
+              <div><strong style="font-size:.85rem">Open Gmail and scan</strong><p style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Go to <strong>mail.google.com</strong>, open any email — ThreatWatch AI scans it automatically and shows the verdict inline. The API URL is pre-set to this server.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- API access -->
+        <div class="card">
+          <div class="card-hdr">
+            <div><div class="eyebrow">Developers</div><h3>Direct API access</h3></div>
+            <a href="/docs" target="_blank" class="btn btn-sm"><i data-lucide="book-open" width="13" height="13"></i>API Docs</a>
+          </div>
+          <pre style="background:var(--panel3);border:1px solid var(--border);border-radius:10px;padding:.85rem;font-size:.74rem;line-height:1.7;overflow:auto;color:var(--text)"><code>curl -X POST ${location.origin}/api/v1/scan \
+  -H "X-API-Key: &lt;your-key&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"subject":"Urgent: verify your account","body":"Click here...","mode":"ai"}'</code></pre>
         </div>
       </section>
     </main>
@@ -933,12 +999,12 @@
     function renderIncidents(id,incs){const el=document.getElementById(id);if(!incs||!incs.length){el.innerHTML='<div class="muted">No incidents yet.</div>';return}el.innerHTML=incs.map(i=>{const p=priorityLabel(i.verdict,i.risk_percent);return `<div class="incident"><div class="toprow"><div><div class="chips"><span class="chip ${i.verdict}">${esc(i.verdict)}</span><span class="chip">${esc(i.channel.toUpperCase())}</span><span class="chip">${i.risk_percent}% risk</span><span class="priority-chip ${p.tone}">${esc(p.label)}</span></div><div style="margin-top:.45rem;font-weight:600;line-height:1.45">${esc(i.headline||"No headline captured.")}</div></div><button class="btn" type="button" onclick="openIncident(${i.id})">Open</button></div><p>${new Date(i.created_at).toLocaleString()}</p><div class="chips">${(i.reasons||[]).slice(0,3).map(r=>`<span class="chip">${esc(r)}</span>`).join("")}</div><p>${esc(i.recommendation||fallbackRec(i.verdict,i.risk_percent,i.reasons))}</p></div>`}).join("")}
     function renderAnalytics(s){const o=s.overview||{};const trend=s.verdict_trend||[];const f=s.feedback||{};const cats=(s.threat_categories||[]).map(x=>({label:x.label,count:x.count}));const reasons=(s.top_reasons||[]).map(x=>({label:x.label,count:x.count}));document.getElementById("mTotal").textContent=o.total_scans||0;document.getElementById("mScamRate").textContent=share(o.scam||0,o.total_scans||0);document.getElementById("mRisk").textContent=pct(o.avg_risk_score||0);document.getElementById("mAi").textContent=o.ai_usage||0;document.getElementById("navDash").textContent=`${o.total_scans||0} scans`;document.getElementById("navAnalytics").textContent=`${trend.length}d`;renderTrend(trend);renderMetricSpark("sparkTotal",trend.map(d=>d.total||0));renderMetricSpark("sparkScam",trend.map(d=>d.scam||0));renderMetricSpark("sparkRisk",trend.map(d=>Math.round((((d.scam||0)+(d.suspicious||0)*0.6)/(Math.max(d.total||0,1)))*100)));renderMetricSpark("sparkAi",trend.map((d,idx)=>idx<trend.length-1?Math.round((idx+1)/(Math.max(trend.length,1))*100):o.ai_usage||0));renderHeroOverview(s.channel_breakdown||[],o);renderAnalyticsOverview(o,f);renderMiniBars("catBars",cats,"No category data yet.");renderMiniBars("reasonBars",reasons,"No reason data yet.");renderSimpleList("topSignals",[...reasons,...(s.top_tokens||[]).slice(0,3).map(x=>({label:x.label,count:x.count,meta:"indicator"}))].slice(0,8),"No repeated signals yet.");renderIncidentQueue("recentIncidents",s.recent_incidents||[]);renderChannels("channelList",s.channel_breakdown||[]);renderSimpleList("catList",cats,"No AI categories yet.");renderSimpleList("reasonAnalytics",reasons,"No repeated reasons yet.");renderSimpleList("tokenAnalytics",(s.top_tokens||[]).map(x=>({label:x.label,count:x.count})),"No hot indicators yet.");renderChannels("channelAnalytics",s.channel_breakdown||[]);renderIncidents("incidentAnalytics",s.recent_incidents||[]);document.getElementById("fbCorrect").textContent=f.correct||0;document.getElementById("fbFp").textContent=f.false_positive||0;document.getElementById("fbFn").textContent=f.false_negative||0}
     function syncAuthBar(){const hasSession=ruleToken()||ruleKey();const bar=document.getElementById("authBar");if(bar)bar.style.display=hasSession?"none":"flex"}
-    async function dashLogin(){const u=document.getElementById("dashUser").value.trim(),p=document.getElementById("dashPass").value,st=document.getElementById("dashLoginStatus"),btn=document.getElementById("dashLoginBtn");if(!u||!p){st.textContent="Username and password required.";return}btn.disabled=true;btn.textContent="Signing in…";st.textContent="";try{const r=await fetch(`${API}/api/v1/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})});if(!r.ok)throw new Error((await r.json()).detail||"Invalid credentials");const d=await r.json();sessionStorage.setItem("threatwatch_rule_token",d.access_token);sessionStorage.setItem("threatwatch_rule_username",d.user.username);document.getElementById("dashPass").value="";syncAuthBar();syncRuleKey();await refreshDashboard();if(ruleKey()||ruleToken())loadRules()}catch(e){st.textContent=e.message}finally{btn.disabled=false;btn.textContent="Sign in"}}
+    async function dashLogin(silent=false){const u=document.getElementById("dashUser").value.trim(),p=document.getElementById("dashPass").value,st=document.getElementById("dashLoginStatus"),btn=document.getElementById("dashLoginBtn");if(!u||!p){if(!silent)st.textContent="Username and password required.";return}if(!silent){btn.disabled=true;btn.textContent="Signing in…";}st.textContent="";try{const r=await fetch(`${API}/api/v1/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})});if(!r.ok){const msg=(await r.json().catch(()=>({}))).detail||"Invalid credentials";throw new Error(msg)}const d=await r.json();sessionStorage.setItem("threatwatch_rule_token",d.access_token);sessionStorage.setItem("threatwatch_rule_username",d.user.username);document.getElementById("dashPass").value="";syncAuthBar();syncRuleKey();await refreshDashboard();if(ruleKey()||ruleToken())loadRules()}catch(e){if(!silent)st.textContent=e.message}finally{if(!silent){btn.disabled=false;btn.textContent="Sign in"}}}
     async function refreshDashboard(){try{const r=await fetch(`${API}/api/v1/analytics/summary`,{headers:ruleHeaders()});if(r.status===401){syncAuthBar();document.getElementById("trendChart").innerHTML='<div class="muted">Sign in above to load analytics.</div>';return false}if(!r.ok)throw new Error(await r.text());syncAuthBar();renderAnalytics(await r.json());return true}catch(e){document.getElementById("trendChart").innerHTML=`<div class="muted">Could not load analytics: ${esc(e.message)}</div>`;return false}}
     async function refreshDashboardAction(){const btn=document.getElementById("refreshDashboardBtn");const original=btn.textContent;btn.disabled=true;btn.textContent="Refreshing...";const ok=await refreshDashboard();btn.disabled=false;btn.textContent=original;if(ok)setStatus("Dashboard refreshed with the latest analytics snapshot.","success");else setStatus("Dashboard refresh failed. Check API connectivity and try again.","error")}
     function renderResult(data){lastScanData=data;lastScanId=data.scan_id;assistantHistory=[];const v=data.verdict,r=Number(data.risk_percent||0),rs=data.reasons||[],hs=data.highlighted_tokens||[],agent=data.agent||null,rec=(agent&&agent.user_action)||fallbackRec(v,r,rs),expl=(agent&&agent.explanation)||"No AI explanation returned. Review the evidence and recommendation blocks instead.",model=selectedModel();document.getElementById("resultCard").classList.add("active");showSection("analyze");const vp=document.getElementById("vPill");vp.className=`chip ${v}`;vp.textContent=v.toUpperCase();document.getElementById("modeChip").textContent=activeScanMode==="ai"?`pipeline: ${(agent&&agent.pipeline_mode)||"ai"}`:"standard engine";document.getElementById("modelChip").textContent=activeScanMode==="ai"?`model: ${model}`:"default path";document.getElementById("vLabel").textContent=v==="scam"?"High-risk incident detected":v==="suspicious"?"Suspicious content needs review":"Low-risk content at current confidence";document.getElementById("vSub").textContent=rec;document.getElementById("riskPct").textContent=`${r}%`;document.getElementById("mlScore").textContent=pct(data.ml_score||0);document.getElementById("ruleScore").textContent=pct(data.rule_score||0);document.getElementById("threatClass").textContent=threatClass(v,rs);document.getElementById("actionLevel").textContent=actionLevel(v);document.getElementById("reportSummary").textContent=executiveSummary(data);document.getElementById("recText").textContent=rec;document.getElementById("agentExplanation").textContent=expl;document.getElementById("agentMode").textContent=(agent&&agent.pipeline_mode)||"standard-only";document.getElementById("agentLatency").textContent=agent&&typeof agent.latency_ms==="number"?`${agent.latency_ms} ms`:"N/A";document.getElementById("storyText").textContent=story(data);renderIncidentTimeline(data);renderSimpleList("reasonList",rs.map(x=>({label:x})),"No specific rule or model signals were surfaced.");renderSimpleList("tokenListInline",hs.map(x=>({label:x})),"No suspicious indicators were extracted.");document.querySelectorAll(".fb").forEach(b=>b.classList.remove("active"));document.getElementById("navAnalyze").textContent=`${v.toUpperCase()} · ${r}%`;pushAssistant("ai","ThreatWatch Copilot",assistantText("summary",data));document.getElementById("assistantStatus").textContent="Latest incident loaded into copilot context.";updateAssistantMeta(activeScanMode==="ai"?"ready":"analysis loaded",model);toggleAssistant(true);enrichRecommendation(data)}
     async function analyze(){const text=document.getElementById("messageInput").value.trim();if(!text){setStatus("Paste content or load a sample before analyzing.","error");return}const body={text,channel:activeChannel,url:document.getElementById("urlInput").value.trim()||null};if(activeScanMode==="ai")Object.assign(body,aiPayload());const btn=document.getElementById("analyzeBtn");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Analyzing...';setStatus(`Submitting ${activeChannel.toUpperCase()} content to the ${activeScanMode==="ai"?"AI pipeline":"standard engine"}...`,"info");try{const ep=activeScanMode==="ai"?"/api/v1/scan/ai":"/api/v1/scan";const r=await fetch(`${API}${ep}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());const data=await r.json();renderResult(data);setStatus(`Scan complete. Verdict: ${String(data.verdict||"unknown").toUpperCase()} at ${data.risk_percent}% risk.`,"success");await refreshDashboard()}catch(e){setStatus(`Scan failed: ${e.message}`,"error")}finally{btn.disabled=false;btn.textContent="Analyze content"}}
-    async function analyzeEml(input){const file=input.files[0];if(!file)return;const btn=document.getElementById("analyzeBtn");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Parsing email...';setStatus("Uploading and parsing .eml file...","info");try{const r=await fetch(`${API}/api/v1/scan/upload`,{method:"POST",body:(()=>{const f=new FormData();f.append("file",file);return f})()});if(!r.ok)throw new Error(await r.text());const data=await r.json(),m=data.email_metadata||{};document.getElementById("messageInput").value=`From: ${m.from||""}\nSubject: ${m.subject||""}\n[Parsed .eml with ${m.body_length||0} chars and ${m.urls_found||0} URL(s)]`;renderResult(data);setStatus(`Uploaded email parsed and scanned. Verdict: ${String(data.verdict||"unknown").toUpperCase()}.`,"success");await refreshDashboard()}catch(e){setStatus(`Upload error: ${e.message}`,"error")}finally{btn.disabled=false;btn.textContent="Analyze content";input.value=""}}
+    async function analyzeEml(input){const file=input.files[0];if(!file)return;const ext=file.name.split('.').pop().toLowerCase();const btn=document.getElementById("analyzeBtn");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Parsing email...';setStatus(`Uploading and parsing .${ext} file...`,"info");try{const r=await fetch(`${API}/api/v1/scan/upload`,{method:"POST",body:(()=>{const f=new FormData();f.append("file",file);return f})()});if(!r.ok)throw new Error(await r.text());const data=await r.json(),m=data.email_metadata||{};const fmt=m.file_format||ext;document.getElementById("messageInput").value=`From: ${m.from||""}\nSubject: ${m.subject||""}\n[Parsed .${fmt} with ${m.body_length||0} chars and ${m.urls_found||0} URL(s)]`;renderResult(data);setStatus(`Uploaded email parsed and scanned. Verdict: ${String(data.verdict||"unknown").toUpperCase()}.`,"success");await refreshDashboard()}catch(e){setStatus(`Upload error: ${e.message}`,"error")}finally{btn.disabled=false;btn.textContent="Analyze content";input.value=""}}
     async function previewIncident(id){try{const r=await fetch(`${API}/api/v1/scan/${id}`);if(!r.ok)throw new Error(await r.text());renderIncidentDrawer(await r.json())}catch(e){setStatus(`Could not preview incident ${id}: ${e.message}`,"error")}}
     async function openIncident(id){try{const r=await fetch(`${API}/api/v1/scan/${id}`);if(!r.ok)throw new Error(await r.text());toggleIncidentDrawer(false);renderResult(await r.json())}catch(e){setStatus(`Could not load incident ${id}: ${e.message}`,"error")}}
     async function sendFeedback(type,event){if(!lastScanId)return;document.querySelectorAll(".fb").forEach(b=>b.classList.remove("active"));if(event&&event.currentTarget)event.currentTarget.classList.add("active");try{await fetch(`${API}/api/v1/scan/${lastScanId}/feedback`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({feedback:type})});await refreshDashboard()}catch(_){}} 
@@ -956,7 +1022,7 @@
     async function toggleRule(id){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in as an admin or set the legacy admin API key before toggling rules.","error");return}ruleStatus(`Updating rule #${id}...`);try{const r=await fetch(`${API}/api/v1/rules/${id}/toggle`,{method:"PATCH",headers:ruleHeaders()});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Only admins can change rule state.","error");return}if(!r.ok)throw new Error(await r.text());await loadRules()}catch(e){ruleStatus(`Could not update rule: ${e.message}`,"error")}}
     async function createRule(){if(!ruleToken()&&!ruleKey()){ruleStatus("Sign in as an admin or set the legacy admin API key before creating rules.","error");return}const payload={name:document.getElementById("ruleName").value.trim(),category:document.getElementById("ruleCategory").value.trim()||null,pattern:document.getElementById("rulePattern").value.trim(),pattern_type:document.getElementById("rulePatternType").value,weight:Number(document.getElementById("ruleWeight").value),description:document.getElementById("ruleDescription").value.trim()||null};if(!payload.name||!payload.pattern||Number.isNaN(payload.weight)){ruleStatus("Name, pattern, and a valid weight are required.","error");return}ruleStatus(`Creating rule "${payload.name}"...`);try{const r=await fetch(`${API}/api/v1/rules`,{method:"POST",headers:ruleHeaders({"Content-Type":"application/json"}),body:JSON.stringify(payload)});if(r.status===401){ruleStatus("Your session expired. Sign in again.","error");sessionStorage.removeItem("threatwatch_rule_token");return}if(r.status===403){ruleStatus("Only admins can create rules.","error");return}if(!r.ok)throw new Error(await r.text());document.getElementById("ruleCreateForm").reset();document.getElementById("ruleWeight").value="0.25";ruleStatus(`Rule "${payload.name}" created.`,"success");await loadRules()}catch(e){ruleStatus(`Could not create rule: ${e.message}`,"error")}}
     document.querySelectorAll("[data-sec]").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.sec)));document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{activeScanMode=b.dataset.mode;sessionStorage.setItem("threatwatch_scan_mode",activeScanMode);syncMode()}));document.querySelectorAll("[data-channel]").forEach(b=>b.addEventListener("click",()=>{activeChannel=b.dataset.channel;document.querySelectorAll("[data-channel]").forEach(x=>x.classList.toggle("active",x.dataset.channel===activeChannel));setStatus(`Channel set to ${activeChannel.toUpperCase()}. ${activeScanMode==="ai"?"AI pipeline":"Standard engine"} will be used for the next scan.`,"info")}));document.getElementById("saveLlmBtn").addEventListener("click",saveLlm);document.getElementById("clearLlmBtn").addEventListener("click",clearLlm);document.getElementById("preferredModel").addEventListener("change",()=>{sessionStorage.setItem("threatwatch_preferred_model",document.getElementById("preferredModel").value);syncLlm(`Preferred model changed to ${selectedModel()}. It will be used on the next AI request.`)});document.getElementById("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.ctrlKey)analyze()});document.getElementById("assistantFab").addEventListener("click",()=>toggleAssistant());document.getElementById("assistantClose").addEventListener("click",()=>toggleAssistant(false));document.getElementById("assistantSend").addEventListener("click",sendAssistantMessage);document.getElementById("assistantClear").addEventListener("click",clearAssistantThread);document.getElementById("assistantPromptInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendAssistantMessage()}});document.getElementById("incidentDrawerClose").addEventListener("click",()=>toggleIncidentDrawer(false));document.getElementById("drawerOpenWorkspace").addEventListener("click",()=>{if(previewIncidentData){toggleIncidentDrawer(false);renderResult(previewIncidentData)}});window.addEventListener("keydown",e=>{if(e.key==="Escape"){toggleAssistant(false);toggleIncidentDrawer(false)}});
-    document.getElementById("preferredModel").value=sessionStorage.getItem("threatwatch_preferred_model")||"gpt-4o-mini";document.getElementById("openaiKey").value=sessionStorage.getItem("threatwatch_openai_key")||"";document.getElementById("anthropicKey").value=sessionStorage.getItem("threatwatch_anthropic_key")||"";syncRuleKey();syncMode();syncAuthBar();refreshDashboard();setInterval(refreshDashboard,3e4);if(ruleKey()||ruleToken())loadRules();else setTimeout(dashLogin,600);document.getElementById("dashPass").addEventListener("keydown",e=>{if(e.key==="Enter")dashLogin()});document.getElementById("dashUser").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("dashPass").focus()});
+    document.getElementById("preferredModel").value=sessionStorage.getItem("threatwatch_preferred_model")||"gpt-4o-mini";document.getElementById("openaiKey").value=sessionStorage.getItem("threatwatch_openai_key")||"";document.getElementById("anthropicKey").value=sessionStorage.getItem("threatwatch_anthropic_key")||"";syncRuleKey();syncMode();syncAuthBar();refreshDashboard();setInterval(refreshDashboard,3e4);if(ruleKey()||ruleToken())loadRules();else setTimeout(()=>dashLogin(true),600);document.getElementById("dashPass").addEventListener("keydown",e=>{if(e.key==="Enter")dashLogin()});document.getElementById("dashUser").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("dashPass").focus()});
   </script>
 </body>
 </html>

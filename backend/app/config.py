@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     max_request_bytes: int = 3 * 1024 * 1024
     auth_enabled: bool = True
     auth_token_ttl_minutes: int = 480
-    auth_users_json: str = '[{"username":"admin","password":"changeme_admin_password","role":"admin"}]'
+    auth_users_json: str = '[{"username":"admin","password":"changeme_admin_password","role":"admin"},{"username":"demo","password":"demo2024","role":"analyst"}]'
 
     # Agent pipeline
     openai_api_key: str = ""
