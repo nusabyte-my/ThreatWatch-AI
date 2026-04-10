@@ -12,8 +12,15 @@ class Settings(BaseSettings):
         "http://localhost:3000,"
         "http://127.0.0.1:3000,"
         "http://localhost:5080,"
-        "http://127.0.0.1:5080",
+        "http://127.0.0.1:5080,"
+        "http://localhost:8100,"
+        "http://127.0.0.1:8100,"
+        "null",
         validation_alias="ALLOWED_ORIGINS",
+    )
+    allowed_origin_regex: str = Field(
+        r"^(moz-extension|chrome-extension)://.*$",
+        validation_alias="ALLOWED_ORIGIN_REGEX",
     )
     allowed_hosts_raw: str = Field(
         "localhost,127.0.0.1,testserver",

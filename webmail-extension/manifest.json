@@ -1,27 +1,36 @@
 {
   "manifest_version": 3,
-  "name": "ThreatWatch AI for Outlook Web",
+  "name": "ThreatWatch AI for Gmail and Outlook",
   "version": "0.1.0",
-  "description": "Scans open Outlook Web messages with ThreatWatch AI and shows an in-page verdict badge.",
-  "permissions": ["storage"],
+  "description": "Scans open Gmail and Outlook Web messages with ThreatWatch AI and shows an in-page verdict badge.",
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
+    "https://mail.google.com/*",
     "https://outlook.office.com/*",
     "https://outlook.live.com/*",
     "http://localhost:8100/*",
     "http://127.0.0.1:8100/*",
     "https://threatwatch-ai-api.up.railway.app/*"
   ],
+  "action": {
+    "default_popup": "popup.html"
+  },
   "background": {
     "service_worker": "background.js"
   },
   "options_page": "options.html",
   "content_scripts": [
     {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content_gmail.js"],
+      "run_at": "document_idle"
+    },
+    {
       "matches": [
         "https://outlook.office.com/*",
         "https://outlook.live.com/*"
       ],
-      "js": ["content_script.js"],
+      "js": ["content_outlook.js"],
       "run_at": "document_idle"
     }
   ]

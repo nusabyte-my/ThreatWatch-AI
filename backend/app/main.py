@@ -50,8 +50,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
-    allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "X-API-Key"],
+    allow_origin_regex=settings.allowed_origin_regex,
+    allow_methods=["*"],
+    allow_headers=["*"],
     allow_credentials=False,
 )
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)

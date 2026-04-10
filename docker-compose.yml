@@ -29,7 +29,8 @@ services:
       SECRET_KEY: ${SECRET_KEY:-changeme_in_prod}
       MODEL_PATH: /app/ml/model.pkl
       API_KEY: ${API_KEY:-changeme_api_key}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost:5080,http://127.0.0.1:5080,https://mail.google.com}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost:5080,http://127.0.0.1:5080,http://localhost:8100,http://127.0.0.1:8100,https://mail.google.com,null}
+      ALLOWED_ORIGIN_REGEX: ${ALLOWED_ORIGIN_REGEX:-^(moz-extension|chrome-extension)://.*$}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,testserver}
       MAX_REQUEST_BYTES: ${MAX_REQUEST_BYTES:-3145728}
       AUTH_ENABLED: ${AUTH_ENABLED:-true}

@@ -1,11 +1,26 @@
 (function () {
-  const DEFAULT_API = "http://localhost:8100";
   const BADGE_ID = "threatwatch-outlook-badge";
   const SCAN_DEBOUNCE_MS = 1200;
   const MAX_TEXT_LENGTH = 4000;
 
   let lastFingerprint = "";
   let scanTimer = null;
+
+  function getExtensionRuntime() {
+    const runtime =
+      (globalThis.chrome && globalThis.chrome.runtime) ||
+      (globalThis.browser && globalThis.browser.runtime) ||
+      null;
+    return runtime && typeof runtime.sendMessage === "function" ? runtime : null;
+  }
+
+  async function sendRuntimeMessage(message) {
+    const runtime = getExtensionRuntime();
+    if (!runtime) {
+      throw new Error("Extension runtime unavailable. Reload the extension and the webmail tab.");
+    }
+    return runtime.sendMessage(message);
+  }
 
   async function start() {
     observePage();
@@ -33,6 +48,7 @@
     const email = extractEmailContext();
     if (!email) {
       removeBadge();
+      await clearLatestResult();
       return;
     }
 
@@ -40,35 +56,44 @@
     if (fingerprint === lastFingerprint) return;
     lastFingerprint = fingerprint;
 
-    renderBadge({
+    const scanningResult = {
       verdict: "scanning",
       risk_percent: 0,
       reasons: ["Scanning current Outlook message..."],
-    });
+      meta: buildScanMeta(email),
+    };
+    renderBadge(scanningResult);
+    await persistLatestResult(scanningResult);
 
     try {
-      const payload = {
-        text: email.text,
-        channel: "email",
-        url: email.firstUrl,
-      };
-
-      const response = await chrome.runtime.sendMessage({
+      const response = await sendRuntimeMessage({
         type: "threatwatch:scan-email",
-        payload,
+        payload: {
+          text: email.text,
+          channel: "email",
+          url: email.firstUrl,
+        },
       });
 
       if (!response || !response.ok) {
         throw new Error(response && response.error ? response.error : "Failed to fetch");
       }
 
-      renderBadge(response.result || {});
+      const result = {
+        ...(response.result || {}),
+        meta: buildScanMeta(email),
+      };
+      renderBadge(result);
+      await persistLatestResult(result);
     } catch (error) {
-      renderBadge({
+      const result = {
         verdict: "error",
         risk_percent: 0,
         reasons: [String(error.message || error)],
-      });
+        meta: buildScanMeta(email),
+      };
+      renderBadge(result);
+      await persistLatestResult(result);
     }
   }
 
@@ -109,6 +134,19 @@
       .trim();
   }
 
+  function buildScanMeta(email) {
+    const subjectLine = email && email.text
+      ? email.text.split("\n")[0].replace(/^Subject:\s*/, "").trim()
+      : "";
+
+    return {
+      surface: "outlook",
+      subject: subjectLine || "Unknown subject",
+      scanned_at: new Date().toISOString(),
+      thread_key: `${window.location.pathname || ""}::${window.location.hash || ""}::${subjectLine || ""}`,
+    };
+  }
+
   function renderBadge(result) {
     const anchor =
       document.querySelector("[role='heading'][aria-level='2']") ||
@@ -141,7 +179,7 @@
     badge.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <strong style="font-size:13px;">ThreatWatch AI: ${theme.label}</strong>
-        <span style="font-size:12px;opacity:0.85;">${risk}</span>
+        <span style="font-size:12px;opacity:0.85;">${escapeHtml(risk)}</span>
       </div>
       <div style="margin-top:4px;font-size:12px;opacity:0.92;">
         ${reasons.length ? escapeHtml(reasons.join(" • ")) : escapeHtml(theme.description)}
@@ -209,6 +247,22 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  async function persistLatestResult(result) {
+    try {
+      await sendRuntimeMessage({ action: "setLatestResult", result });
+    } catch (error) {
+      // Ignore background sync failures.
+    }
+  }
+
+  async function clearLatestResult() {
+    try {
+      await sendRuntimeMessage({ action: "clearLatestResult" });
+    } catch (error) {
+      // Ignore background sync failures.
+    }
   }
 
   start();
