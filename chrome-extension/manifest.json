@@ -7,7 +7,7 @@
   "host_permissions": [
     "https://mail.google.com/*",
     "http://localhost:8100/*",
-    "https://threatwatch-ai-api.up.railway.app/*"
+    "https://threatwatch-ai.nusabyte.cloud/*"
   ],
   "action": {
     "default_popup": "popup.html"

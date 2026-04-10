@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import require_role
 from app.db.base import get_db
 from app.db.models import Scan
 
@@ -20,7 +21,10 @@ def _iso_day(dt: datetime) -> str:
 
 
 @router.get("/summary")
-async def get_analytics_summary(db: AsyncSession = Depends(get_db)):
+async def get_analytics_summary(
+    db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_role("viewer")),
+):
     result = await db.execute(select(Scan).order_by(desc(Scan.created_at)).limit(250))
     scans = result.scalars().all()
 

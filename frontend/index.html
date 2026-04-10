@@ -1,363 +1,819 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ThreatWatch AI Dashboard</title>
+  <title>ThreatWatch AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    :root{--bg:#09111f;--panel:#101b30;--panel2:#16243c;--panel3:#1b2942;--border:#243553;--text:#edf3ff;--muted:#89a0c7;--accent:#57c7ff;--accent-soft:#8fdcff;--safe:#34d399;--warn:#fbbf24;--danger:#f87171;font-family:"Segoe UI","Inter",sans-serif}
-    *{box-sizing:border-box;margin:0;padding:0}body{background:radial-gradient(circle at top left,rgba(87,199,255,.08),transparent 26%),var(--bg);color:var(--text)}
-    button,input,select,textarea{font:inherit}button{cursor:pointer}
-    .app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}.side{padding:1rem;border-right:1px solid var(--border);background:rgba(9,17,31,.94)}.brand{padding:.25rem .2rem .85rem}.brand-shell{padding:.95rem;border:1px solid rgba(87,199,255,.12);border-radius:18px;background:linear-gradient(180deg,rgba(87,199,255,.05),rgba(16,27,48,.28))}.brand-logo{width:88px;display:block;margin:0 auto .7rem;filter:drop-shadow(0 8px 18px rgba(0,0,0,.24))}.brand small{display:block;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;margin-bottom:.4rem;font-size:.68rem}.brand h1{font-size:1.28rem;text-align:center}.brand p{color:var(--muted);line-height:1.45;margin-top:.45rem;text-align:center;font-size:.84rem}
-    .nav{display:flex;flex-direction:column;gap:.5rem}.nav button{display:flex;justify-content:space-between;align-items:center;padding:.8rem .9rem;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--muted);text-align:left;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}.nav button.active,.nav button:hover{background:rgba(87,199,255,.08);border-color:rgba(87,199,255,.25);color:var(--text);transform:translateX(2px)}
-    .rail{margin-top:.8rem;padding:.9rem;border:1px solid var(--border);border-radius:16px;background:rgba(87,199,255,.03)}.rail p{color:var(--muted);line-height:1.45;font-size:.84rem;margin:.35rem 0 .75rem}
-    .main{padding:1rem;display:flex;flex-direction:column;gap:.9rem;max-width:1480px;width:100%;margin:0 auto}.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:end;padding:1.15rem 1.2rem;border:1px solid rgba(87,199,255,.12);border-radius:24px;background:radial-gradient(circle at top left,rgba(87,199,255,.12),transparent 20%),linear-gradient(135deg,rgba(87,199,255,.08),rgba(16,27,48,.95) 42%,rgba(16,27,48,1));box-shadow:0 18px 38px rgba(0,0,0,.16);position:relative;overflow:hidden}.top:after{content:"";position:absolute;right:-56px;top:-56px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(87,199,255,.12),transparent 68%);pointer-events:none}.top h2{font-size:2.02rem;line-height:1.02;letter-spacing:-.05em;max-width:15ch}.top p{color:var(--muted);line-height:1.55;margin-top:.52rem;max-width:58ch;font-size:.94rem}
-    .hero-kicker{display:inline-flex;align-items:center;gap:.45rem;padding:.34rem .72rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.05);color:var(--accent-soft);font-size:.74rem;text-transform:uppercase;letter-spacing:.13em}
-    .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin-top:1rem;max-width:720px}.hero-stat{padding:.82rem .88rem;border-radius:18px;border:1px solid rgba(87,199,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(9,17,31,.24))}.hero-stat strong{display:block;font-size:1.08rem;letter-spacing:-.02em}.hero-stat span{display:block;color:var(--muted);font-size:.8rem;line-height:1.42;margin-top:.2rem}
-    .btn,.btn-primary,.pill{padding:.68rem .9rem;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);transition:transform .18s ease,border-color .18s ease,background .18s ease}.btn:hover,.btn-primary:hover{transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,#0ea5e9,var(--accent));border:none;color:#06111d;font-weight:700;box-shadow:0 12px 26px rgba(14,165,233,.2)}.pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.22rem .58rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}.trust-row{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.75rem}.trust-pill{padding:.34rem .6rem;border-radius:999px;border:1px solid rgba(87,199,255,.12);background:rgba(87,199,255,.04);color:var(--text);font-size:.74rem}
-    .sec{display:none;flex-direction:column;gap:.9rem;animation:sectionIn .34s ease}.sec.active{display:flex}.card{padding:1rem;border:1px solid rgba(87,199,255,.08);border-radius:18px;background:linear-gradient(180deg,rgba(18,29,49,.98),rgba(12,21,38,.98));box-shadow:0 10px 26px rgba(0,0,0,.08);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease}.card:hover{transform:translateY(-1px);border-color:rgba(87,199,255,.15);box-shadow:0 14px 28px rgba(0,0,0,.14);background:linear-gradient(180deg,rgba(20,32,54,.98),rgba(12,21,38,.98))}.card h3{margin-bottom:.18rem;font-size:1.02rem;letter-spacing:-.02em}.sub{color:var(--muted);font-size:.84rem;line-height:1.48;margin-bottom:.72rem}
-    .hero,.two,.three,.four,.analysis{display:grid;gap:.9rem}.hero{grid-template-columns:1fr}.two{grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr)}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(4,minmax(0,1fr))}.analysis{grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)}
-    .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}.metric{padding:1rem;border-radius:18px;border:1px solid rgba(87,199,255,.08);background:linear-gradient(180deg,rgba(28,42,67,.94),rgba(17,27,45,.98));position:relative;overflow:hidden}.metric:before{content:"";position:absolute;inset:auto auto 0 0;width:100%;height:2px;background:linear-gradient(90deg,rgba(87,199,255,.95),rgba(52,211,153,.45));opacity:.7}.metric:nth-child(1),.metric:nth-child(2),.metric:nth-child(3),.metric:nth-child(4){grid-column:auto}.metric small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.38rem;font-size:.7rem}.metric strong{font-size:1.42rem;letter-spacing:-.04em}.metric span{display:block;color:var(--muted);font-size:.78rem;margin-top:.32rem}.metric-spark{display:flex;align-items:flex-end;gap:4px;height:34px;margin-top:.65rem}.metric-spark i{display:block;flex:1;border-radius:999px;background:linear-gradient(180deg,rgba(87,199,255,.92),rgba(87,199,255,.26));min-height:6px;opacity:.9}.metric-head{display:flex;align-items:center;gap:.5rem}.metric-mark{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 .4rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase}
-    .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.85rem}.panel-head .eyebrow{font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.12em}.panel-head .side-note{color:var(--muted);font-size:.8rem;text-align:right;max-width:20ch}
-    .overview-strip{display:grid;grid-template-columns:1.1fr .9fr;gap:.8rem;margin-top:.85rem}.mini-visual{padding:.9rem;border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(22,36,60,.92),rgba(14,23,39,.98))}.mini-visual h4{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem}.mini-visual p{color:var(--muted);font-size:.8rem;line-height:1.45;margin-top:.4rem}.severity-ring{width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--danger) 0 0deg,rgba(255,255,255,.05) 0 360deg);position:relative;margin-bottom:.5rem}.severity-ring:before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--panel)}.severity-ring strong,.severity-ring span{position:relative;z-index:1;display:block;text-align:center}.severity-ring strong{font-size:1.5rem}.severity-ring span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.channel-bars{display:flex;flex-direction:column;gap:.55rem}.channel-bar{display:grid;grid-template-columns:72px 1fr auto;gap:.65rem;align-items:center}.channel-bar label{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.channel-bar-track{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.channel-bar-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(87,199,255,.95),rgba(52,211,153,.55))}
-    .list,.rules{display:flex;flex-direction:column;gap:.65rem}.item,.incident,.channel,.rule,.intel,.queue-item{padding:.82rem;border:1px solid rgba(87,199,255,.07);border-radius:15px;background:linear-gradient(180deg,var(--panel2),var(--panel3));transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}.item,.queue-item{display:flex;justify-content:space-between;align-items:center;gap:1rem}.item span,.muted,.incident p,.channel p,.rule p,.intel p,.queue-item p{color:var(--muted);line-height:1.45;font-size:.84rem}
-    .muted{padding:.85rem 0;border:1px dashed rgba(137,160,199,.14);border-radius:12px;background:rgba(255,255,255,.01);text-align:center}
-    .item:hover,.incident:hover,.channel:hover,.rule:hover,.intel:hover,.queue-item:hover{border-color:rgba(87,199,255,.14);transform:translateY(-1px);box-shadow:0 10px 20px rgba(0,0,0,.08)}.incident .toprow,.channel .toprow,.rule .toprow{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.55rem}.incident{box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}.incident .toprow > div,.queue-item > div{min-width:0}.chips{display:flex;gap:.4rem;flex-wrap:wrap}.chip{padding:.24rem .52rem;border-radius:999px;border:1px solid var(--border);font-size:.74rem}.safe{color:var(--safe);border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.08)}.suspicious{color:var(--warn);border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.08)}.scam{color:var(--danger);border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.08)}
-    .queue-item{align-items:flex-start;padding:.9rem}.queue-head{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-bottom:.42rem}.queue-item strong{display:block;line-height:1.45;margin-bottom:.18rem}.queue-time{display:block;color:var(--muted);font-size:.76rem;margin-top:.42rem}.queue-copy{max-width:64ch}.priority-chip{padding:.24rem .52rem;border-radius:999px;border:1px solid rgba(87,199,255,.14);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}.priority-high{color:var(--danger);border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.08)}.priority-medium{color:var(--warn);border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.08)}.priority-low{color:var(--safe);border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.08)}
-    .chart{display:grid;grid-template-columns:repeat(7,1fr);gap:.55rem;align-items:end;min-height:190px;padding:.2rem 0}.barwrap{display:flex;flex-direction:column;align-items:center;gap:.38rem;font-size:.82rem}.stack{height:132px;width:36px;border-radius:12px;overflow:hidden;display:flex;flex-direction:column-reverse;background:rgba(137,160,199,.08);border:1px solid rgba(137,160,199,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}.bar-safe{background:linear-gradient(180deg,rgba(90,225,175,.95),rgba(52,211,153,.9))}.bar-warn{background:linear-gradient(180deg,rgba(255,216,112,.95),rgba(251,191,36,.9))}.bar-danger{background:linear-gradient(180deg,rgba(255,145,145,.95),rgba(248,113,113,.9))}.day{color:var(--muted);font-size:.7rem}
-    .field{display:flex;flex-direction:column;gap:.35rem}.field label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}input[type=text],input[type=password],input[type=number],select,textarea{width:100%;padding:.82rem .9rem;border-radius:14px;border:1px solid var(--border);background:var(--panel2);color:var(--text)}textarea{min-height:156px;resize:vertical;line-height:1.5}
-    .modes,.row,.quick,.feedback{display:flex;gap:.55rem;flex-wrap:wrap}.toggle{padding:.72rem .9rem;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted)}.toggle.active,.toggle:hover,.fb.active,.fb:hover{background:rgba(87,199,255,.08);border-color:rgba(87,199,255,.28);color:var(--text)}
-    .status,.admin-status{min-height:1.2rem;color:var(--muted);font-size:.86rem;line-height:1.5}.status.success,.admin-status.success{color:var(--safe)}.status.error,.admin-status.error{color:var(--danger)}.status.info{color:var(--accent)}
-    .result{display:none;flex-direction:column;gap:.9rem}.result.active{display:flex}.banner{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding:1rem;border-radius:20px;border:1px solid rgba(87,199,255,.1);background:linear-gradient(180deg,rgba(25,38,61,.99),rgba(18,28,46,.99));box-shadow:0 12px 24px rgba(0,0,0,.12)}.banner strong{font-size:1.08rem}.banner .risk{text-align:right;min-width:82px}.banner .risk b{font-size:1.72rem}.evidence{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem}.evidence .box{padding:.88rem;border:1px solid rgba(87,199,255,.08);border-radius:15px;background:linear-gradient(180deg,rgba(24,39,65,.98),rgba(17,28,46,.98))}.evidence small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.28rem;font-size:.68rem}.evidence strong{font-size:1.08rem}
-    .report-grid{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(260px,.84fr);gap:.9rem}.report-stack{display:flex;flex-direction:column;gap:.9rem}.report-box{padding:.9rem;border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(22,36,60,.96),rgba(17,28,46,.99))}.report-box h4{margin-bottom:.4rem;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.report-box p{color:var(--text);line-height:1.58;font-size:.91rem}.report-box .muted{color:var(--muted)}.report-actions{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}
-    .timeline{display:flex;flex-direction:column;gap:.8rem}.timeline-step{display:grid;grid-template-columns:18px 1fr;gap:.75rem;align-items:flex-start}.timeline-dot{width:18px;height:18px;border-radius:50%;background:linear-gradient(180deg,rgba(87,199,255,.95),rgba(87,199,255,.35));box-shadow:0 0 0 5px rgba(87,199,255,.08);margin-top:.15rem}.timeline-dot.warn{background:linear-gradient(180deg,rgba(251,191,36,.95),rgba(251,191,36,.35));box-shadow:0 0 0 5px rgba(251,191,36,.1)}.timeline-dot.danger{background:linear-gradient(180deg,rgba(248,113,113,.95),rgba(248,113,113,.35));box-shadow:0 0 0 5px rgba(248,113,113,.1)}.timeline-copy strong{display:flex;align-items:center;gap:.45rem;font-size:.88rem;margin-bottom:.18rem}.timeline-marker{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 .45rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}.timeline-copy p{color:var(--muted);font-size:.84rem;line-height:1.5}
-    .report-disclosure{border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(22,36,60,.96),rgba(17,28,46,.99));overflow:hidden}.report-disclosure summary{list-style:none;cursor:pointer;padding:.9rem 1rem;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center}.report-disclosure summary::-webkit-details-marker{display:none}.report-disclosure summary:after{content:"Open";font-size:.68rem;letter-spacing:.08em;color:var(--accent-soft)}.report-disclosure[open] summary:after{content:"Expanded"}.report-disclosure .disclosure-body{padding:0 1rem 1rem}
-    .analytics-strip{display:grid;grid-template-columns:1.08fr .92fr;gap:.9rem}.mix-panel{padding:1rem;border:1px solid rgba(87,199,255,.08);border-radius:18px;background:linear-gradient(180deg,rgba(20,31,52,.98),rgba(13,22,38,.99))}.mix-panel h4{margin-bottom:.35rem;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.mix-row{display:grid;grid-template-columns:88px 1fr auto;gap:.7rem;align-items:center;margin-top:.7rem}.mix-row label{font-size:.78rem;color:var(--text);text-transform:uppercase;letter-spacing:.08em}.mix-track{height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.mix-track i{display:block;height:100%;border-radius:999px}.mix-track .safe-fill{background:linear-gradient(90deg,rgba(52,211,153,.95),rgba(52,211,153,.45))}.mix-track .warn-fill{background:linear-gradient(90deg,rgba(251,191,36,.95),rgba(251,191,36,.45))}.mix-track .danger-fill{background:linear-gradient(90deg,rgba(248,113,113,.95),rgba(248,113,113,.45))}.quality-card{display:grid;grid-template-columns:116px 1fr;gap:1rem;align-items:center}.quality-ring{width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) 0 0deg,rgba(255,255,255,.05) 0 360deg);position:relative}.quality-ring:before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--panel)}.quality-ring strong,.quality-ring span{position:relative;z-index:1;display:block;text-align:center}.quality-ring strong{font-size:1.45rem}.quality-ring span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.quality-copy strong{display:block;font-size:1.05rem;margin-bottom:.25rem}.quality-copy p{color:var(--muted);line-height:1.55;font-size:.86rem}
-    .mini-bars{display:flex;flex-direction:column;gap:.75rem}.mini-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.7rem;align-items:center}.mini-bar strong{display:flex;align-items:center;gap:.45rem;font-size:.84rem;margin-bottom:.25rem}.mini-bar-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 .4rem;border-radius:999px;border:1px solid rgba(87,199,255,.14);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase}.mini-bar-track{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.mini-bar-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(87,199,255,.95),rgba(87,199,255,.38))}
-    .executive-summary{font-size:1.02rem;line-height:1.7}
-    .assistant-fab{position:fixed;right:22px;bottom:22px;z-index:60;border:none;border-radius:999px;padding:.85rem 1.05rem;background:linear-gradient(135deg,#0ea5e9,var(--accent));color:#06111d;font-weight:700;box-shadow:0 16px 36px rgba(14,165,233,.28)}
-    .assistant-panel{position:fixed;right:22px;bottom:84px;z-index:59;width:min(372px,calc(100vw - 32px));border:1px solid rgba(87,199,255,.16);border-radius:22px;background:linear-gradient(180deg,rgba(17,28,46,.98),rgba(11,18,31,.99));box-shadow:0 22px 54px rgba(0,0,0,.34);padding:1rem;display:none;flex-direction:column;gap:.85rem;backdrop-filter:blur(12px)}
-    .assistant-panel.open{display:flex}.assistant-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem}.assistant-head strong{font-size:1rem}.assistant-head span{display:block;color:var(--muted);font-size:.82rem;line-height:1.5;margin-top:.2rem}.assistant-prompts{display:flex;flex-wrap:wrap;gap:.45rem}.assistant-prompts button{padding:.5rem .7rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.05);color:var(--text)}
-    .assistant-status{font-size:.8rem;color:var(--accent)}
-    .assistant-meta{display:flex;gap:.45rem;flex-wrap:wrap}
-    .assistant-meta .chip{font-size:.72rem}
-    .assistant-feed{display:flex;flex-direction:column;gap:.7rem;max-height:320px;overflow:auto;padding-right:.2rem}
-    .assistant-msg{padding:.82rem .9rem;border-radius:18px;border:1px solid rgba(87,199,255,.1);line-height:1.6;font-size:.9rem;animation:messageIn .24s ease;position:relative}
-    .assistant-msg.user{background:linear-gradient(180deg,rgba(87,199,255,.12),rgba(87,199,255,.05));color:var(--text);margin-left:1.1rem}
-    .assistant-msg.ai{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(87,199,255,.04));color:var(--muted);margin-right:1.1rem}
-    .assistant-msg strong{display:block;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.32rem;color:var(--accent)}
-    .assistant-body{display:flex;flex-direction:column;gap:.55rem}.assistant-line{padding:.5rem .58rem;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(87,199,255,.06);color:inherit}.assistant-line.label{color:var(--text);font-weight:600;background:rgba(87,199,255,.07)}.assistant-card{padding:.65rem .72rem;border-radius:14px;border:1px solid rgba(87,199,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(87,199,255,.035))}.assistant-card-head{display:flex;align-items:center;gap:.45rem;margin-bottom:.35rem}.assistant-card-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 .4rem;border-radius:999px;border:1px solid rgba(87,199,255,.16);background:rgba(87,199,255,.08);color:var(--accent-soft);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase}.assistant-card-title{color:var(--text);font-weight:600;font-size:.83rem;letter-spacing:.02em}.assistant-card p{margin:0;color:inherit;line-height:1.6}
-    .assistant-compose{display:flex;flex-direction:column;gap:.55rem;padding-top:.15rem;border-top:1px solid rgba(87,199,255,.09)}.assistant-compose textarea{min-height:84px}.assistant-actions{display:flex;justify-content:space-between;gap:.6rem;align-items:center}.assistant-actions .muted{padding:0;border:none;background:none;text-align:left;font-size:.76rem}
-    .incident-drawer{position:fixed;top:20px;right:20px;z-index:58;width:min(420px,calc(100vw - 28px));max-height:calc(100vh - 40px);overflow:auto;padding:1rem;border:1px solid rgba(87,199,255,.16);border-radius:24px;background:linear-gradient(180deg,rgba(15,24,41,.98),rgba(10,18,31,.99));box-shadow:0 24px 54px rgba(0,0,0,.34);display:none;flex-direction:column;gap:.8rem}.incident-drawer.open{display:flex}.drawer-head{display:flex;justify-content:space-between;gap:.8rem;align-items:flex-start}.drawer-copy p{color:var(--muted);font-size:.84rem;line-height:1.5;margin-top:.2rem}.drawer-section{padding:.85rem;border:1px solid rgba(87,199,255,.08);border-radius:16px;background:linear-gradient(180deg,rgba(20,31,51,.96),rgba(13,21,37,.99))}.drawer-section h4{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.38rem}
-    @keyframes sectionIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes messageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-    .admin-key,.create{display:grid;gap:.75rem}.admin-key{grid-template-columns:1fr auto auto}.create{grid-template-columns:repeat(2,1fr)}.full{grid-column:1/-1}.quiet{display:none}.tight{display:flex;flex-direction:column;gap:.75rem}.disclosure{border:1px solid var(--border);border-radius:14px;background:rgba(87,199,255,.02)}.disclosure summary{list-style:none;cursor:pointer;padding:.8rem .9rem;color:var(--text);font-weight:600}.disclosure summary::-webkit-details-marker{display:none}.disclosure[open] summary{border-bottom:1px solid var(--border)}.disclosure-body{padding:.85rem}.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(6,17,29,.25);border-top-color:#06111d;display:inline-block;vertical-align:-2px;margin-right:.45rem;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-    @media(max-width:1100px){.app,.two,.analysis,.report-grid,.top,.overview-strip,.analytics-strip,.quality-card{grid-template-columns:1fr}.side{position:relative}.hero-stats,.metric-grid{grid-template-columns:1fr 1fr}}@media(max-width:800px){.three,.evidence,.create,.metric-grid,.hero-stats,.overview-strip,.analytics-strip{grid-template-columns:1fr}.top h2{font-size:1.68rem}.top{padding:1rem}.main{padding:.85rem}.banner{flex-direction:column}.banner .risk{text-align:left;min-width:0}.report-actions{justify-content:flex-start}.assistant-msg.user,.assistant-msg.ai{margin-left:0;margin-right:0}}@media(max-width:620px){.app,.four,.three,.evidence,.admin-key,.create,.metric-grid,.overview-strip,.analytics-strip{grid-template-columns:1fr}.assistant-fab{right:14px;bottom:14px}.assistant-panel{right:14px;bottom:74px;width:min(340px,calc(100vw - 24px))}.main{padding:.72rem}.card{padding:.9rem}.top{border-radius:20px}.hero-stats{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr}.timeline-step{grid-template-columns:16px 1fr;gap:.6rem}.timeline-marker,.mini-bar-badge,.assistant-card-badge{min-width:20px;height:20px;font-size:.62rem}}
+    /* ── Theme tokens ─────────────────────────────────────── */
+    :root {
+      --bg:#f0f4f8;--panel:#ffffff;--panel2:#f8fafc;--panel3:#f1f5f9;
+      --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--subtle:#94a3b8;
+      --accent:#0ea5e9;--accent-soft:#38bdf8;--accent-bg:rgba(14,165,233,.08);
+      --safe:#059669;--safe-bg:rgba(5,150,105,.08);--safe-border:rgba(5,150,105,.24);
+      --warn:#d97706;--warn-bg:rgba(217,119,6,.08);--warn-border:rgba(217,119,6,.24);
+      --danger:#dc2626;--danger-bg:rgba(220,38,38,.08);--danger-border:rgba(220,38,38,.24);
+      --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.04);
+      --shadow-lg:0 4px 16px rgba(0,0,0,.1),0 8px 32px rgba(0,0,0,.06);
+      font-family:"Inter",system-ui,sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg:#09111f;--panel:#101b30;--panel2:#16243c;--panel3:#1b2942;
+      --border:#243553;--text:#edf3ff;--muted:#89a0c7;--subtle:#4a6080;
+      --accent:#57c7ff;--accent-soft:#8fdcff;--accent-bg:rgba(87,199,255,.08);
+      --safe:#34d399;--safe-bg:rgba(52,211,153,.08);--safe-border:rgba(52,211,153,.28);
+      --warn:#fbbf24;--warn-bg:rgba(251,191,36,.08);--warn-border:rgba(251,191,36,.28);
+      --danger:#f87171;--danger-bg:rgba(248,113,113,.08);--danger-border:rgba(248,113,113,.28);
+      --shadow:0 1px 4px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+      --shadow-lg:0 8px 32px rgba(0,0,0,.32),0 16px 48px rgba(0,0,0,.2);
+    }
+
+    /* ── Reset ───────────────────────────────────────────── */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer}
+    input,select,textarea{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:.65rem .8rem;width:100%;color:var(--text);transition:border-color .15s}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+    textarea{resize:vertical;min-height:140px;line-height:1.55}
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    .side{
+      display:flex;flex-direction:column;
+      background:var(--panel);border-right:1px solid var(--border);
+      padding:1rem;gap:.5rem;position:sticky;top:0;height:100vh;overflow:auto;
+    }
+    .brand{display:flex;align-items:center;gap:.6rem;padding:.4rem .2rem .9rem;border-bottom:1px solid var(--border);margin-bottom:.25rem}
+    .brand svg{color:var(--accent);flex-shrink:0}
+    .brand-text strong{display:block;font-size:.95rem;font-weight:700;letter-spacing:-.02em}
+    .brand-text span{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:1px}
+    .nav{display:flex;flex-direction:column;gap:2px;flex:1}
+    .nav-item{
+      display:flex;align-items:center;gap:.6rem;
+      padding:.62rem .75rem;border-radius:10px;border:1px solid transparent;
+      background:transparent;color:var(--muted);font-size:.875rem;font-weight:500;text-align:left;
+      transition:background .15s,color .15s,border-color .15s;
+    }
+    .nav-item svg{flex-shrink:0;opacity:.7;transition:opacity .15s}
+    .nav-item .nav-badge{margin-left:auto;font-size:.68rem;color:var(--muted);font-weight:400}
+    .nav-item:hover{background:var(--accent-bg);color:var(--text)}
+    .nav-item:hover svg{opacity:1}
+    .nav-item.active{background:var(--accent-bg);border-color:rgba(14,165,233,.18);color:var(--accent);font-weight:600}
+    [data-theme="dark"] .nav-item.active{border-color:rgba(87,199,255,.18)}
+    .nav-item.active svg{opacity:1}
+    .side-footer{border-top:1px solid var(--border);padding-top:.75rem;margin-top:auto;display:flex;flex-direction:column;gap:.5rem}
+    .theme-btn{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.82rem;font-weight:500;width:100%;transition:background .15s,color .15s}
+    .theme-btn:hover{background:var(--accent-bg);color:var(--text)}
+    .side-action{padding:.6rem .75rem;border-radius:10px;border:1px solid var(--border);background:var(--accent);color:#fff;font-size:.82rem;font-weight:600;text-align:center;transition:opacity .15s}
+    .side-action:hover{opacity:.88}
+
+    /* ── Main area ───────────────────────────────────────── */
+    .main{padding:1.25rem;display:flex;flex-direction:column;gap:1rem;max-width:1440px;width:100%}
+
+    /* ── Page header (replaces hero) ─────────────────────── */
+    .page-hdr{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.85rem 1rem;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
+    .page-hdr-left{display:flex;align-items:center;gap:.65rem}
+    .page-hdr-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--accent-bg);color:var(--accent);flex-shrink:0}
+    .page-hdr h2{font-size:1rem;font-weight:600;letter-spacing:-.02em}
+    .page-hdr p{font-size:.8rem;color:var(--muted);margin-top:1px}
+    .page-hdr-actions{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
+
+    /* ── Sections ─────────────────────────────────────────── */
+    .sec{display:none;flex-direction:column;gap:.9rem;animation:fadeUp .28s ease}
+    .sec.active{display:flex}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── Cards ───────────────────────────────────────────── */
+    .card{padding:1rem;border:1px solid var(--border);border-radius:14px;background:var(--panel);box-shadow:var(--shadow)}
+    .card-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;margin-bottom:.75rem}
+    .card-hdr h3{font-size:.9rem;font-weight:600;letter-spacing:-.01em}
+    .card-hdr .eyebrow{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.18rem}
+    .card-note{color:var(--muted);font-size:.78rem;text-align:right;max-width:18ch;line-height:1.4}
+
+    /* ── Grids ───────────────────────────────────────────── */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+    .ga{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:.9rem}
+    .grp{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:.9rem}
+    .col{display:flex;flex-direction:column;gap:.9rem}
+
+    /* ── Metric cards ────────────────────────────────────── */
+    .metric{padding:.85rem 1rem;border:1px solid var(--border);border-radius:12px;background:var(--panel);position:relative;overflow:hidden}
+    .metric::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-soft));opacity:.5}
+    .metric small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:.4rem}
+    .metric strong{display:block;font-size:1.5rem;font-weight:700;letter-spacing:-.04em;line-height:1}
+    .metric span{display:block;font-size:.75rem;color:var(--muted);margin-top:.3rem}
+    .metric-spark{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:.6rem}
+    .metric-spark i{display:block;flex:1;border-radius:3px;background:var(--accent);opacity:.35;min-height:4px}
+    .metric-spark i:last-child{opacity:.9}
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.58rem .85rem;border-radius:9px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:.83rem;font-weight:500;transition:background .15s,border-color .15s,transform .12s}
+    .btn:hover{background:var(--panel2);border-color:var(--accent);transform:translateY(-1px)}
+    .btn svg{flex-shrink:0}
+    .btn-primary{display:inline-flex;align-items:center;gap:.4rem;padding:.58rem .9rem;border-radius:9px;border:none;background:var(--accent);color:#fff;font-size:.83rem;font-weight:600;transition:opacity .15s,transform .12s}
+    [data-theme="dark"] .btn-primary{color:#06111d}
+    .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+    .btn-sm{padding:.38rem .62rem;font-size:.78rem}
+    .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+
+    /* ── Chips / pills ───────────────────────────────────── */
+    .chip{display:inline-flex;align-items:center;padding:.22rem .52rem;border-radius:999px;font-size:.72rem;font-weight:500;border:1px solid var(--border);background:var(--panel2);color:var(--muted)}
+    .safe{color:var(--safe);border-color:var(--safe-border);background:var(--safe-bg)}
+    .suspicious{color:var(--warn);border-color:var(--warn-border);background:var(--warn-bg)}
+    .scam{color:var(--danger);border-color:var(--danger-border);background:var(--danger-bg)}
+    .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+
+    /* ── Toggle buttons (mode/channel) ───────────────────── */
+    .modes{display:flex;gap:.4rem;flex-wrap:wrap}
+    .toggle{padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;font-weight:500;transition:background .15s,color .15s,border-color .15s}
+    .toggle.active,.toggle:hover{background:var(--accent-bg);border-color:rgba(14,165,233,.3);color:var(--accent)}
+    [data-theme="dark"] .toggle.active,[data-theme="dark"] .toggle:hover{border-color:rgba(87,199,255,.3)}
+
+    /* ── Form fields ─────────────────────────────────────── */
+    .field{display:flex;flex-direction:column;gap:.3rem}
+    .field label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+    /* ── Status line ─────────────────────────────────────── */
+    .status{font-size:.82rem;color:var(--muted)}
+    .status.success,.admin-status.success{color:var(--safe)}
+    .status.error,.admin-status.error{color:var(--danger)}
+    .status.info{color:var(--accent)}
+    .admin-status{font-size:.82rem;color:var(--muted)}
+
+    /* ── List items ──────────────────────────────────────── */
+    .list{display:flex;flex-direction:column;gap:.5rem}
+    .item{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.7rem .85rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2);transition:border-color .15s}
+    .item:hover{border-color:var(--accent)}
+    .item span{color:var(--muted);font-size:.82rem}
+    .muted{color:var(--muted);font-size:.83rem;padding:.65rem;border:1px dashed var(--border);border-radius:9px;text-align:center;background:var(--panel2)}
+
+    /* ── Incident / queue items ──────────────────────────── */
+    .incident,.queue-item{padding:.8rem;border:1px solid var(--border);border-radius:12px;background:var(--panel);transition:border-color .15s,box-shadow .15s}
+    .incident:hover,.queue-item:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+    .incident .toprow{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start;margin-bottom:.45rem}
+    .incident p,.queue-item p{color:var(--muted);font-size:.82rem;line-height:1.45}
+    .queue-head{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem}
+    .queue-item strong{font-size:.88rem}
+    .queue-time{display:block;color:var(--muted);font-size:.73rem;margin-top:.35rem}
+
+    /* ── Priority chips ──────────────────────────────────── */
+    .priority-high{color:var(--danger);border-color:var(--danger-border);background:var(--danger-bg)}
+    .priority-medium{color:var(--warn);border-color:var(--warn-border);background:var(--warn-bg)}
+    .priority-low{color:var(--safe);border-color:var(--safe-border);background:var(--safe-bg)}
+
+    /* ── Trend chart ─────────────────────────────────────── */
+    .chart{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem;align-items:end;min-height:160px;padding:.25rem 0}
+    .barwrap{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+    .stack{height:120px;width:32px;border-radius:10px;overflow:hidden;display:flex;flex-direction:column-reverse;background:var(--panel3);border:1px solid var(--border)}
+    .bar-safe{background:var(--safe);opacity:.85}
+    .bar-warn{background:var(--warn);opacity:.85}
+    .bar-danger{background:var(--danger);opacity:.9}
+    .day{color:var(--muted);font-size:.67rem}
+
+    /* ── Overview strip (dashboard) ──────────────────────── */
+    .overview-strip{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+    .mini-visual{padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}
+    .mini-visual h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.45rem}
+    .mini-visual p{color:var(--muted);font-size:.78rem;line-height:1.4;margin-top:.4rem}
+    .severity-ring{width:108px;height:108px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--danger) 0 0deg,var(--panel3) 0 360deg);position:relative;margin-bottom:.45rem}
+    .severity-ring::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--panel)}
+    .severity-ring strong,.severity-ring span{position:relative;z-index:1;display:block;text-align:center}
+    .severity-ring strong{font-size:1.4rem;font-weight:700}
+    .severity-ring span{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .channel-bars{display:flex;flex-direction:column;gap:.5rem}
+    .channel-bar{display:grid;grid-template-columns:68px 1fr auto;gap:.55rem;align-items:center}
+    .channel-bar label{font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .channel-bar-track{height:8px;border-radius:999px;background:var(--panel3);overflow:hidden}
+    .channel-bar-track i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+
+    /* ── Analytics bars ──────────────────────────────────── */
+    .mix-panel{padding:1rem;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+    .mix-panel h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.65rem}
+    .mix-row{display:grid;grid-template-columns:88px 1fr 42px;gap:.6rem;align-items:center;margin-top:.55rem}
+    .mix-row label{font-size:.78rem;color:var(--text);text-transform:uppercase;letter-spacing:.07em}
+    .mix-track{height:10px;border-radius:999px;background:var(--panel3);overflow:hidden}
+    .mix-track i{display:block;height:100%;border-radius:999px}
+    .safe-fill{background:var(--safe)}
+    .warn-fill{background:var(--warn)}
+    .danger-fill{background:var(--danger)}
+    .quality-card{display:grid;grid-template-columns:104px 1fr;gap:.85rem;align-items:center}
+    .quality-ring{width:104px;height:104px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) 0 0deg,var(--panel3) 0 360deg);position:relative}
+    .quality-ring::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--panel)}
+    .quality-ring strong,.quality-ring span{position:relative;z-index:1;display:block;text-align:center}
+    .quality-ring strong{font-size:1.35rem;font-weight:700}
+    .quality-ring span{font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .quality-copy strong{display:block;font-size:.9rem;margin-bottom:.2rem}
+    .quality-copy p{color:var(--muted);font-size:.82rem;line-height:1.5}
+
+    /* ── Mini bars (analytics) ───────────────────────────── */
+    .mini-bars{display:flex;flex-direction:column;gap:.6rem}
+    .mini-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.6rem;align-items:center}
+    .mini-bar strong{display:block;font-size:.83rem;margin-bottom:.2rem}
+    .mini-bar-track{height:8px;border-radius:999px;background:var(--panel3);overflow:hidden}
+    .mini-bar-track i{display:block;height:100%;border-radius:999px;background:var(--accent);opacity:.8}
+
+    /* ── Scan result ─────────────────────────────────────── */
+    .result{display:none;flex-direction:column;gap:.85rem}
+    .result.active{display:flex}
+    .banner{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start;padding:1rem;border-radius:12px;border:1px solid var(--border);background:var(--panel2)}
+    .banner strong{font-size:1rem;font-weight:600}
+    .banner .risk{text-align:right;flex-shrink:0}
+    .banner .risk small{display:block;font-size:.7rem;color:var(--muted)}
+    .banner .risk b{font-size:1.6rem;font-weight:700;letter-spacing:-.04em}
+    .evidence{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+    .evidence .box{padding:.8rem;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+    .evidence small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem}
+    .evidence strong{font-size:1rem;font-weight:600}
+
+    /* ── Report layout ───────────────────────────────────── */
+    .report-grid{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(240px,.84fr);gap:.85rem}
+    .report-stack{display:flex;flex-direction:column;gap:.75rem}
+    .report-box{padding:.85rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)}
+    .report-box h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:.35rem;font-weight:600}
+    .report-box p{color:var(--text);font-size:.88rem;line-height:1.6}
+    .executive-summary{font-size:.92rem;line-height:1.7}
+    .report-actions{display:flex;justify-content:flex-end;gap:.5rem;flex-wrap:wrap}
+    .report-disclosure{border:1px solid var(--border);border-radius:10px;background:var(--panel);overflow:hidden}
+    .report-disclosure summary{list-style:none;cursor:pointer;padding:.75rem .9rem;font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+    .report-disclosure summary::-webkit-details-marker{display:none}
+    .report-disclosure summary::after{content:"›";font-size:.9rem;color:var(--muted)}
+    .report-disclosure[open] summary::after{content:"⌄"}
+    .report-disclosure .disclosure-body{padding:.75rem .9rem;border-top:1px solid var(--border)}
+
+    /* ── Timeline ────────────────────────────────────────── */
+    .timeline{display:flex;flex-direction:column;gap:.7rem}
+    .timeline-step{display:grid;grid-template-columns:16px 1fr;gap:.65rem;align-items:flex-start}
+    .timeline-dot{width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-bg);margin-top:.15rem;flex-shrink:0}
+    .timeline-dot.warn{background:var(--warn);box-shadow:0 0 0 4px var(--warn-bg)}
+    .timeline-dot.danger{background:var(--danger);box-shadow:0 0 0 4px var(--danger-bg)}
+    .timeline-marker{display:inline-flex;align-items:center;padding:.18rem .42rem;border-radius:999px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em}
+    .timeline-copy strong{display:flex;align-items:center;gap:.4rem;font-size:.86rem;margin-bottom:.15rem}
+    .timeline-copy p{color:var(--muted);font-size:.82rem;line-height:1.45}
+
+    /* ── Rules ───────────────────────────────────────────── */
+    .rules{display:flex;flex-direction:column;gap:.5rem}
+    .rule{padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel);transition:border-color .15s}
+    .rule:hover{border-color:var(--accent)}
+    .rule .toprow{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start;margin-bottom:.4rem}
+    .rule p{color:var(--muted);font-size:.82rem;line-height:1.45}
+    .create{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+    .full{grid-column:1/-1}
+    .tight{display:flex;flex-direction:column;gap:.65rem}
+    .admin-key{display:grid;grid-template-columns:1fr auto auto;gap:.5rem}
+    .disclosure{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .disclosure summary{list-style:none;cursor:pointer;padding:.7rem .85rem;font-weight:600;font-size:.85rem;display:flex;align-items:center;gap:.5rem;background:var(--panel2)}
+    .disclosure summary::-webkit-details-marker{display:none}
+    .disclosure[open] summary{border-bottom:1px solid var(--border)}
+    .disclosure-body{padding:.85rem}
+    .intel{padding:.8rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)}
+    .intel h3{font-size:.88rem;font-weight:600;margin-bottom:.35rem}
+    .intel p{color:var(--muted);font-size:.83rem;line-height:1.45}
+    .feedback{display:flex;gap:.45rem;flex-wrap:wrap}
+    .fb{padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem}
+    .fb.active,.fb:hover{background:var(--accent-bg);border-color:rgba(14,165,233,.3);color:var(--accent)}
+    [data-theme="dark"] .fb.active,[data-theme="dark"] .fb:hover{border-color:rgba(87,199,255,.3)}
+    .sub{color:var(--muted);font-size:.83rem;line-height:1.5;margin-bottom:.65rem}
+
+    /* ── Spinner ─────────────────────────────────────────── */
+    .spinner{width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;display:inline-block;vertical-align:-2px;margin-right:.4rem;animation:spin .65s linear infinite}
+    [data-theme="light"] .spinner{border-color:rgba(14,165,233,.2);border-top-color:var(--accent)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── AI Copilot FAB + panel ──────────────────────────── */
+    .assistant-fab{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;align-items:center;gap:.5rem;padding:.72rem 1rem;border:none;border-radius:999px;background:var(--accent);color:#fff;font-weight:600;font-size:.83rem;box-shadow:0 8px 24px rgba(14,165,233,.3);transition:transform .15s,opacity .15s}
+    [data-theme="dark"] .assistant-fab{color:#06111d}
+    .assistant-fab:hover{transform:translateY(-2px);opacity:.92}
+    .assistant-panel{position:fixed;right:20px;bottom:80px;z-index:59;width:min(380px,calc(100vw - 32px));border:1px solid var(--border);border-radius:18px;background:var(--panel);box-shadow:var(--shadow-lg);padding:1rem;display:none;flex-direction:column;gap:.75rem}
+    .assistant-panel.open{display:flex}
+    .assistant-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+    .assistant-head strong{font-size:.95rem;font-weight:600}
+    .assistant-head span{display:block;color:var(--muted);font-size:.8rem;margin-top:.15rem;line-height:1.45}
+    .assistant-prompts{display:flex;flex-wrap:wrap;gap:.4rem}
+    .assistant-prompts button{padding:.42rem .62rem;border-radius:999px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:.78rem;transition:border-color .15s,background .15s}
+    .assistant-prompts button:hover{border-color:var(--accent);background:var(--accent-bg)}
+    .assistant-status{font-size:.78rem;color:var(--accent)}
+    .assistant-meta{display:flex;gap:.35rem;flex-wrap:wrap}
+    .assistant-feed{display:flex;flex-direction:column;gap:.6rem;max-height:300px;overflow:auto;padding-right:.2rem}
+    .assistant-msg{padding:.75rem .85rem;border-radius:14px;border:1px solid var(--border);line-height:1.58;font-size:.88rem;animation:fadeUp .22s ease}
+    .assistant-msg.user{background:var(--accent-bg);margin-left:.75rem}
+    .assistant-msg.ai{background:var(--panel2);margin-right:.75rem}
+    .assistant-msg strong{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.28rem;color:var(--accent)}
+    .assistant-body{display:flex;flex-direction:column;gap:.45rem}
+    .assistant-line{padding:.45rem .55rem;border-radius:8px;background:var(--panel3);border:1px solid var(--border);font-size:.84rem}
+    .assistant-line.label{color:var(--text);font-weight:600;background:var(--accent-bg)}
+    .assistant-card{padding:.6rem .7rem;border-radius:10px;border:1px solid var(--border);background:var(--panel)}
+    .assistant-card-head{display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem}
+    .assistant-card-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 .35rem;border-radius:999px;background:var(--accent-bg);color:var(--accent);font-size:.63rem;text-transform:uppercase}
+    .assistant-card-title{font-weight:600;font-size:.82rem}
+    .assistant-card p{color:var(--muted);font-size:.82rem;line-height:1.55}
+    .assistant-compose{display:flex;flex-direction:column;gap:.5rem;padding-top:.15rem;border-top:1px solid var(--border)}
+    .assistant-compose textarea{min-height:72px}
+    .assistant-actions{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+    .assistant-actions .muted{color:var(--muted);font-size:.74rem}
+
+    /* ── Incident drawer ─────────────────────────────────── */
+    .incident-drawer{position:fixed;top:16px;right:16px;z-index:58;width:min(400px,calc(100vw - 24px));max-height:calc(100vh - 32px);overflow:auto;padding:1rem;border:1px solid var(--border);border-radius:18px;background:var(--panel);box-shadow:var(--shadow-lg);display:none;flex-direction:column;gap:.75rem}
+    .incident-drawer.open{display:flex}
+    .drawer-head{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start}
+    .drawer-copy p{color:var(--muted);font-size:.82rem;line-height:1.45;margin-top:.18rem}
+    .drawer-section{padding:.8rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)}
+    .drawer-section h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:.3rem;font-weight:600}
+
+    /* ── Quiet / hidden helpers ──────────────────────────── */
+    .quiet{display:none}
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media(max-width:1100px){.app,.grp,.ga,.report-grid,.overview-strip{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
+    @media(max-width:800px){.app{grid-template-columns:1fr}.side{position:relative;height:auto;flex-direction:row;flex-wrap:wrap;gap:.5rem}.brand-text{display:none}.nav{flex-direction:row}.g3,.g2,.evidence,.create,.g4,.grp,.ga{grid-template-columns:1fr}.banner{flex-direction:column}.banner .risk{text-align:left}}
+    @media(max-width:580px){.overview-strip,.g3,.g2,.evidence,.create,.g4{grid-template-columns:1fr}.assistant-fab{right:12px;bottom:12px}.assistant-panel{right:12px;bottom:72px}}
   </style>
 </head>
 <body>
   <div class="app">
+    <!-- ── Sidebar ─────────────────────────────────────── -->
     <aside class="side">
       <div class="brand">
-        <div class="brand-shell">
-          <img class="brand-logo" src="./threatai-logo.png" alt="ThreatWatch AI logo">
-          <small>Threat Ops Console</small>
-          <h1>ThreatWatch AI</h1>
-          <p>Threat detection, analyst triage, and response operations in one place.</p>
+        <i data-lucide="shield" width="28" height="28"></i>
+        <div class="brand-text">
+          <strong>ThreatWatch AI</strong>
+          <span>Threat Ops Console</span>
         </div>
       </div>
-      <div class="nav">
-        <button class="active" data-sec="dashboard"><span>Dashboard</span><span id="navDash">Overview</span></button>
-        <button data-sec="analyze"><span>Analyze</span><span id="navAnalyze">Workspace</span></button>
-        <button data-sec="analytics"><span>Analytics</span><span id="navAnalytics">Detail</span></button>
-        <button data-sec="rules"><span>Rules</span><span>Admin</span></button>
-      </div>
-      <div class="rail">
-        <div class="pill">Phase 2</div>
-        <p>Live AI copilot with self-hosted Gemma support.</p>
-        <button class="btn" type="button" onclick="launchInvestigation()">Start investigation</button>
+      <nav class="nav">
+        <button class="nav-item active" data-sec="dashboard">
+          <i data-lucide="layout-dashboard" width="16" height="16"></i>
+          Dashboard
+          <span class="nav-badge" id="navDash">Overview</span>
+        </button>
+        <button class="nav-item" data-sec="analyze">
+          <i data-lucide="search" width="16" height="16"></i>
+          Analyze
+          <span class="nav-badge" id="navAnalyze">Ready</span>
+        </button>
+        <button class="nav-item" data-sec="analytics">
+          <i data-lucide="bar-chart-2" width="16" height="16"></i>
+          Analytics
+          <span class="nav-badge" id="navAnalytics">Detail</span>
+        </button>
+        <button class="nav-item" data-sec="rules">
+          <i data-lucide="settings" width="16" height="16"></i>
+          Rules
+          <span class="nav-badge">Admin</span>
+        </button>
+      </nav>
+      <div class="side-footer">
+        <button class="theme-btn" id="themeToggle" type="button">
+          <i data-lucide="sun" width="15" height="15" id="themeIcon"></i>
+          <span id="themeLabel">Light mode</span>
+        </button>
+        <button class="side-action" type="button" onclick="launchInvestigation()">
+          + New investigation
+        </button>
       </div>
     </aside>
+
+    <!-- ── Main ───────────────────────────────────────── -->
     <main class="main">
-      <div class="top">
-        <div>
-          <div class="hero-kicker">Security Operations Console</div>
-          <h2>Move from suspicious message to executive-ready incident response in one operating surface.</h2>
-          <p>Detect phishing and scams, review evidence, and move to action without bouncing between separate tools.</p>
-          <div class="hero-stats">
-            <div class="hero-stat"><strong>Review faster</strong><span>Assess evidence and risk in one flow.</span></div>
-            <div class="hero-stat"><strong>Escalate clearly</strong><span>Turn signals into an action-ready brief.</span></div>
-            <div class="hero-stat"><strong>Copilot ready</strong><span>Use local or hosted AI when needed.</span></div>
-          </div>
-        </div>
-        <div class="row">
-          <button class="btn" id="refreshDashboardBtn" type="button" onclick="refreshDashboardAction()">Refresh dashboard</button>
-          <button class="btn-primary" type="button" onclick="launchInvestigation()">Launch investigation</button>
-        </div>
-      </div>
 
+      <!-- Dashboard ──────────────────────────────────── -->
       <section class="sec active" id="sec-dashboard">
-        <div class="card">
-          <div class="panel-head"><div><div class="eyebrow">Overview</div><h3>Threat posture at a glance.</h3></div><div class="side-note">Dashboard for oversight. Analyze for active work.</div></div>
-          <div class="row"><button class="btn-primary" type="button" onclick="launchInvestigation()">Investigate a threat</button><button class="btn" type="button" onclick="showSection('analytics')">View analytics</button></div>
-          <div class="overview-strip">
-            <div class="mini-visual">
-              <h4>Risk concentration</h4>
-              <div class="severity-ring" id="severityRing">
-                <div>
-                  <strong id="severityRate">0%</strong>
-                  <span>critical</span>
-                </div>
-              </div>
-              <p id="severityNote">Critical incident share will update from the latest seven-day case mix.</p>
+        <div class="page-hdr">
+          <div class="page-hdr-left">
+            <div class="page-hdr-icon"><i data-lucide="layout-dashboard" width="18" height="18"></i></div>
+            <div>
+              <h2>Threat posture overview</h2>
+              <p>Latest 250 incidents · auto-refreshes every 30s</p>
             </div>
-            <div class="mini-visual">
-              <h4>Channel pressure</h4>
-              <div class="channel-bars" id="heroChannelBars">
-                <div class="muted">Loading channel mix...</div>
-              </div>
-              <p id="channelPressureNote">The busiest attack path will surface here for faster prioritization.</p>
-            </div>
+          </div>
+          <div class="page-hdr-actions">
+            <button class="btn btn-sm" id="refreshDashboardBtn" type="button" onclick="refreshDashboardAction()">
+              <i data-lucide="refresh-cw" width="13" height="13"></i> Refresh
+            </button>
+            <button class="btn-primary btn-sm" type="button" onclick="launchInvestigation()">Investigate</button>
           </div>
         </div>
 
-        <div class="metric-grid">
-          <div class="metric"><div class="metric-head"><span class="metric-mark">01</span><small>Incidents reviewed</small></div><strong id="mTotal">0</strong><span>Latest 250 cases</span><div class="metric-spark" id="sparkTotal"></div></div>
-          <div class="metric"><div class="metric-head"><span class="metric-mark">02</span><small>Critical threat rate</small></div><strong id="mScamRate">0%</strong><span>High-risk incident share</span><div class="metric-spark" id="sparkScam"></div></div>
-          <div class="metric"><div class="metric-head"><span class="metric-mark">03</span><small>Average exposure</small></div><strong id="mRisk">0%</strong><span>Across recent assessments</span><div class="metric-spark" id="sparkRisk"></div></div>
-          <div class="metric"><div class="metric-head"><span class="metric-mark">04</span><small>AI-assisted reviews</small></div><strong id="mAi">0</strong><span>Incidents with AI support</span><div class="metric-spark" id="sparkAi"></div></div>
+        <div class="g4">
+          <div class="metric"><small>Incidents reviewed</small><strong id="mTotal">0</strong><span>Latest 250 cases</span><div class="metric-spark" id="sparkTotal"></div></div>
+          <div class="metric"><small>Critical threat rate</small><strong id="mScamRate">0%</strong><span>High-risk share</span><div class="metric-spark" id="sparkScam"></div></div>
+          <div class="metric"><small>Average exposure</small><strong id="mRisk">0%</strong><span>Across recent cases</span><div class="metric-spark" id="sparkRisk"></div></div>
+          <div class="metric"><small>AI-assisted reviews</small><strong id="mAi">0</strong><span>Pipeline used</span><div class="metric-spark" id="sparkAi"></div></div>
         </div>
 
-        <div class="card"><div class="panel-head"><div><div class="eyebrow">Threat posture</div><h3>Threat trend</h3></div><div class="side-note">Seven-day incident mix.</div></div><p class="sub">Safe, suspicious, and high-risk activity over the last seven days.</p><div class="chart" id="trendChart"><div class="muted">Loading trend data...</div></div></div>
-
-        <div class="card"><h3>Recent incidents</h3><p class="sub">Quick-look queue for priority review.</p><div class="list" id="recentIncidents"><div class="muted">Loading incidents...</div></div></div>
-
-        <div class="quiet">
-          <div id="topSignals"></div>
-          <div id="channelList"></div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr">
+              <div><div class="eyebrow">Risk overview</div><h3>Threat posture at a glance</h3></div>
+              <button class="btn btn-sm" onclick="showSection('analytics')">Analytics →</button>
+            </div>
+            <div class="overview-strip">
+              <div class="mini-visual">
+                <h4>Risk concentration</h4>
+                <div class="severity-ring" id="severityRing">
+                  <div><strong id="severityRate">0%</strong><span>critical</span></div>
+                </div>
+                <p id="severityNote">Critical incident share from the last seven days.</p>
+              </div>
+              <div class="mini-visual">
+                <h4>Channel pressure</h4>
+                <div class="channel-bars" id="heroChannelBars">
+                  <div class="muted">Loading...</div>
+                </div>
+                <p id="channelPressureNote">Busiest attack path surfaces here.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div><div class="eyebrow">Threat posture</div><h3>7-day trend</h3></div><div class="card-note">Safe · Suspicious · Critical</div></div>
+            <div class="chart" id="trendChart"><div class="muted">Loading...</div></div>
+          </div>
         </div>
+
+        <div class="card">
+          <div class="card-hdr"><h3>Recent incidents</h3><button class="btn btn-sm" onclick="showSection('analytics')">View all →</button></div>
+          <div class="list" id="recentIncidents"><div class="muted">Loading incidents...</div></div>
+        </div>
+
+        <div class="quiet"><div id="topSignals"></div><div id="channelList"></div></div>
       </section>
 
+      <!-- Analyze ────────────────────────────────────── -->
       <section class="sec" id="sec-analyze">
-        <div class="analysis">
-          <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="page-hdr">
+          <div class="page-hdr-left">
+            <div class="page-hdr-icon"><i data-lucide="search" width="18" height="18"></i></div>
+            <div><h2>Threat investigation workspace</h2><p>Scan suspicious content · Standard or AI pipeline</p></div>
+          </div>
+        </div>
+
+        <div class="ga">
+          <!-- Left: input + result -->
+          <div class="col">
             <div class="card">
-              <h3>Threat investigation workspace</h3>
-              <p class="sub">Review suspicious messages, links, and emails as structured incidents with business-ready explanations, evidence, and response guidance.</p>
-              <div class="field"><label>Scan mode</label><div class="modes"><button class="toggle active" data-mode="standard">Standard Engine</button><button class="toggle" data-mode="ai">AI Pipeline</button></div><div class="muted" id="modeNote">High-speed detection for frontline triage. Uses ML plus the live rule engine.</div></div>
-              <div class="field" style="margin-top:1rem"><label>Channel</label><div class="modes"><button class="toggle active" data-channel="chat">Chat</button><button class="toggle" data-channel="email">Email</button><button class="toggle" data-channel="sms">SMS</button><button class="toggle" data-channel="url">URL</button></div></div>
-              <div class="field" style="margin-top:1rem"><label for="messageInput">Content to inspect</label><textarea id="messageInput" placeholder="Paste suspicious content here. Example: Your account is locked. Verify now or access will be suspended."></textarea></div>
-              <div class="field" style="margin-top:1rem"><label for="urlInput">Reference URL</label><input id="urlInput" type="text" placeholder="Paste the linked destination or landing page if one was included..."></div>
-              <div class="field quiet" style="margin-top:1rem"><label>Quick samples</label><div class="quick"><button class="btn" type="button" onclick="fillExample('safe')">Safe</button><button class="btn" type="button" onclick="fillExample('suspicious')">Suspicious</button><button class="btn" type="button" onclick="fillExample('scam')">Scam</button><button class="btn" type="button" onclick="clearComposer()">Clear</button></div></div>
-              <div class="row" style="margin-top:1rem"><button class="btn-primary" id="analyzeBtn" type="button" onclick="analyze()">Run threat assessment</button><label class="btn" for="emlFile">Upload .eml</label><input id="emlFile" type="file" accept=".eml" style="display:none" onchange="analyzeEml(this)"></div>
-              <div class="status" id="scanStatus">Ready. Standard mode is optimized for rapid frontline review.</div>
+              <div class="field">
+                <label>Scan mode</label>
+                <div class="modes">
+                  <button class="toggle active" data-mode="standard">Standard</button>
+                  <button class="toggle" data-mode="ai">AI Pipeline</button>
+                </div>
+                <div class="muted" id="modeNote" style="margin-top:.35rem;padding:.5rem .65rem">High-speed ML + rule engine detection.</div>
+              </div>
+              <div class="field" style="margin-top:.75rem">
+                <label>Channel</label>
+                <div class="modes">
+                  <button class="toggle active" data-channel="chat">Chat</button>
+                  <button class="toggle" data-channel="email">Email</button>
+                  <button class="toggle" data-channel="sms">SMS</button>
+                  <button class="toggle" data-channel="url">URL</button>
+                </div>
+              </div>
+              <div class="field" style="margin-top:.75rem">
+                <label for="messageInput">Content to inspect</label>
+                <textarea id="messageInput" placeholder="Paste suspicious message, email body, or URL here…"></textarea>
+              </div>
+              <div class="field" style="margin-top:.65rem">
+                <label for="urlInput">Reference URL</label>
+                <input id="urlInput" type="text" placeholder="Optional — paste linked destination URL">
+              </div>
+              <div class="row" style="margin-top:.75rem">
+                <button class="btn-primary" id="analyzeBtn" type="button" onclick="analyze()">
+                  <i data-lucide="zap" width="14" height="14"></i> Run assessment
+                </button>
+                <label class="btn" for="emlFile"><i data-lucide="upload" width="13" height="13"></i> .eml</label>
+                <input id="emlFile" type="file" accept=".eml" style="display:none" onchange="analyzeEml(this)">
+                <button class="btn" type="button" onclick="fillExample('scam')">Sample</button>
+                <button class="btn" type="button" onclick="clearComposer()">Clear</button>
+              </div>
+              <div class="status" id="scanStatus" style="margin-top:.6rem">Ready.</div>
             </div>
 
             <div class="card result" id="resultCard">
-              <div class="banner" id="banner"><div><div class="chips" style="margin-bottom:.45rem"><span class="chip safe" id="vPill">SAFE</span><span class="chip" id="modeChip">standard engine</span><span class="chip" id="modelChip">default path</span></div><strong id="vLabel">No incident yet</strong><p id="vSub" class="sub" style="margin:.4rem 0 0">Run an assessment to generate a business-ready incident summary, risk context, and recommended next step.</p></div><div class="risk"><small class="muted">Risk</small><b id="riskPct">0%</b></div></div>
-              <div class="evidence"><div class="box"><small>ML score</small><strong id="mlScore">0%</strong></div><div class="box"><small>Rule score</small><strong id="ruleScore">0%</strong></div><div class="box"><small>Threat class</small><strong id="threatClass">Unknown</strong></div><div class="box"><small>Action</small><strong id="actionLevel">Review</strong></div></div>
+              <div class="banner" id="banner">
+                <div>
+                  <div class="chips" style="margin-bottom:.4rem">
+                    <span class="chip safe" id="vPill">SAFE</span>
+                    <span class="chip" id="modeChip">standard</span>
+                    <span class="chip" id="modelChip">—</span>
+                  </div>
+                  <strong id="vLabel">No incident yet</strong>
+                  <p id="vSub" class="sub" style="margin:.3rem 0 0">Run an assessment to generate an incident summary.</p>
+                </div>
+                <div class="risk"><small class="muted">Risk</small><b id="riskPct">0%</b></div>
+              </div>
+
+              <div class="evidence">
+                <div class="box"><small>ML score</small><strong id="mlScore">0%</strong></div>
+                <div class="box"><small>Rule score</small><strong id="ruleScore">0%</strong></div>
+                <div class="box"><small>Threat class</small><strong id="threatClass">Unknown</strong></div>
+                <div class="box"><small>Action</small><strong id="actionLevel">Review</strong></div>
+              </div>
+
               <div class="report-grid">
                 <div class="report-stack">
-                  <div class="report-box"><h4>Executive summary</h4><p class="executive-summary" id="reportSummary">Run an assessment to generate an executive-ready incident summary.</p></div>
-                  <div class="report-box"><h4>Recommended response</h4><p id="recText">Recommended response guidance will appear here after a scan, including what to do next and why it matters.</p></div>
-                  <div class="report-box"><h4>Threat story</h4><p id="storyText">The threat narrative is built after each scan from the available evidence.</p></div>
-                  <div class="report-box"><h4>Investigation timeline</h4><div class="timeline" id="incidentTimeline"><div class="muted">Run an assessment to build the incident timeline.</div></div></div>
+                  <div class="report-box"><h4>Executive summary</h4><p class="executive-summary" id="reportSummary">Run an assessment to generate an incident summary.</p></div>
+                  <div class="report-box"><h4>Recommended response</h4><p id="recText">Response guidance will appear here after a scan.</p></div>
+                  <div class="report-box"><h4>Threat story</h4><p id="storyText">Threat narrative is built from evidence after each scan.</p></div>
+                  <div class="report-box"><h4>Investigation timeline</h4><div class="timeline" id="incidentTimeline"><div class="muted">Run an assessment to build the timeline.</div></div></div>
                 </div>
                 <div class="report-stack">
                   <details class="report-disclosure" open>
                     <summary>Evidence signals</summary>
-                    <div class="disclosure-body">
-                      <div class="list" id="reasonList"><div class="muted">No signals yet.</div></div>
-                    </div>
+                    <div class="disclosure-body"><div class="list" id="reasonList"><div class="muted">No signals yet.</div></div></div>
                   </details>
                   <details class="report-disclosure" open>
-                    <summary>Indicators and intel</summary>
-                    <div class="disclosure-body">
-                      <div class="list" id="tokenListInline"><div class="muted">No indicators yet.</div></div>
-                    </div>
+                    <summary>Indicators</summary>
+                    <div class="disclosure-body"><div class="list" id="tokenListInline"><div class="muted">No indicators yet.</div></div></div>
                   </details>
                   <details class="report-disclosure" open>
                     <summary>AI trace</summary>
                     <div class="disclosure-body">
                       <div class="report-box" style="padding:0;border:none;background:none">
                         <h4>AI explanation</h4>
-                        <p id="agentExplanation">No AI explanation returned yet. Enable AI mode for deeper narrative context.</p>
+                        <p id="agentExplanation">Enable AI mode for deeper narrative context.</p>
                       </div>
-                      <div class="report-box" style="padding:0;border:none;background:none;margin-top:.9rem">
+                      <div class="report-box" style="padding:0;border:none;background:none;margin-top:.75rem">
                         <h4>AI pipeline</h4>
-                        <p><span id="agentMode">standard-only</span><span class="muted"> · </span><span id="agentLatency">N/A</span></p>
+                        <p><span id="agentMode">standard-only</span> · <span id="agentLatency">N/A</span></p>
                       </div>
                     </div>
                   </details>
                 </div>
               </div>
-              <div class="report-actions"><button class="btn" type="button" onclick="printIncidentBrief()">Print brief</button></div>
-              <div class="intel"><h3 style="margin-bottom:.4rem">Validation feedback</h3><p class="sub" style="margin-bottom:.6rem">Mark whether the incident outcome was correct so the platform can surface model and rule quality over time.</p><div class="feedback"><button class="btn fb" type="button" onclick="sendFeedback('correct',event)">Correct</button><button class="btn fb" type="button" onclick="sendFeedback('false_positive',event)">False positive</button><button class="btn fb" type="button" onclick="sendFeedback('false_negative',event)">Missed scam</button></div></div>
+
+              <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.75rem">
+                <div>
+                  <div style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.4rem">Validation feedback</div>
+                  <div class="feedback">
+                    <button class="btn fb" type="button" onclick="sendFeedback('correct',event)">Correct</button>
+                    <button class="btn fb" type="button" onclick="sendFeedback('false_positive',event)">False positive</button>
+                    <button class="btn fb" type="button" onclick="sendFeedback('false_negative',event)">Missed scam</button>
+                  </div>
+                </div>
+                <button class="btn" type="button" onclick="printIncidentBrief()"><i data-lucide="printer" width="13" height="13"></i> Print brief</button>
+              </div>
             </div>
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:1rem">
+          <!-- Right: controls -->
+          <div class="col">
             <div class="card">
-              <h3>Case controls</h3>
-              <p class="sub">Keep the investigation surface focused. Open AI settings only when you need to change providers or model path.</p>
+              <div class="card-hdr"><h3>Case controls</h3></div>
               <details class="disclosure">
-                <summary>AI settings</summary>
+                <summary><i data-lucide="cpu" width="14" height="14"></i> AI settings</summary>
                 <div class="disclosure-body tight">
-                  <div class="field"><label for="preferredModel">Preferred model</label><select id="preferredModel"><option value="gpt-4o-mini">gpt-4o-mini</option><option value="gpt-4o">gpt-4o</option><option value="claude-haiku-3-5-20241022">claude-haiku-3-5-20241022</option><option value="ollama/gemma4:e2b">ollama/gemma4:e2b</option><option value="ollama/llama3.1:8b">ollama/llama3.1:8b</option></select></div>
-                  <div class="field"><label for="openaiKey">OpenAI API key</label><input id="openaiKey" type="password" placeholder="sk-proj-..."><div class="muted" id="openaiKeyStatus">Not loaded</div></div>
-                  <div class="field"><label for="anthropicKey">Anthropic API key</label><input id="anthropicKey" type="password" placeholder="sk-ant-..."><div class="muted" id="anthropicKeyStatus">Not loaded</div></div>
-                  <div class="row"><button class="btn" id="saveLlmBtn" type="button">Save session settings</button><button class="btn" id="clearLlmBtn" type="button">Clear session keys</button></div>
-                  <div class="intel"><p id="llmStatus">No AI provider settings saved yet. Switch to AI mode to attach them to the next scan request.</p></div>
+                  <div class="field">
+                    <label for="preferredModel">Preferred model</label>
+                    <select id="preferredModel">
+                      <option value="gpt-4o-mini">gpt-4o-mini</option>
+                      <option value="gpt-4o">gpt-4o</option>
+                      <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+                      <option value="ollama/gemma4:e2b">ollama/gemma4:e2b</option>
+                      <option value="ollama/llama3.1:8b">ollama/llama3.1:8b</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="openaiKey">OpenAI key</label>
+                    <input id="openaiKey" type="password" placeholder="sk-proj-…">
+                    <div class="muted" id="openaiKeyStatus" style="margin-top:.25rem">Not loaded</div>
+                  </div>
+                  <div class="field">
+                    <label for="anthropicKey">Anthropic key</label>
+                    <input id="anthropicKey" type="password" placeholder="sk-ant-…">
+                    <div class="muted" id="anthropicKeyStatus" style="margin-top:.25rem">Not loaded</div>
+                  </div>
+                  <div class="row">
+                    <button class="btn btn-sm" id="saveLlmBtn" type="button">Save</button>
+                    <button class="btn btn-sm" id="clearLlmBtn" type="button">Clear</button>
+                  </div>
+                  <div class="intel"><p id="llmStatus">No provider settings saved.</p></div>
                 </div>
               </details>
-              <div class="list" style="margin-top:.75rem">
-                <div class="item"><div><strong>Open analytics</strong><span>Use the detailed view for signal and channel breakdown.</span></div><button class="btn" type="button" onclick="showSection('analytics')">Open</button></div>
-                <div class="item"><div><strong>Open rules</strong><span>Adjust detection logic when the case points to a coverage gap.</span></div><button class="btn" type="button" onclick="showSection('rules')">Open</button></div>
+              <div class="list" style="margin-top:.65rem">
+                <div class="item"><div><strong>Analytics</strong><span>Signal and channel breakdown</span></div><button class="btn btn-sm" type="button" onclick="showSection('analytics')">Open</button></div>
+                <div class="item"><div><strong>Rules</strong><span>Adjust detection coverage</span></div><button class="btn btn-sm" type="button" onclick="showSection('rules')">Open</button></div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- Analytics ──────────────────────────────────── -->
       <section class="sec" id="sec-analytics">
-        <div class="analytics-strip">
+        <div class="page-hdr">
+          <div class="page-hdr-left">
+            <div class="page-hdr-icon"><i data-lucide="bar-chart-2" width="18" height="18"></i></div>
+            <div><h2>Analytics</h2><p>Signal breakdown, channel mix, and feedback quality</p></div>
+          </div>
+        </div>
+
+        <div class="g2">
           <div class="mix-panel">
             <h4>Incident mix</h4>
-            <p class="sub" style="margin-bottom:.2rem">See how reviewed traffic is currently split between safe, suspicious, and critical outcomes.</p>
             <div class="mix-row"><label>Safe</label><div class="mix-track"><i class="safe-fill" id="mixSafeBar" style="width:0%"></i></div><span class="chip" id="mixSafeValue">0%</span></div>
             <div class="mix-row"><label>Suspicious</label><div class="mix-track"><i class="warn-fill" id="mixSuspiciousBar" style="width:0%"></i></div><span class="chip" id="mixSuspiciousValue">0%</span></div>
             <div class="mix-row"><label>Critical</label><div class="mix-track"><i class="danger-fill" id="mixScamBar" style="width:0%"></i></div><span class="chip" id="mixScamValue">0%</span></div>
           </div>
           <div class="mix-panel quality-card">
-            <div class="quality-ring" id="qualityRing">
-              <div>
-                <strong id="qualityScore">0%</strong>
-                <span>quality</span>
-              </div>
-            </div>
+            <div class="quality-ring" id="qualityRing"><div><strong id="qualityScore">0%</strong><span>quality</span></div></div>
             <div class="quality-copy">
-              <strong id="qualityHeadline">Detection quality snapshot</strong>
-              <p id="qualityNote">Feedback-adjusted detection quality will appear here once analysts start validating incidents.</p>
+              <strong id="qualityHeadline">Detection quality</strong>
+              <p id="qualityNote">Validates once analysts mark incident outcomes.</p>
             </div>
           </div>
         </div>
-        <div class="two">
-          <div class="card"><h3>Threat categories and patterns</h3><p class="sub">Use Analytics for the detailed breakdown behind what the dashboard summarizes.</p><div class="three"><div class="intel"><h3 style="margin-bottom:.4rem">Threat categories</h3><div class="mini-bars" id="catBars"><div class="muted">Loading categories...</div></div><div class="list" id="catList" style="margin-top:.75rem"><div class="muted">Loading categories...</div></div></div><div class="intel"><h3 style="margin-bottom:.4rem">Repeated reasons</h3><div class="mini-bars" id="reasonBars"><div class="muted">Loading reasons...</div></div><div class="list" id="reasonAnalytics" style="margin-top:.75rem"><div class="muted">Loading reasons...</div></div></div><div class="intel"><h3 style="margin-bottom:.4rem">Hot indicators</h3><div class="list" id="tokenAnalytics"><div class="muted">Loading indicators...</div></div></div></div></div>
-          <div class="card"><h3>Feedback quality</h3><p class="sub">Measure analyst confidence, identify tuning opportunities, and monitor detection quality over time.</p><div class="three"><div class="metric"><small>Correct</small><strong id="fbCorrect">0</strong><span>Confirmed outcomes</span></div><div class="metric"><small>False positive</small><strong id="fbFp">0</strong><span>Needs precision tuning</span></div><div class="metric"><small>False negative</small><strong id="fbFn">0</strong><span>Missed risk to address</span></div></div></div>
+
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><h3>Threat categories &amp; patterns</h3></div>
+            <div class="g3">
+              <div><div class="sub">Categories</div><div class="mini-bars" id="catBars"><div class="muted">Loading…</div></div><div class="list" id="catList" style="margin-top:.65rem"><div class="muted">Loading…</div></div></div>
+              <div><div class="sub">Repeated reasons</div><div class="mini-bars" id="reasonBars"><div class="muted">Loading…</div></div><div class="list" id="reasonAnalytics" style="margin-top:.65rem"><div class="muted">Loading…</div></div></div>
+              <div><div class="sub">Hot indicators</div><div class="list" id="tokenAnalytics"><div class="muted">Loading…</div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><h3>Feedback quality</h3></div>
+            <div class="g3">
+              <div class="metric"><small>Correct</small><strong id="fbCorrect">0</strong><span>Confirmed</span></div>
+              <div class="metric"><small>False positive</small><strong id="fbFp">0</strong><span>Precision gap</span></div>
+              <div class="metric"><small>False negative</small><strong id="fbFn">0</strong><span>Missed risk</span></div>
+            </div>
+          </div>
         </div>
-        <div class="two">
-          <div class="card"><h3>Channel summary</h3><p class="sub">Understand where fraud pressure is rising so teams can prioritize controls and awareness work.</p><div class="list" id="channelAnalytics"><div class="muted">Loading channels...</div></div></div>
-          <div class="card"><h3>Recent threat cards</h3><p class="sub">A fast review queue for suspicious and high-risk incidents that deserve rapid attention and escalation.</p><div class="list" id="incidentAnalytics"><div class="muted">Loading incidents...</div></div></div>
+
+        <div class="g2">
+          <div class="card"><div class="card-hdr"><h3>Channel summary</h3></div><div class="list" id="channelAnalytics"><div class="muted">Loading…</div></div></div>
+          <div class="card"><div class="card-hdr"><h3>Recent threat cards</h3></div><div class="list" id="incidentAnalytics"><div class="muted">Loading…</div></div></div>
         </div>
-        <div class="card"><div class="panel-head"><div><div class="eyebrow">Signals</div><h3>Repeated signals</h3></div><div class="side-note">Secondary detail moved here to keep the dashboard cleaner.</div></div><div class="two"><div><p class="sub">Most repeated reasons behind detections.</p><div class="list" id="topSignals"><div class="muted">Loading signals...</div></div></div><div><p class="sub">Channel concentration across current cases.</p><div class="list" id="channelList"><div class="muted">Loading channels...</div></div></div></div></div>
+
+        <div class="card">
+          <div class="card-hdr"><div><div class="eyebrow">Signals</div><h3>Repeated signals &amp; channels</h3></div></div>
+          <div class="g2">
+            <div><p class="sub">Most repeated detection reasons.</p><div class="list" id="topSignals"><div class="muted">Loading…</div></div></div>
+            <div><p class="sub">Channel concentration.</p><div class="list" id="channelList"><div class="muted">Loading…</div></div></div>
+          </div>
+        </div>
       </section>
 
+      <!-- Rules ──────────────────────────────────────── -->
       <section class="sec" id="sec-rules">
-        <div class="two">
+        <div class="page-hdr">
+          <div class="page-hdr-left">
+            <div class="page-hdr-icon"><i data-lucide="settings" width="18" height="18"></i></div>
+            <div><h2>Rule manager</h2><p>Govern live detection logic without redeployment</p></div>
+          </div>
+          <div class="page-hdr-actions">
+            <button class="btn btn-sm" type="button" onclick="loadRules()"><i data-lucide="refresh-cw" width="13" height="13"></i> Refresh</button>
+          </div>
+        </div>
+
+        <div class="grp">
           <div class="card">
-            <div class="toprow"><div><h3>Rule manager</h3><p class="sub">Govern live detection logic, inspect active controls, and keep coverage aligned with real attack behavior.</p></div><button class="btn" type="button" onclick="loadRules()">Refresh rules</button></div>
-            <details class="disclosure" style="margin-bottom:.75rem">
-              <summary>Access</summary>
+            <details class="disclosure" style="margin-bottom:.65rem">
+              <summary><i data-lucide="log-in" width="14" height="14"></i> Access</summary>
               <div class="disclosure-body tight">
                 <div class="create">
                   <div class="field"><label for="ruleUsernameInput">Username</label><input id="ruleUsernameInput" type="text" placeholder="admin"></div>
-                  <div class="field"><label for="rulePasswordInput">Password</label><input id="rulePasswordInput" type="password" placeholder="Enter admin or analyst password"></div>
-                  <div class="field full"><div class="row"><button class="btn" type="button" onclick="loginRulesUser()">Sign in</button><button class="btn" type="button" onclick="logoutRulesUser()">Sign out</button></div></div>
+                  <div class="field"><label for="rulePasswordInput">Password</label><input id="rulePasswordInput" type="password" placeholder="Password"></div>
+                  <div class="field full"><div class="row"><button class="btn btn-sm" type="button" onclick="loginRulesUser()">Sign in</button><button class="btn btn-sm" type="button" onclick="logoutRulesUser()">Sign out</button></div></div>
                 </div>
-                <div class="admin-key"><input id="ruleApiKeyInput" type="password" placeholder="Legacy fallback: enter admin API key for this session"><button class="btn" type="button" onclick="saveRuleApiKey()">Save key</button><button class="btn" type="button" onclick="clearRuleApiKey()">Clear key</button></div>
+                <div class="admin-key">
+                  <input id="ruleApiKeyInput" type="password" placeholder="Legacy API key fallback">
+                  <button class="btn btn-sm" type="button" onclick="saveRuleApiKey()">Save</button>
+                  <button class="btn btn-sm" type="button" onclick="clearRuleApiKey()">Clear</button>
+                </div>
               </div>
             </details>
-            <div class="admin-status" id="ruleStatus">Sign in with an admin or analyst account, or use the legacy admin API key fallback.</div>
-            <div class="rules" id="rulesList"><div class="muted">No rules loaded yet.</div></div>
+            <div class="admin-status" id="ruleStatus">Sign in to manage rules.</div>
+            <div class="rules" id="rulesList" style="margin-top:.65rem"><div class="muted">No rules loaded yet.</div></div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:1rem">
+
+          <div class="col">
             <div class="card">
-              <h3>Create new rule</h3><p class="sub">Add targeted detection logic with a category, explanation, and weight that supports credible analyst review.</p>
+              <div class="card-hdr"><h3>Create rule</h3></div>
               <form class="create" id="ruleCreateForm" onsubmit="event.preventDefault();createRule()">
                 <div class="field"><label for="ruleName">Name</label><input id="ruleName" type="text" maxlength="100" placeholder="telegram_investment"></div>
                 <div class="field"><label for="ruleCategory">Category</label><input id="ruleCategory" type="text" maxlength="50" placeholder="financial"></div>
-                <div class="field full"><label for="rulePattern">Pattern</label><input id="rulePattern" type="text" maxlength="500" placeholder="\b(telegram|whatsapp).{0,20}(invest|profit|join)\b"></div>
-                <div class="field"><label for="rulePatternType">Pattern type</label><select id="rulePatternType"><option value="regex">regex</option><option value="keyword">keyword</option><option value="combo">combo</option></select></div>
+                <div class="field full"><label for="rulePattern">Pattern</label><input id="rulePattern" type="text" maxlength="500" placeholder="regex or keyword"></div>
+                <div class="field"><label for="rulePatternType">Type</label><select id="rulePatternType"><option value="regex">regex</option><option value="keyword">keyword</option><option value="combo">combo</option></select></div>
                 <div class="field"><label for="ruleWeight">Weight</label><input id="ruleWeight" type="number" min="0" max="1" step="0.01" value="0.25"></div>
-                <div class="field full"><label for="ruleDescription">Description</label><input id="ruleDescription" type="text" maxlength="300" placeholder="Telegram or WhatsApp investment recruitment language"></div>
+                <div class="field full"><label for="ruleDescription">Description</label><input id="ruleDescription" type="text" maxlength="300" placeholder="Telegram investment recruitment"></div>
                 <div class="field full"><button class="btn-primary" type="submit">Create rule</button></div>
               </form>
             </div>
-            <div class="card"><h3>Rule ops guidance</h3><p class="sub">Strong rules improve credibility with analysts, leadership, and end users.</p><div class="list"><div class="item"><div><strong>Write explanation-friendly descriptions</strong><span>Incident views surface rule reasons directly to reviewers.</span></div></div><div class="item"><div><strong>Use categories consistently</strong><span>Clean categories strengthen analytics, reporting, and future AI guidance.</span></div></div><div class="item"><div><strong>Tune with feedback</strong><span>False positives and missed threats are visible in analytics for continuous improvement.</span></div></div></div></div>
+            <div class="card">
+              <div class="card-hdr"><h3>Rule guidance</h3></div>
+              <div class="list">
+                <div class="item"><div><strong>Explanation-friendly descriptions</strong><span>Incident views surface rule reasons directly.</span></div></div>
+                <div class="item"><div><strong>Consistent categories</strong><span>Strengthens analytics and AI guidance.</span></div></div>
+                <div class="item"><div><strong>Tune with feedback</strong><span>False positives visible in analytics.</span></div></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
     </main>
   </div>
-  <button class="assistant-fab" type="button" id="assistantFab">AI Copilot</button>
+
+  <!-- AI Copilot ────────────────────────────────────── -->
+  <button class="assistant-fab" type="button" id="assistantFab">
+    <i data-lucide="bot" width="16" height="16"></i> Copilot
+  </button>
   <div class="assistant-panel" id="assistantPanel">
     <div class="assistant-head">
       <div>
         <strong>ThreatWatch Copilot</strong>
-        <span>Floating analyst aide for rapid summaries, escalation guidance, and stakeholder-ready talking points.</span>
+        <span>Analyst aide — summaries, escalation, stakeholder notes.</span>
       </div>
-      <button class="btn" type="button" id="assistantClose">Close</button>
+      <button class="btn btn-sm" type="button" id="assistantClose">
+        <i data-lucide="x" width="13" height="13"></i>
+      </button>
     </div>
-    <div class="assistant-status" id="assistantStatus">Waiting for a case to analyze.</div>
+    <div class="assistant-status" id="assistantStatus">Waiting for a case.</div>
     <div class="assistant-meta" id="assistantMeta">
-      <span class="chip">status: standby</span>
-      <span class="chip">provider: not selected</span>
+      <span class="chip">status: standby</span><span class="chip">provider: not selected</span>
     </div>
     <div class="assistant-prompts">
-      <button type="button" onclick="setAssistantPrompt('summary')">Summarize case</button>
-      <button type="button" onclick="setAssistantPrompt('action')">Next best action</button>
-      <button type="button" onclick="setAssistantPrompt('exec')">Exec briefing</button>
+      <button type="button" onclick="setAssistantPrompt('summary')">Summarize</button>
+      <button type="button" onclick="setAssistantPrompt('action')">Next action</button>
+      <button type="button" onclick="setAssistantPrompt('exec')">Exec brief</button>
       <button type="button" onclick="setAssistantPrompt('rule')">Rule idea</button>
     </div>
     <div class="assistant-feed" id="assistantFeed">
-      <div class="assistant-msg ai"><strong>ThreatWatch Copilot</strong><span id="assistantOutput">Open the copilot after a scan to generate a faster narrative for analysts or stakeholders.</span></div>
+      <div class="assistant-msg ai"><strong>ThreatWatch Copilot</strong><span id="assistantOutput">Open after a scan to generate analyst notes or stakeholder summaries.</span></div>
     </div>
     <div class="assistant-compose">
-      <textarea id="assistantPromptInput" placeholder="Ask about this case. Example: Draft an analyst note for leadership."></textarea>
+      <textarea id="assistantPromptInput" placeholder="Ask about this case…"></textarea>
       <div class="assistant-actions">
-        <div class="muted">Press Enter to send. Use Shift+Enter for a new line.</div>
+        <div class="muted">Shift+Enter for new line</div>
         <div class="row">
-          <button class="btn" type="button" id="assistantClear">Clear</button>
-          <button class="btn-primary" type="button" id="assistantSend">Ask copilot</button>
+          <button class="btn btn-sm" type="button" id="assistantClear">Clear</button>
+          <button class="btn-primary btn-sm" type="button" id="assistantSend">Ask</button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Incident drawer ────────────────────────────────── -->
   <div class="incident-drawer" id="incidentDrawer">
     <div class="drawer-head">
       <div class="drawer-copy">
         <strong>Incident quick view</strong>
-        <p>Review the case, then open it in the full workspace only when needed.</p>
+        <p>Preview the case before opening the full workspace.</p>
       </div>
-      <button class="btn" type="button" id="incidentDrawerClose">Close</button>
+      <button class="btn btn-sm" type="button" id="incidentDrawerClose"><i data-lucide="x" width="13" height="13"></i></button>
     </div>
     <div class="chips">
       <span class="chip safe" id="drawerVerdict">SAFE</span>
       <span class="chip" id="drawerChannel">CHAT</span>
       <span class="chip" id="drawerRisk">0% risk</span>
     </div>
-    <div class="drawer-section">
-      <h4>Headline</h4>
-      <p id="drawerHeadline">No incident selected yet.</p>
-    </div>
-    <div class="drawer-section">
-      <h4>Summary</h4>
-      <p id="drawerSummary">Open an incident from the queue to preview it here.</p>
-    </div>
-    <div class="drawer-section">
-      <h4>Response</h4>
-      <p id="drawerResponse">Recommended next action will appear here.</p>
-    </div>
-    <div class="drawer-section">
-      <h4>Signals</h4>
-      <div class="chips" id="drawerSignals"><span class="chip">No signals yet</span></div>
-    </div>
+    <div class="drawer-section"><h4>Headline</h4><p id="drawerHeadline">No incident selected.</p></div>
+    <div class="drawer-section"><h4>Summary</h4><p id="drawerSummary">Select an incident to preview.</p></div>
+    <div class="drawer-section"><h4>Response</h4><p id="drawerResponse">Recommended action appears here.</p></div>
+    <div class="drawer-section"><h4>Signals</h4><div class="chips" id="drawerSignals"><span class="chip">None yet</span></div></div>
     <div class="row">
-      <button class="btn-primary" type="button" id="drawerOpenWorkspace">Open in workspace</button>
-      <button class="btn" type="button" onclick="printIncidentBrief(previewIncidentData)">Print brief</button>
-      <button class="btn" type="button" onclick="showSection('analytics')">Analytics</button>
+      <button class="btn-primary btn-sm" type="button" id="drawerOpenWorkspace">Open workspace</button>
+      <button class="btn btn-sm" type="button" onclick="printIncidentBrief(previewIncidentData)">Print</button>
+      <button class="btn btn-sm" type="button" onclick="showSection('analytics')">Analytics</button>
     </div>
   </div>
+
+  <!-- Theme + nav wiring ─────────────────────────────── -->
+  <script>
+    (function(){
+      var saved=localStorage.getItem('tw_theme')||'light';
+      document.documentElement.setAttribute('data-theme',saved);
+      function updateBtn(){
+        var dark=document.documentElement.getAttribute('data-theme')==='dark';
+        var icon=document.getElementById('themeIcon');
+        var label=document.getElementById('themeLabel');
+        if(icon){icon.setAttribute('data-lucide',dark?'moon':'sun')}
+        if(label){label.textContent=dark?'Dark mode':'Light mode'}
+        if(typeof lucide!=='undefined')lucide.createIcons();
+      }
+      document.addEventListener('DOMContentLoaded',function(){
+        updateBtn();
+        document.getElementById('themeToggle').addEventListener('click',function(){
+          var next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+          document.documentElement.setAttribute('data-theme',next);
+          localStorage.setItem('tw_theme',next);
+          updateBtn();
+        });
+        document.querySelectorAll('[data-sec]').forEach(function(btn){
+          btn.addEventListener('click',function(){showSection(btn.dataset.sec)});
+        });
+      });
+    })();
+  </script>
   <script>
     const API=(()=>{const c=window.THREATWATCH_API_URL;if(c)return c.replace(/\/$/,"");const h=window.location.hostname,p=window.location.port;if((h==="localhost"||h==="127.0.0.1")&&p==="5080")return "";if(h==="localhost"||h==="127.0.0.1")return "http://localhost:8100";return ""})();
     const EXAMPLES={safe:{channel:"chat",text:"Hi team, the finance call moved to 3:30 PM. Please review the updated agenda in the shared drive before the meeting.",url:""},suspicious:{channel:"email",text:"We noticed unusual activity on your account. Please contact support before sharing credentials or approving transfers.",url:"https://account-review.example.com"},scam:{channel:"email",text:"URGENT: Your bank account is suspended. Verify now or your access will be permanently disabled today.",url:"http://bit.ly/secure-banking-check"}};

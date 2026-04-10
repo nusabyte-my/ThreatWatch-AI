@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThreatWatch AI — Get Started</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    /* ── Theme tokens ─────────────────────────────────────── */
+    :root {
+      --bg:#f0f4f8;--panel:#ffffff;--panel2:#f8fafc;--panel3:#f1f5f9;
+      --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--subtle:#94a3b8;
+      --accent:#0ea5e9;--accent-soft:#38bdf8;--accent-bg:rgba(14,165,233,.08);
+      --safe:#059669;--safe-bg:rgba(5,150,105,.08);--safe-border:rgba(5,150,105,.24);
+      --warn:#d97706;--warn-bg:rgba(217,119,6,.08);--warn-border:rgba(217,119,6,.24);
+      --danger:#dc2626;--danger-bg:rgba(220,38,38,.08);--danger-border:rgba(220,38,38,.24);
+      --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.04);
+      --shadow-lg:0 4px 16px rgba(0,0,0,.1),0 8px 32px rgba(0,0,0,.06);
+      font-family:"Inter",system-ui,sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg:#09111f;--panel:#101b30;--panel2:#16243c;--panel3:#1b2942;
+      --border:#243553;--text:#edf3ff;--muted:#89a0c7;--subtle:#4a6080;
+      --accent:#57c7ff;--accent-soft:#8fdcff;--accent-bg:rgba(87,199,255,.08);
+      --safe:#34d399;--safe-bg:rgba(52,211,153,.08);--safe-border:rgba(52,211,153,.28);
+      --warn:#fbbf24;--warn-bg:rgba(251,191,36,.08);--warn-border:rgba(251,191,36,.28);
+      --danger:#f87171;--danger-bg:rgba(248,113,113,.08);--danger-border:rgba(248,113,113,.28);
+      --shadow:0 1px 4px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+      --shadow-lg:0 8px 32px rgba(0,0,0,.32),0 16px 48px rgba(0,0,0,.2);
+    }
+
+    /* ── Reset ───────────────────────────────────────────── */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer}
+    input,select,textarea{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:.65rem .8rem;width:100%;color:var(--text);transition:border-color .15s}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+    textarea{resize:vertical;min-height:100px;line-height:1.55}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    .side{
+      display:flex;flex-direction:column;
+      background:var(--panel);border-right:1px solid var(--border);
+      padding:1rem;gap:.5rem;position:sticky;top:0;height:100vh;overflow:auto;
+    }
+    .brand{display:flex;align-items:center;gap:.6rem;padding:.4rem .2rem .9rem;border-bottom:1px solid var(--border);margin-bottom:.25rem}
+    .brand svg{color:var(--accent);flex-shrink:0}
+    .brand-text strong{display:block;font-size:.95rem;font-weight:700;letter-spacing:-.02em}
+    .brand-text span{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:1px}
+    .nav{display:flex;flex-direction:column;gap:2px;flex:1}
+    .nav-item{
+      display:flex;align-items:center;gap:.6rem;
+      padding:.62rem .75rem;border-radius:10px;border:1px solid transparent;
+      background:transparent;color:var(--muted);font-size:.875rem;font-weight:500;text-align:left;
+      text-decoration:none;
+      transition:background .15s,color .15s,border-color .15s;
+    }
+    .nav-item svg{flex-shrink:0;opacity:.7;transition:opacity .15s}
+    .nav-item:hover{background:var(--accent-bg);color:var(--text);text-decoration:none}
+    .nav-item:hover svg{opacity:1}
+    .nav-item.active{background:var(--accent-bg);border-color:rgba(14,165,233,.18);color:var(--accent);font-weight:600}
+    [data-theme="dark"] .nav-item.active{border-color:rgba(87,199,255,.18)}
+    .nav-item.active svg{opacity:1}
+    .side-footer{border-top:1px solid var(--border);padding-top:.75rem;margin-top:auto;display:flex;flex-direction:column;gap:.5rem}
+    .theme-btn{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.82rem;font-weight:500;width:100%;transition:background .15s,color .15s}
+    .theme-btn:hover{background:var(--accent-bg);color:var(--text)}
+    .side-action{display:block;padding:.6rem .75rem;border-radius:10px;border:1px solid var(--border);background:var(--accent);color:#fff;font-size:.82rem;font-weight:600;text-align:center;transition:opacity .15s;text-decoration:none}
+    .side-action:hover{opacity:.88;text-decoration:none}
+
+    /* ── Main area ───────────────────────────────────────── */
+    .main{padding:1.25rem;display:flex;flex-direction:column;gap:1rem;max-width:1100px;width:100%}
+
+    /* ── Page header ─────────────────────────────────────── */
+    .page-hdr{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.85rem 1rem;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
+    .page-hdr-left{display:flex;align-items:center;gap:.65rem}
+    .page-hdr-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--accent-bg);color:var(--accent);flex-shrink:0}
+    .page-hdr h2{font-size:1rem;font-weight:600;letter-spacing:-.02em}
+    .page-hdr p{font-size:.8rem;color:var(--muted);margin-top:1px}
+    .page-hdr-actions{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
+
+    /* ── Cards ───────────────────────────────────────────── */
+    .card{padding:1.1rem;border:1px solid var(--border);border-radius:14px;background:var(--panel);box-shadow:var(--shadow)}
+    .card-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;margin-bottom:.85rem}
+    .card-hdr h3{font-size:.95rem;font-weight:600;letter-spacing:-.01em}
+    .card-hdr .eyebrow{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.18rem}
+
+    /* ── Grids ───────────────────────────────────────────── */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+    .col{display:flex;flex-direction:column;gap:.9rem}
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.58rem .85rem;border-radius:9px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:.83rem;font-weight:500;transition:background .15s,border-color .15s,transform .12s;text-decoration:none}
+    .btn:hover{background:var(--panel2);border-color:var(--accent);transform:translateY(-1px);text-decoration:none}
+    .btn svg{flex-shrink:0}
+    .btn-primary{display:inline-flex;align-items:center;gap:.4rem;padding:.58rem .9rem;border-radius:9px;border:none;background:var(--accent);color:#fff;font-size:.83rem;font-weight:600;transition:opacity .15s,transform .12s;text-decoration:none}
+    [data-theme="dark"] .btn-primary{color:#06111d}
+    .btn-primary:hover{opacity:.9;transform:translateY(-1px);text-decoration:none}
+    .btn-sm{padding:.38rem .62rem;font-size:.78rem}
+    .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+
+    /* ── Chips ───────────────────────────────────────────── */
+    .chip{display:inline-flex;align-items:center;padding:.22rem .52rem;border-radius:999px;font-size:.72rem;font-weight:500;border:1px solid var(--border);background:var(--panel2);color:var(--muted)}
+    .safe{color:var(--safe);border-color:var(--safe-border);background:var(--safe-bg)}
+    .suspicious{color:var(--warn);border-color:var(--warn-border);background:var(--warn-bg)}
+    .scam{color:var(--danger);border-color:var(--danger-border);background:var(--danger-bg)}
+
+    /* ── Status ──────────────────────────────────────────── */
+    .status{font-size:.82rem;color:var(--muted)}
+    .status.success{color:var(--safe)}
+    .status.error{color:var(--danger)}
+    .status.info{color:var(--accent)}
+
+    /* ── Steps ───────────────────────────────────────────── */
+    .steps{display:flex;flex-direction:column;gap:.65rem;counter-reset:step}
+    .step{
+      display:grid;grid-template-columns:32px 1fr;gap:.75rem;
+      padding:.85rem;border:1px solid var(--border);border-radius:12px;
+      background:var(--panel2);align-items:start;
+      counter-increment:step;
+    }
+    .step-num{
+      display:grid;place-items:center;width:32px;height:32px;border-radius:50%;
+      background:var(--accent-bg);color:var(--accent);font-size:.78rem;font-weight:700;
+      border:1px solid rgba(14,165,233,.25);flex-shrink:0;
+    }
+    [data-theme="dark"] .step-num{border-color:rgba(87,199,255,.25)}
+    .step-body strong{display:block;font-size:.88rem;font-weight:600;margin-bottom:.2rem}
+    .step-body p{font-size:.82rem;color:var(--muted);line-height:1.5}
+    .step-body code{display:inline-block;background:var(--panel3);border:1px solid var(--border);border-radius:6px;padding:.1rem .38rem;font-size:.78rem;font-family:monospace;color:var(--text);margin:.1rem 0}
+    .step-body .note{margin-top:.45rem;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--warn-border);background:var(--warn-bg);color:var(--warn);font-size:.78rem;line-height:1.4}
+    .step-body .tip{margin-top:.45rem;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--safe-border);background:var(--safe-bg);color:var(--safe);font-size:.78rem;line-height:1.4}
+
+    /* ── Platform tabs ───────────────────────────────────── */
+    .tab-bar{display:flex;gap:.4rem;padding:.3rem;background:var(--panel2);border-radius:12px;border:1px solid var(--border);width:fit-content;margin-bottom:.85rem}
+    .tab{padding:.48rem .9rem;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:.82rem;font-weight:500;transition:background .15s,color .15s}
+    .tab.active{background:var(--panel);color:var(--accent);font-weight:600;box-shadow:var(--shadow)}
+    .tab-panel{display:none}
+    .tab-panel.active{display:flex;flex-direction:column;gap:.65rem;animation:fadeUp .25s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── Demo widget ─────────────────────────────────────── */
+    .demo-card{
+      border:1px solid var(--border);border-radius:16px;background:var(--panel);
+      box-shadow:var(--shadow-lg);overflow:hidden;
+    }
+    .demo-banner{
+      padding:1.25rem 1.5rem;
+      background:linear-gradient(135deg,var(--accent-bg) 0%,transparent 100%);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    }
+    .demo-banner-text h3{font-size:1.05rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.2rem}
+    .demo-banner-text p{font-size:.82rem;color:var(--muted)}
+    .demo-live{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;color:var(--safe);text-transform:uppercase;letter-spacing:.08em}
+    .demo-live-dot{width:7px;height:7px;border-radius:50%;background:var(--safe);animation:pulse 1.4s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+    .demo-body{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.85rem}
+    .demo-samples{display:flex;gap:.5rem;flex-wrap:wrap}
+    .sample-btn{padding:.35rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);font-size:.77rem;font-weight:500;transition:background .15s,border-color .15s,color .15s}
+    .sample-btn:hover{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+    .demo-input-row{display:flex;gap:.5rem}
+    .demo-input-row textarea{flex:1;min-height:80px}
+    .demo-result{display:none;padding:1rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2);animation:fadeUp .25s ease}
+    .demo-result.visible{display:block}
+    .result-row{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+    .result-verdict{font-size:1.15rem;font-weight:700}
+    .result-score{font-size:.82rem;color:var(--muted)}
+    .result-explain{font-size:.83rem;color:var(--muted);line-height:1.5;border-top:1px solid var(--border);padding-top:.6rem;margin-top:.55rem}
+    .result-flags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem}
+    .flag-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .5rem;border-radius:6px;font-size:.72rem;font-weight:500;border:1px solid var(--warn-border);background:var(--warn-bg);color:var(--warn)}
+    .demo-spinner{display:none;align-items:center;gap:.5rem;font-size:.83rem;color:var(--muted);padding:.5rem 0}
+    .demo-spinner.visible{display:flex}
+    .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Platform icons ──────────────────────────────────── */
+    .platform-icon{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--accent-bg);color:var(--accent);flex-shrink:0;border:1px solid rgba(14,165,233,.18)}
+    [data-theme="dark"] .platform-icon{border-color:rgba(87,199,255,.18)}
+
+    /* ── Download box ────────────────────────────────────── */
+    .download-box{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 1rem;border:1px solid var(--accent-bg);border-radius:12px;background:var(--accent-bg)}
+    .download-box-left{display:flex;align-items:center;gap:.7rem}
+    .download-box strong{display:block;font-size:.88rem;font-weight:600}
+    .download-box span{font-size:.78rem;color:var(--muted)}
+
+    /* ── Outlook/Thunderbird workaround sections ─────────── */
+    .workaround-hdr{display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem}
+    .workaround-hdr svg{color:var(--muted)}
+    .workaround-hdr h4{font-size:.88rem;font-weight:600}
+    .workaround-hdr span{font-size:.75rem;color:var(--muted);margin-left:auto}
+    .platform-notice{display:flex;gap:.65rem;padding:.8rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2);align-items:flex-start;margin-bottom:.75rem}
+    .platform-notice p{font-size:.82rem;color:var(--muted);line-height:1.5}
+    .platform-notice svg{flex-shrink:0;color:var(--accent);margin-top:1px}
+
+    /* ── Auth indicator ──────────────────────────────────── */
+    .auth-bar{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--muted)}
+    .auth-dot{width:7px;height:7px;border-radius:50%;background:var(--subtle)}
+    .auth-dot.ok{background:var(--safe)}
+    .auth-dot.err{background:var(--danger)}
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media(max-width:768px){
+      .app{grid-template-columns:1fr}
+      .side{display:none}
+      .g2,.g3{grid-template-columns:1fr}
+      .demo-banner{flex-direction:column;align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <nav class="side">
+    <div class="brand">
+      <i data-lucide="shield-check" width="24" height="24"></i>
+      <div class="brand-text">
+        <strong>ThreatWatch AI</strong>
+        <span>Email Security</span>
+      </div>
+    </div>
+    <div class="nav">
+      <a href="index.html" class="nav-item">
+        <i data-lucide="layout-dashboard" width="16" height="16"></i>Dashboard
+      </a>
+      <a href="index.html#scan" class="nav-item">
+        <i data-lucide="scan-text" width="16" height="16"></i>Scan
+      </a>
+      <a href="index.html#history" class="nav-item">
+        <i data-lucide="clock" width="16" height="16"></i>History
+      </a>
+      <a href="index.html#analytics" class="nav-item">
+        <i data-lucide="bar-chart-2" width="16" height="16"></i>Analytics
+      </a>
+      <a href="install.html" class="nav-item active">
+        <i data-lucide="package" width="16" height="16"></i>Get Extension
+      </a>
+    </div>
+    <div class="side-footer">
+      <button class="theme-btn" id="themeBtn">
+        <i data-lucide="sun" width="15" height="15" id="themeIcon"></i>
+        <span id="themeLabel">Light mode</span>
+      </button>
+      <a href="index.html" class="side-action">Open Dashboard</a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- Page header -->
+    <div class="page-hdr">
+      <div class="page-hdr-left">
+        <div class="page-hdr-icon"><i data-lucide="package" width="18" height="18"></i></div>
+        <div>
+          <h2>Get Started</h2>
+          <p>Install the extension and try a live demo scan</p>
+        </div>
+      </div>
+      <div class="page-hdr-actions">
+        <div class="auth-bar">
+          <div class="auth-dot" id="authDot"></div>
+          <span id="authLabel">Connecting…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live demo widget -->
+    <div class="demo-card">
+      <div class="demo-banner">
+        <div class="demo-banner-text">
+          <h3>Live Demo — Scan any email content</h3>
+          <p>No account required. Results are powered by the same ML + AI pipeline used in production.</p>
+        </div>
+        <div class="demo-live">
+          <span class="demo-live-dot"></span>Live
+        </div>
+      </div>
+      <div class="demo-body">
+        <div>
+          <label style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:.45rem">Sample scenarios</label>
+          <div class="demo-samples">
+            <button class="sample-btn" data-sample="phish">Phishing email</button>
+            <button class="sample-btn" data-sample="scam">Parcel scam</button>
+            <button class="sample-btn" data-sample="invoice">Invoice fraud</button>
+            <button class="sample-btn" data-sample="safe">Legitimate newsletter</button>
+            <button class="sample-btn" data-sample="gift">Gift card scam</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.4rem">
+          <label style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Email text or subject line</label>
+          <div class="demo-input-row">
+            <textarea id="demoInput" placeholder="Paste email content or subject here…"></textarea>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+            <div class="demo-spinner" id="demoSpinner">
+              <div class="spinner"></div><span>Analysing with ML + AI…</span>
+            </div>
+            <div id="demoScanStatus" class="status"></div>
+            <button class="btn-primary" id="demoScanBtn">
+              <i data-lucide="zap" width="15" height="15"></i>Scan Now
+            </button>
+          </div>
+        </div>
+        <div class="demo-result" id="demoResult">
+          <div class="result-row">
+            <div>
+              <div class="result-verdict" id="resultVerdict"></div>
+              <div class="result-score" id="resultScore"></div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Method</div>
+              <div style="font-size:.82rem;font-weight:600" id="resultMethod"></div>
+            </div>
+          </div>
+          <div class="result-flags" id="resultFlags"></div>
+          <div class="result-explain" id="resultExplain"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Install guides -->
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="eyebrow">Installation Guide</div>
+          <h3>Choose your email client</h3>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab active" data-tab="chrome">
+          <i data-lucide="chrome" width="14" height="14" style="display:inline-block;vertical-align:middle;margin-right:.3rem"></i>Chrome / Gmail
+        </button>
+        <button class="tab" data-tab="outlook">Outlook</button>
+        <button class="tab" data-tab="thunderbird">Thunderbird</button>
+      </div>
+
+      <!-- Chrome tab -->
+      <div class="tab-panel active" id="tab-chrome">
+        <div class="download-box">
+          <div class="download-box-left">
+            <div class="platform-icon"><i data-lucide="package-open" width="18" height="18"></i></div>
+            <div>
+              <strong>ThreatWatch AI for Gmail</strong>
+              <span>Chrome Extension · Manifest V3 · Gmail only</span>
+            </div>
+          </div>
+          <div class="row">
+            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/releases" target="_blank" class="btn btn-sm">
+              <i data-lucide="github" width="13" height="13"></i>GitHub Releases
+            </a>
+            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/archive/refs/heads/main.zip" target="_blank" class="btn-primary btn-sm">
+              <i data-lucide="download" width="13" height="13"></i>Download ZIP
+            </a>
+          </div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Download the extension</strong>
+              <p>Click <em>Download ZIP</em> above, then extract the archive. The <code>chrome-extension/</code> folder is the extension directory you need.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Open Chrome Extensions</strong>
+              <p>In Chrome, navigate to <code>chrome://extensions</code> or open the menu → <em>More tools</em> → <em>Extensions</em>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Enable Developer Mode</strong>
+              <p>Toggle <em>Developer mode</em> in the top-right corner of the Extensions page. This is required to load unpacked extensions.</p>
+              <div class="tip">Developer mode does not affect other installed extensions and can be toggled back off after installation.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Load Unpacked</strong>
+              <p>Click <em>Load unpacked</em> and select the <code>chrome-extension/</code> folder you extracted in Step 1. The <em>ThreatWatch AI for Gmail</em> card should appear.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>Configure the API endpoint</strong>
+              <p>Click the extension card → <em>Details</em> → <em>Extension options</em>. The API URL should already point to <code>https://threatwatch-ai.nusabyte.cloud</code>. Change it only if you are self-hosting.</p>
+              <p style="margin-top:.4rem">Set <em>Scan mode</em> to <strong>AI</strong> for the full 4-agent pipeline, or <strong>Standard</strong> for fast rule-based-only analysis.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+              <strong>Open Gmail and scan</strong>
+              <p>Go to <a href="https://mail.google.com" target="_blank">mail.google.com</a>, open any email, and click the <em>ThreatWatch AI</em> button that appears above the message body. A verdict badge will be overlaid on the email.</p>
+              <div class="tip">The extension only activates on Gmail. It does not read emails you do not explicitly scan.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outlook tab -->
+      <div class="tab-panel" id="tab-outlook">
+        <div class="platform-notice">
+          <i data-lucide="info" width="16" height="16"></i>
+          <p><strong>No native Outlook extension yet.</strong> ThreatWatch AI is currently Gmail-first. The options below let you scan emails from Outlook Web (OWA) and Outlook Desktop via the dashboard or a bookmarklet.</p>
+        </div>
+
+        <div class="g2">
+          <div>
+            <div class="workaround-hdr">
+              <i data-lucide="globe" width="16" height="16"></i>
+              <h4>Option A — Dashboard paste</h4>
+              <span class="chip">Easiest</span>
+            </div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>Copy email text</strong>
+                  <p>In Outlook (web or desktop), open the suspicious email and select all text — <code>Ctrl+A</code> then <code>Ctrl+C</code>.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>Go to the Scan page</strong>
+                  <p>Open <a href="index.html" target="_blank">ThreatWatch AI dashboard</a> → <em>Scan</em> tab.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>Paste &amp; scan</strong>
+                  <p>Paste the copied text into the email body field and click <em>Scan</em>. Results appear within seconds.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="workaround-hdr">
+              <i data-lucide="bookmark" width="16" height="16"></i>
+              <h4>Option B — Bookmarklet</h4>
+              <span class="chip">OWA only</span>
+            </div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>Add the bookmarklet</strong>
+                  <p>Drag the button below to your bookmarks bar:</p>
+                  <div style="margin-top:.5rem">
+                    <a id="bookmarkletLink" href="#" class="btn btn-sm" onclick="return false;" draggable="true">
+                      <i data-lucide="zap" width="13" height="13"></i>TW: Scan Email
+                    </a>
+                  </div>
+                  <div class="note" style="margin-top:.5rem">Right-click → <em>Bookmark this link</em> if drag doesn't work in your browser.</div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>Open OWA and click the bookmarklet</strong>
+                  <p>Go to <a href="https://outlook.live.com" target="_blank">Outlook Web</a>, open an email, then click <em>TW: Scan Email</em> in your bookmarks bar.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>Review the result</strong>
+                  <p>A popup will open showing the ThreatWatch AI verdict. Results are also saved to your scan history on the dashboard.</p>
+                  <div class="note">The bookmarklet cannot run on pages that block injected scripts (CSP). In that case use Option A.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:.25rem;padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.55">
+            <strong style="color:var(--text);font-size:.83rem">Outlook Desktop (Win/Mac)</strong><br>
+            Copy the full email text and paste it into the <a href="index.html" target="_blank">dashboard Scan tab</a>. Alternatively, forward the email to yourself and open it in OWA to use the bookmarklet.
+          </div>
+        </div>
+      </div>
+
+      <!-- Thunderbird tab -->
+      <div class="tab-panel" id="tab-thunderbird">
+        <div class="platform-notice">
+          <i data-lucide="info" width="16" height="16"></i>
+          <p><strong>No Thunderbird add-on yet.</strong> Thunderbird uses its own add-on system (WebExtensions). Until a native add-on ships, use the dashboard-paste workflow or the View Source method below.</p>
+        </div>
+
+        <div class="g2">
+          <div>
+            <div class="workaround-hdr">
+              <i data-lucide="clipboard-paste" width="16" height="16"></i>
+              <h4>Option A — Copy &amp; Paste</h4>
+              <span class="chip">Simplest</span>
+            </div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>Open the email in Thunderbird</strong>
+                  <p>Select the suspicious email in your inbox.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>Copy all content</strong>
+                  <p>Press <code>Ctrl+A</code> (select all) then <code>Ctrl+C</code> to copy the visible email body. For subject lines: copy just the subject from the header area.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>Paste into the demo scanner above</strong>
+                  <p>Scroll up to the <em>Live Demo</em> widget, paste your text and click <em>Scan Now</em> — no login required.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="workaround-hdr">
+              <i data-lucide="code" width="16" height="16"></i>
+              <h4>Option B — View Source scan</h4>
+              <span class="chip">Headers + URLs</span>
+            </div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>Open raw source</strong>
+                  <p>With an email open in Thunderbird, press <code>Ctrl+U</code> (or <em>View → Message Source</em>). This shows the full email including headers and all URLs.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>Copy suspicious URLs or headers</strong>
+                  <p>Look for <code>From:</code>, <code>Reply-To:</code>, and any <code>http</code> links. Copy those lines.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>Scan via API or dashboard</strong>
+                  <p>Paste into the <a href="index.html" target="_blank">dashboard → Scan</a> or use the demo widget above. The scanner is optimised for detecting suspicious links and spoofed senders.</p>
+                  <div class="tip">Pasting raw headers gives the AI more signals (e.g. spoofed Reply-To, unusual sending domains).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.55">
+            <strong style="color:var(--text);font-size:.83rem">Roadmap</strong><br>
+            A native Thunderbird WebExtension is planned. It will integrate directly into the Thunderbird message pane using the same API as the Chrome extension. Star the <a href="https://github.com/nusabyte-my/ThreatWatch-AI" target="_blank">GitHub repo</a> to get notified when it ships.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API quick-reference -->
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="eyebrow">Developers</div>
+          <h3>Direct API access</h3>
+        </div>
+        <a href="https://threatwatch-ai.nusabyte.cloud/docs" target="_blank" class="btn btn-sm">
+          <i data-lucide="book-open" width="13" height="13"></i>API Docs
+        </a>
+      </div>
+      <div class="g2">
+        <div>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.65rem">Authenticate with your API key and POST any email content for a machine-readable verdict.</p>
+          <pre style="background:var(--panel3);border:1px solid var(--border);border-radius:10px;padding:.85rem;font-size:.75rem;line-height:1.7;overflow:auto;color:var(--text)"><code>curl -X POST https://threatwatch-ai.nusabyte.cloud/api/v1/scan \
+  -H "X-API-Key: &lt;your-key&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subject": "Urgent: verify your account",
+    "body": "Click here to avoid suspension...",
+    "mode": "ai"
+  }'</code></pre>
+        </div>
+        <div class="col">
+          <div style="padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.35rem;font-weight:600">Response shape</div>
+            <pre style="font-size:.73rem;line-height:1.65;color:var(--text);overflow:auto"><code>{
+  "verdict": "scam",
+  "score": 0.94,
+  "confidence": "high",
+  "flags": ["urgent_language", "suspicious_link"],
+  "explanation": "...",
+  "scan_mode": "ai"
+}</code></pre>
+          </div>
+          <div style="font-size:.8rem;color:var(--muted);line-height:1.55;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--panel2)">
+            <strong style="color:var(--text);display:block;margin-bottom:.2rem">Scan modes</strong>
+            <div style="display:flex;flex-direction:column;gap:.2rem">
+              <div><code style="font-size:.75rem;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:.1rem .3rem">standard</code> — ML ensemble + rule engine, &lt;100 ms</div>
+              <div><code style="font-size:.75rem;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:.1rem .3rem">ai</code> — full 4-agent LLM pipeline, ~3-15 s</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Theme toggle ─────────────────────────────────────────────
+const root = document.documentElement;
+const btn  = document.getElementById("themeBtn");
+const icon = document.getElementById("themeIcon");
+const lbl  = document.getElementById("themeLabel");
+
+function applyTheme(dark) {
+  root.setAttribute("data-theme", dark ? "dark" : "light");
+  icon.setAttribute("data-lucide", dark ? "moon" : "sun");
+  lbl.textContent = dark ? "Dark mode" : "Light mode";
+  lucide.createIcons();
+  localStorage.setItem("tw-theme", dark ? "dark" : "light");
+}
+
+const saved = localStorage.getItem("tw-theme");
+applyTheme(saved === "dark");
+btn.addEventListener("click", () => applyTheme(root.getAttribute("data-theme") !== "dark"));
+
+// ── Tab switching ────────────────────────────────────────────
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+  });
+});
+
+// ── Auto-auth (demo account) ─────────────────────────────────
+const API = "https://threatwatch-ai.nusabyte.cloud";
+let demoToken = null;
+
+const authDot   = document.getElementById("authDot");
+const authLabel = document.getElementById("authLabel");
+
+async function autoAuth() {
+  try {
+    const res = await fetch(`${API}/api/v1/auth/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: "demo", password: "demo2024" })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    demoToken = data.access_token || data.token;
+    authDot.className = "auth-dot ok";
+    authLabel.textContent = "Connected — demo mode";
+  } catch (e) {
+    authDot.className = "auth-dot err";
+    authLabel.textContent = "Offline — demo unavailable";
+  }
+}
+
+autoAuth();
+
+// ── Sample scenarios ─────────────────────────────────────────
+const SAMPLES = {
+  phish: "Subject: Your Apple ID has been locked\n\nDear Customer, your account has been suspended due to suspicious activity. Click here immediately to verify your identity and restore access: http://apple-id-verify.support/login?ref=locked",
+  scam: "Your parcel 8273-KX-00194 could not be delivered. A customs fee of RM3.50 is outstanding. Pay within 24 hours or your package will be returned: https://poslaju-fees.net/pay",
+  invoice: "Subject: Invoice #INV-20240419 Payment Due\n\nPlease find attached the invoice for services rendered. Kindly transfer RM 12,500 to the new account details below by Friday. Our bank account has changed — do not use the old details.",
+  safe: "Subject: Your June statement is ready\n\nHi! Your monthly bank statement for June 2024 is now available in Online Banking. Log in at your usual address to view or download it. Contact us at 1-800-123-4567 if you have questions.",
+  gift: "CONGRATULATIONS! You have been selected to receive a RM500 Shopee gift card. To claim, purchase 5 x RM100 Google Play gift cards and send the redemption codes to our WhatsApp: +601X-XXXXXXX"
+};
+
+document.querySelectorAll(".sample-btn").forEach(b => {
+  b.addEventListener("click", () => {
+    document.getElementById("demoInput").value = SAMPLES[b.dataset.sample] || "";
+  });
+});
+
+// ── Demo scan ────────────────────────────────────────────────
+const VERDICT_LABELS = { safe: "Safe", suspicious: "Suspicious", scam: "Scam / Phishing" };
+const VERDICT_CLASSES = { safe: "safe", suspicious: "suspicious", scam: "scam" };
+
+async function runDemoScan() {
+  const text = document.getElementById("demoInput").value.trim();
+  if (!text) {
+    document.getElementById("demoScanStatus").textContent = "Enter some email content first.";
+    document.getElementById("demoScanStatus").className = "status error";
+    return;
+  }
+
+  document.getElementById("demoScanStatus").textContent = "";
+  document.getElementById("demoResult").classList.remove("visible");
+  document.getElementById("demoSpinner").classList.add("visible");
+
+  // Parse subject / body split
+  const lines = text.split("\n");
+  let subject = "", body = text;
+  if (lines[0].toLowerCase().startsWith("subject:")) {
+    subject = lines[0].replace(/^subject:\s*/i, "").trim();
+    body = lines.slice(1).join("\n").trim();
+  }
+
+  try {
+    const headers = { "Content-Type": "application/json" };
+    if (demoToken) headers["Authorization"] = `Bearer ${demoToken}`;
+
+    const res = await fetch(`${API}/api/v1/scan`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ subject, body, mode: "standard" })
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      // Token expired — re-auth and retry
+      await autoAuth();
+      return runDemoScan();
+    }
+
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    const data = await res.json();
+
+    // Render verdict
+    const verdict = (data.verdict || "unknown").toLowerCase();
+    const el = document.getElementById("demoResult");
+    el.classList.add("visible");
+
+    const vLabel = VERDICT_LABELS[verdict] || verdict;
+    const vClass = VERDICT_CLASSES[verdict] || "";
+    document.getElementById("resultVerdict").innerHTML =
+      `<span class="chip ${vClass}" style="font-size:.9rem;padding:.3rem .7rem">${vLabel}</span>`;
+
+    const score = data.score !== undefined ? `${Math.round(data.score * 100)}% confidence` : "";
+    document.getElementById("resultScore").textContent = score;
+
+    const method = data.scan_mode === "ai" ? "AI Pipeline" : data.scan_mode === "standard" ? "ML + Rules" : (data.scan_mode || "");
+    document.getElementById("resultMethod").textContent = method;
+
+    const flagsEl = document.getElementById("resultFlags");
+    flagsEl.innerHTML = "";
+    (data.flags || data.rule_flags || []).forEach(f => {
+      const c = document.createElement("span");
+      c.className = "flag-chip";
+      c.innerHTML = `<i data-lucide="alert-triangle" width="11" height="11"></i>${String(f).replace(/_/g," ")}`;
+      flagsEl.appendChild(c);
+    });
+
+    const explain = data.explanation || data.reason || (data.agent_analysis && data.agent_analysis.explanation) || "";
+    document.getElementById("resultExplain").textContent = explain || "No explanation available.";
+
+    lucide.createIcons();
+  } catch (e) {
+    document.getElementById("demoScanStatus").textContent = "Scan failed — " + e.message;
+    document.getElementById("demoScanStatus").className = "status error";
+  } finally {
+    document.getElementById("demoSpinner").classList.remove("visible");
+  }
+}
+
+document.getElementById("demoScanBtn").addEventListener("click", runDemoScan);
+document.getElementById("demoInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.ctrlKey) runDemoScan();
+});
+
+// ── Bookmarklet ──────────────────────────────────────────────
+const bm = `javascript:(function(){
+  var body=document.querySelector('[role="main"]');
+  var text=body?body.innerText:'';
+  var base="${API}";
+  var win=window.open(base+"/install.html?demo=1","_blank","width=700,height=600");
+  win.addEventListener("load",function(){
+    var ta=win.document.getElementById("demoInput");
+    if(ta){ta.value=text;win.document.getElementById("demoScanBtn").click();}
+  });
+})();`;
+
+document.getElementById("bookmarkletLink").href = bm;
+
+// ── Lucide init ───────────────────────────────────────────────
+lucide.createIcons();
+
+// ── Auto-trigger demo scan if ?demo=1 and input pre-filled ───
+const params = new URLSearchParams(location.search);
+if (params.has("demo")) {
+  window.addEventListener("load", () => {
+    const ta = document.getElementById("demoInput");
+    if (ta && ta.value.trim()) runDemoScan();
+  });
+}
+</script>
+</body>
+</html>

@@ -21,7 +21,7 @@ logger = logging.getLogger("threatwatch.llm")
 _DEFAULT_CHAIN = [
     ("gpt-4o",           "openai"),
     ("gpt-4o-mini",      "openai"),
-    ("claude-haiku-3-5-20241022", "anthropic"),
+    ("claude-3-5-haiku-20241022", "anthropic"),
 ]
 
 

@@ -79,7 +79,7 @@ async def ai_scan(
                 url=req.url,
                 ml_score=base["ml_score"],
                 rule_score=base["rule_score"],
-                rule_flags=[],   # flags come from DB after scan commit
+                rule_flags=base.get("flags", []),
                 include_explanation=req.include_explanation,
                 llm_config={
                     "preferred_model": req.preferred_model.strip() if req.preferred_model else None,
@@ -145,17 +145,24 @@ async def ai_scan(
 
 def _serialise(pipeline) -> dict:
     """Convert AgentPipelineResult to a JSON-safe dict for PostgreSQL storage."""
+
+    def _safe(obj):
+        """Recursively convert enums to .value, drop 'raw' keys, handle nested dicts/lists."""
+        if obj is None:
+            return None
+        if isinstance(obj, dict):
+            return {k: _safe(v) for k, v in obj.items() if k != "raw"}
+        if isinstance(obj, list):
+            return [_safe(i) for i in obj]
+        if hasattr(obj, "value"):   # Enum instance
+            return obj.value
+        return obj
+
     def _dc(obj):
         if obj is None:
             return None
         try:
-            d = asdict(obj)
-            # Convert enum values to strings
-            for k, v in d.items():
-                if hasattr(v, "value"):
-                    d[k] = v.value
-            d.pop("raw", None)   # don't store raw LLM text in DB
-            return d
+            return _safe(asdict(obj))
         except Exception:
             return {}
 

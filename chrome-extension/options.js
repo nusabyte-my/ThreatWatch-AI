@@ -1,4 +1,4 @@
-const DEFAULT_API = "http://localhost:8100";
+const DEFAULT_API = "https://threatwatch-ai.nusabyte.cloud";
 
 async function restore() {
   const result = await chrome.storage.local.get(["threatwatchApiUrl", "threatwatchScanMode"]);

@@ -81,5 +81,6 @@ async def scan(
         "rule_score": rule_score,
         "reasons": rule_result["reasons"],
         "highlighted_tokens": rule_result["highlighted_tokens"],
+        "flags": rule_result["flags"],
         "channel": channel,
     }

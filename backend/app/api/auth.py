@@ -2,9 +2,14 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import secrets
 import time
 from typing import Optional
+
+import bcrypt
+
+logger = logging.getLogger("threatwatch.auth")
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -69,6 +74,22 @@ def _find_user(username: str) -> Optional[dict]:
 
 
 def _verify_password(candidate: str, expected: str) -> bool:
+    """
+    Verify a password against a stored value.
+    If `expected` is a bcrypt hash (starts with $2b$ or $2a$), use bcrypt.checkpw.
+    Otherwise fall back to constant-time plaintext compare (legacy — log a warning).
+    Passwords in AUTH_USERS_JSON should be bcrypt hashes:
+        python -c "import bcrypt; print(bcrypt.hashpw(b'yourpass', bcrypt.gensalt()).decode())"
+    """
+    if expected.startswith(("$2b$", "$2a$", "$2y$")):
+        try:
+            return bcrypt.checkpw(candidate.encode("utf-8"), expected.encode("utf-8"))
+        except Exception:
+            return False
+    # Plaintext fallback — warn so operators know to upgrade
+    logger.warning(
+        "AUTH: plaintext password comparison used — store bcrypt hashes in AUTH_USERS_JSON"
+    )
     return secrets.compare_digest(candidate, expected)
 
 

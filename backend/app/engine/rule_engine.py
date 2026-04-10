@@ -5,14 +5,29 @@ Returns list of triggered flags + cumulative rule score.
 import logging
 import re
 from typing import List
+
 import httpx
+import tldextract
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
 from app.db.models import Rule, SuspiciousDomain
 from app.config import settings
 
-
 logger = logging.getLogger("threatwatch.rule_engine")
+
+# Compiled pattern cache — keyed by (rule_id, pattern) to avoid re-compiling on every request.
+# Rules are DB-backed and change infrequently; this cache survives for the process lifetime.
+_pattern_cache: dict[tuple[int, str], re.Pattern] = {}
+
+_IP_URL_RE = re.compile(r"https?://\d{1,3}(\.\d{1,3}){3}")
+
+
+def _get_pattern(rule_id: int, pattern: str) -> re.Pattern:
+    key = (rule_id, pattern)
+    if key not in _pattern_cache:
+        _pattern_cache[key] = re.compile(pattern, re.IGNORECASE)
+    return _pattern_cache[key]
 
 
 async def evaluate(text: str, url: str | None, db: AsyncSession) -> dict:
@@ -40,7 +55,7 @@ async def evaluate(text: str, url: str | None, db: AsyncSession) -> dict:
         matched_value = ""
 
         if rule.pattern_type in ("regex", "combo"):
-            m = re.search(rule.pattern, combined_input, re.IGNORECASE)
+            m = _get_pattern(rule.id, rule.pattern).search(combined_input)
             if m:
                 matched = True
                 matched_value = m.group(0)
@@ -81,7 +96,6 @@ async def evaluate(text: str, url: str | None, db: AsyncSession) -> dict:
 
 
 async def _check_url(url: str, db: AsyncSession) -> list:
-    import tldextract
     ext = tldextract.extract(url)
     domain = f"{ext.domain}.{ext.suffix}" if ext.suffix else ext.domain
     full_domain = f"{ext.subdomain}.{domain}" if ext.subdomain else domain
@@ -104,9 +118,7 @@ async def _check_url(url: str, db: AsyncSession) -> list:
             "category": "url",
         })
 
-    # IP address URL
-    import re
-    if re.match(r"https?://\d{1,3}(\.\d{1,3}){3}", url):
+    if _IP_URL_RE.match(url):
         flags.append({
             "flag_type": "url",
             "rule_name": "ip_address_url",
