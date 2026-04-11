@@ -13,9 +13,9 @@ Combined browser extension for:
 - shows an inline verdict badge in Gmail or Outlook
 - stores the latest result for the popup view
 
-## Local test
+## Test
 
-1. Start the ThreatWatch backend on `http://127.0.0.1:8100`
+1. Make sure the ThreatWatch backend is reachable at `https://threatwatch-ai.nusabyte.cloud`
 2. Open `chrome://extensions`
 3. Enable `Developer mode`
 4. Click `Load unpacked`
@@ -27,4 +27,4 @@ Combined browser extension for:
 
 - Both Gmail and Outlook content scripts use the same background service worker for API requests.
 - The popup reflects the latest scan result from either webmail surface.
-- For local development, prefer `http://127.0.0.1:8100` over `http://localhost:8100`.
+- The extension defaults to `https://threatwatch-ai.nusabyte.cloud`.

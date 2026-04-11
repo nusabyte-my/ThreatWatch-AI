@@ -192,7 +192,7 @@
     .download-box strong{display:block;font-size:.88rem;font-weight:600}
     .download-box span{font-size:.78rem;color:var(--muted)}
 
-    /* ── Outlook/Thunderbird workaround sections ─────────── */
+    /* ── Webmail/Thunderbird sections ────────────────────── */
     .workaround-hdr{display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem}
     .workaround-hdr svg{color:var(--muted)}
     .workaround-hdr h4{font-size:.88rem;font-weight:600}
@@ -335,28 +335,27 @@
         </div>
       </div>
       <div class="tab-bar">
-        <button class="tab active" data-tab="chrome">
-          <i data-lucide="globe" width="14" height="14" style="display:inline-block;vertical-align:middle;margin-right:.3rem"></i>Chrome / Gmail
+        <button class="tab active" data-tab="webmail">
+          <i data-lucide="globe" width="14" height="14" style="display:inline-block;vertical-align:middle;margin-right:.3rem"></i>Gmail / Outlook Web
         </button>
-        <button class="tab" data-tab="outlook">Outlook</button>
         <button class="tab" data-tab="thunderbird">Thunderbird</button>
       </div>
 
-      <!-- Chrome tab -->
-      <div class="tab-panel active" id="tab-chrome">
+      <!-- Webmail tab -->
+      <div class="tab-panel active" id="tab-webmail">
         <div class="download-box">
           <div class="download-box-left">
             <div class="platform-icon"><i data-lucide="package-open" width="18" height="18"></i></div>
             <div>
-              <strong>ThreatWatch AI for Gmail</strong>
-              <span>Chrome Extension · Manifest V3 · Gmail only</span>
+              <strong>ThreatWatch AI for Gmail and Outlook Web</strong>
+              <span>Browser Extension · Manifest V3 · Gmail + Outlook Web</span>
             </div>
           </div>
           <div class="row">
-            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/releases" target="_blank" class="btn btn-sm">
-              <i data-lucide="github" width="13" height="13"></i>GitHub Releases
+            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/tree/main/webmail-extension" target="_blank" class="btn btn-sm">
+              <i data-lucide="github" width="13" height="13"></i>GitHub Folder
             </a>
-            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/archive/refs/heads/main.zip" target="_blank" class="btn-primary btn-sm">
+            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/raw/refs/heads/main/threatwatch-webmail-extension.zip" target="_blank" class="btn-primary btn-sm">
               <i data-lucide="download" width="13" height="13"></i>Download ZIP
             </a>
           </div>
@@ -366,15 +365,15 @@
           <div class="step">
             <div class="step-num">1</div>
             <div class="step-body">
-              <strong>Download the extension</strong>
-              <p>Click <em>Download ZIP</em> above, then extract the archive. The <code>chrome-extension/</code> folder is the extension directory you need.</p>
+              <strong>Download from GitHub</strong>
+              <p>Click <em>Download ZIP</em> above, then extract <code>threatwatch-webmail-extension.zip</code>. The extracted <code>webmail-extension/</code> folder is the extension directory you need.</p>
             </div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
             <div class="step-body">
-              <strong>Open Chrome Extensions</strong>
-              <p>In Chrome, navigate to <code>chrome://extensions</code> or open the menu → <em>More tools</em> → <em>Extensions</em>.</p>
+              <strong>Open the extensions page</strong>
+              <p>In Chrome or Microsoft Edge, open <code>chrome://extensions</code> or <code>edge://extensions</code>.</p>
             </div>
           </div>
           <div class="step">
@@ -389,7 +388,7 @@
             <div class="step-num">4</div>
             <div class="step-body">
               <strong>Load Unpacked</strong>
-              <p>Click <em>Load unpacked</em> and select the <code>chrome-extension/</code> folder you extracted in Step 1. The <em>ThreatWatch AI for Gmail</em> card should appear.</p>
+              <p>Click <em>Load unpacked</em> and select the <code>webmail-extension/</code> folder from the GitHub ZIP. The <em>ThreatWatch AI for Gmail and Outlook</em> card should appear.</p>
             </div>
           </div>
           <div class="step">
@@ -403,176 +402,70 @@
           <div class="step">
             <div class="step-num">6</div>
             <div class="step-body">
-              <strong>Open Gmail and scan</strong>
-              <p>Go to <a href="https://mail.google.com" target="_blank">mail.google.com</a>, open any email, and click the <em>ThreatWatch AI</em> button that appears above the message body. A verdict badge will be overlaid on the email.</p>
-              <div class="tip">The extension only activates on Gmail. It does not read emails you do not explicitly scan.</div>
+              <strong>Open webmail and scan</strong>
+              <p>Go to <a href="https://mail.google.com" target="_blank">mail.google.com</a>, <a href="https://outlook.office.com" target="_blank">outlook.office.com</a>, or <a href="https://outlook.live.com" target="_blank">outlook.live.com</a>. Open an email and use the ThreatWatch action in the message view.</p>
+              <div class="tip">This browser extension is for web-based Gmail and Outlook only. It does not run inside Outlook Desktop.</div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Outlook tab -->
-      <div class="tab-panel" id="tab-outlook">
-        <div class="platform-notice">
-          <i data-lucide="info" width="16" height="16"></i>
-          <p><strong>No native Outlook extension yet.</strong> ThreatWatch AI is currently Gmail-first. The options below let you scan emails from Outlook Web (OWA) and Outlook Desktop via the dashboard or a bookmarklet.</p>
-        </div>
-
-        <div class="g2">
-          <div>
-            <div class="workaround-hdr">
-              <i data-lucide="globe" width="16" height="16"></i>
-              <h4>Option A — Dashboard paste</h4>
-              <span class="chip">Easiest</span>
-            </div>
-            <div class="steps">
-              <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-body">
-                  <strong>Copy email text</strong>
-                  <p>In Outlook (web or desktop), open the suspicious email and select all text — <code>Ctrl+A</code> then <code>Ctrl+C</code>.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-body">
-                  <strong>Go to the Scan page</strong>
-                  <p>Open <a href="index.html" target="_blank">ThreatWatch AI dashboard</a> → <em>Scan</em> tab.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-body">
-                  <strong>Paste &amp; scan</strong>
-                  <p>Paste the copied text into the email body field and click <em>Scan</em>. Results appear within seconds.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="workaround-hdr">
-              <i data-lucide="bookmark" width="16" height="16"></i>
-              <h4>Option B — Bookmarklet</h4>
-              <span class="chip">OWA only</span>
-            </div>
-            <div class="steps">
-              <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-body">
-                  <strong>Add the bookmarklet</strong>
-                  <p>Drag the button below to your bookmarks bar:</p>
-                  <div style="margin-top:.5rem">
-                    <a id="bookmarkletLink" href="#" class="btn btn-sm" onclick="return false;" draggable="true">
-                      <i data-lucide="zap" width="13" height="13"></i>TW: Scan Email
-                    </a>
-                  </div>
-                  <div class="note" style="margin-top:.5rem">Right-click → <em>Bookmark this link</em> if drag doesn't work in your browser.</div>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-body">
-                  <strong>Open OWA and click the bookmarklet</strong>
-                  <p>Go to <a href="https://outlook.live.com" target="_blank">Outlook Web</a>, open an email, then click <em>TW: Scan Email</em> in your bookmarks bar.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-body">
-                  <strong>Review the result</strong>
-                  <p>A popup will open showing the ThreatWatch AI verdict. Results are also saved to your scan history on the dashboard.</p>
-                  <div class="note">The bookmarklet cannot run on pages that block injected scripts (CSP). In that case use Option A.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:.25rem;padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
-          <div style="font-size:.78rem;color:var(--muted);line-height:1.55">
-            <strong style="color:var(--text);font-size:.83rem">Outlook Desktop (Win/Mac)</strong><br>
-            Copy the full email text and paste it into the <a href="index.html" target="_blank">dashboard Scan tab</a>. Alternatively, forward the email to yourself and open it in OWA to use the bookmarklet.
           </div>
         </div>
       </div>
 
       <!-- Thunderbird tab -->
       <div class="tab-panel" id="tab-thunderbird">
-        <div class="platform-notice">
-          <i data-lucide="info" width="16" height="16"></i>
-          <p><strong>No Thunderbird add-on yet.</strong> Thunderbird uses its own add-on system (WebExtensions). Until a native add-on ships, use the dashboard-paste workflow or the View Source method below.</p>
-        </div>
-
-        <div class="g2">
-          <div>
-            <div class="workaround-hdr">
-              <i data-lucide="clipboard-paste" width="16" height="16"></i>
-              <h4>Option A — Copy &amp; Paste</h4>
-              <span class="chip">Simplest</span>
-            </div>
-            <div class="steps">
-              <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-body">
-                  <strong>Open the email in Thunderbird</strong>
-                  <p>Select the suspicious email in your inbox.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-body">
-                  <strong>Copy all content</strong>
-                  <p>Press <code>Ctrl+A</code> (select all) then <code>Ctrl+C</code> to copy the visible email body. For subject lines: copy just the subject from the header area.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-body">
-                  <strong>Paste into the demo scanner above</strong>
-                  <p>Scroll up to the <em>Live Demo</em> widget, paste your text and click <em>Scan Now</em> — no login required.</p>
-                </div>
-              </div>
+        <div class="download-box">
+          <div class="download-box-left">
+            <div class="platform-icon"><i data-lucide="mail" width="18" height="18"></i></div>
+            <div>
+              <strong>ThreatWatch AI for Thunderbird</strong>
+              <span>Thunderbird MailExtension · XPI add-on</span>
             </div>
           </div>
-
-          <div>
-            <div class="workaround-hdr">
-              <i data-lucide="code" width="16" height="16"></i>
-              <h4>Option B — View Source scan</h4>
-              <span class="chip">Headers + URLs</span>
-            </div>
-            <div class="steps">
-              <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-body">
-                  <strong>Open raw source</strong>
-                  <p>With an email open in Thunderbird, press <code>Ctrl+U</code> (or <em>View → Message Source</em>). This shows the full email including headers and all URLs.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-body">
-                  <strong>Copy suspicious URLs or headers</strong>
-                  <p>Look for <code>From:</code>, <code>Reply-To:</code>, and any <code>http</code> links. Copy those lines.</p>
-                </div>
-              </div>
-              <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-body">
-                  <strong>Scan via API or dashboard</strong>
-                  <p>Paste into the <a href="index.html" target="_blank">dashboard → Scan</a> or use the demo widget above. The scanner is optimised for detecting suspicious links and spoofed senders.</p>
-                  <div class="tip">Pasting raw headers gives the AI more signals (e.g. spoofed Reply-To, unusual sending domains).</div>
-                </div>
-              </div>
-            </div>
+          <div class="row">
+            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/tree/main/thunderbird-extension" target="_blank" class="btn btn-sm">
+              <i data-lucide="github" width="13" height="13"></i>GitHub Folder
+            </a>
+            <a href="https://github.com/nusabyte-my/ThreatWatch-AI/raw/refs/heads/main/threatwatch-thunderbird.xpi" target="_blank" class="btn-primary btn-sm">
+              <i data-lucide="download" width="13" height="13"></i>Download XPI
+            </a>
           </div>
         </div>
 
-        <div style="padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--panel2)">
-          <div style="font-size:.78rem;color:var(--muted);line-height:1.55">
-            <strong style="color:var(--text);font-size:.83rem">Roadmap</strong><br>
-            A native Thunderbird WebExtension is planned. It will integrate directly into the Thunderbird message pane using the same API as the Chrome extension. Star the <a href="https://github.com/nusabyte-my/ThreatWatch-AI" target="_blank">GitHub repo</a> to get notified when it ships.
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Download the XPI from GitHub</strong>
+              <p>Click <em>Download XPI</em>. Save the <code>threatwatch-thunderbird.xpi</code> file to your computer.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Open Thunderbird Add-ons</strong>
+              <p>In Thunderbird, open <em>Tools</em> → <em>Add-ons and Themes</em>, or press <code>Ctrl+Shift+A</code>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Install from file</strong>
+              <p>Click the gear icon, choose <em>Install Add-on From File</em>, then select <code>threatwatch-thunderbird.xpi</code>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Confirm the add-on</strong>
+              <p>Approve the Thunderbird prompt and keep the add-on enabled. The add-on is already configured to use <code>https://threatwatch-ai.nusabyte.cloud</code>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>Open an email</strong>
+              <p>Select a message in Thunderbird. ThreatWatch scans the displayed message and injects a verdict banner at the top of the message view.</p>
+              <div class="tip">To change scan mode, open the add-on options page and choose <em>Standard scan</em> or <em>AI scan</em>.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -817,20 +710,6 @@ document.getElementById("demoScanBtn").addEventListener("click", runDemoScan);
 document.getElementById("demoInput").addEventListener("keydown", e => {
   if (e.key === "Enter" && e.ctrlKey) runDemoScan();
 });
-
-// ── Bookmarklet ──────────────────────────────────────────────
-const bm = `javascript:(function(){
-  var body=document.querySelector('[role="main"]');
-  var text=body?body.innerText:'';
-  var base="${API || VPS_API}";
-  var win=window.open(base+"/install.html?demo=1","_blank","width=700,height=600");
-  win.addEventListener("load",function(){
-    var ta=win.document.getElementById("demoInput");
-    if(ta){ta.value=text;win.document.getElementById("demoScanBtn").click();}
-  });
-})();`;
-
-document.getElementById("bookmarkletLink").href = bm;
 
 // ── Lucide init ───────────────────────────────────────────────
 lucide.createIcons();

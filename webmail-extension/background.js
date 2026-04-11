@@ -1,9 +1,15 @@
-const DEFAULT_API = "http://localhost:8100";
+const DEFAULT_API = "https://threatwatch-ai.nusabyte.cloud";
+const LEGACY_API_URLS = new Set([
+  "http://localhost:8100",
+  "http://127.0.0.1:8100",
+  "https://threatwatch-ai-api.up.railway.app",
+]);
 
 let latestResult = null;
 
 function normalizeApiBaseUrl(value) {
-  return String(value || DEFAULT_API).trim().replace(/\/$/, "");
+  const normalized = String(value || DEFAULT_API).trim().replace(/\/$/, "");
+  return LEGACY_API_URLS.has(normalized) ? DEFAULT_API : normalized;
 }
 
 function getBadgeState(result) {

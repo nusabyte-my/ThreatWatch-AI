@@ -1,4 +1,9 @@
-const DEFAULT_API = "http://localhost:8100";
+const DEFAULT_API = "https://threatwatch-ai.nusabyte.cloud";
+const LEGACY_API_URLS = new Set([
+  "http://localhost:8100",
+  "http://127.0.0.1:8100",
+  "https://threatwatch-ai-api.up.railway.app",
+]);
 const DISPLAY_SCRIPT = "message_display_script.js";
 const MAX_TEXT_LENGTH = 4000;
 
@@ -108,6 +113,11 @@ function extractFirstUrl(text) {
   return match ? match[0].slice(0, 2048) : null;
 }
 
+function normalizeApiBaseUrl(value) {
+  const normalized = String(value || DEFAULT_API).trim().replace(/\/$/, "");
+  return LEGACY_API_URLS.has(normalized) ? DEFAULT_API : normalized;
+}
+
 async function fetchScanResult(payload) {
   const settings = await getExtensionSettings();
   const endpoint = settings.scanMode === "ai" ? "/api/v1/scan/ai" : "/api/v1/scan";
@@ -137,7 +147,7 @@ async function getExtensionSettings() {
   try {
     const result = await messenger.storage.local.get(["threatwatchApiUrl", "threatwatchScanMode"]);
     return {
-      apiBaseUrl: String(result.threatwatchApiUrl || DEFAULT_API).trim().replace(/\/$/, ""),
+      apiBaseUrl: normalizeApiBaseUrl(result.threatwatchApiUrl),
       scanMode: result.threatwatchScanMode === "ai" ? "ai" : "standard",
     };
   } catch (error) {

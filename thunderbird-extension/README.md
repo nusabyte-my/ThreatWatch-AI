@@ -16,9 +16,9 @@ Minimal Thunderbird MailExtension that scans the currently displayed email with 
 - `background.js` — message event handling, message extraction, API call
 - `message_display_script.js` — in-message verdict banner renderer
 
-## Local test
+## Test
 
-1. Start the ThreatWatch backend on `http://localhost:8100`
+1. Make sure the ThreatWatch backend is reachable at `https://threatwatch-ai.nusabyte.cloud`
 2. Zip the contents of `thunderbird-extension/` into an `.xpi` archive, or load it temporarily in Thunderbird dev tools
 3. In Thunderbird, open `Tools` -> `Add-ons and Themes`
 4. Install the add-on temporarily for testing
@@ -28,7 +28,7 @@ Minimal Thunderbird MailExtension that scans the currently displayed email with 
 ## Notes
 
 - This uses Thunderbird APIs instead of DOM scraping, so it should be more stable than generic webmail extensions.
-- The add-on defaults to `http://localhost:8100`.
+- The add-on defaults to `https://threatwatch-ai.nusabyte.cloud`.
 - To change it, open the add-on preferences/options page and set the ThreatWatch API URL there.
 - You can also choose between `Standard scan` and `AI scan`.
 - AI mode can surface the agent explanation directly in the Thunderbird banner.
